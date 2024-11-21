@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, Boolean, Integer
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 
 __all__ = [
@@ -13,8 +14,8 @@ class Interactions(Base):
 
     __tablename__ = 'interactions'
     id = Column(Integer, primary_key = True)
-    source = Column(String)
-    target = Column(String)
+    source = Column(String, nullable = True)
+    target = Column(String, nullable = True)
     source_genesymbol = Column(String)
     target_genesymbol = Column(String)
     is_directed = Column(Boolean)
@@ -43,9 +44,8 @@ class Interactions(Base):
     dorothea_level = Column(String)
     type = Column(String)
     curation_effort = Column(Integer)
-    # TODO: JSON blob
-    extra_attrs = Column(String)
-    evidences = Column(String)
+    extra_attrs = Column(JSONB, nullable = True)
+    evidences = Column(JSONB, nullable = True)
     ncbi_tax_id_source = Column(Integer)
     entity_type_source = Column(String)
     ncbi_tax_id_target = Column(Integer)
