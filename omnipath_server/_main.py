@@ -1,5 +1,5 @@
-from .. import _connection
-from ..schema import _legacy
+from . import _connection
+from .schema import _legacy
 
 __all__ = [
     'Runner',
@@ -18,13 +18,14 @@ class Runner:
 
         self.con_param = con_param
         self.legacy_files = legacy_files
+        self.con = None
 
 
     def connect(self, reconnect: bool = False) -> None:
 
-        if reconnect or not isinstance(self.con, Connection):
+        if reconnect or not isinstance(self.con, _connection.Connection):
 
-            self.con = Connection(**self.con_param)
+            self.con = _connection.Connection(**self.con_param)
             self.con.connect()
 
 
