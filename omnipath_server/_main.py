@@ -6,6 +6,7 @@ __all__ = [
 
 class Runner:
 
+
     def __init__(
             self,
             con_param: dict | None = None,
