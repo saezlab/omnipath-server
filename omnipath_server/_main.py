@@ -1,3 +1,5 @@
+from collections.abc import Generator
+
 from . import _connection
 from .schema import _legacy
 
@@ -32,3 +34,19 @@ class Runner:
     def create(self):
 
         _legacy.Base.metadata.create_all(self.con.engine)
+
+
+    def load(self):
+
+        for tbl, path in self.legacy_files.items():
+
+
+    def _open_tsv(self, path: str) -> Generator[tuple, None, None]:
+
+        with open(path, 'r') as fp:
+
+            _ = next(fp)
+
+            for row in fp:
+
+                yield tuple(f.strip() for f in row.split('\t'))
