@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, Integer
+from sqlalchemy import ARRAY, Column, String, Boolean, Integer
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -24,7 +24,7 @@ class Interactions(Base):
     consensus_direction = Column(Boolean)
     consensus_stimulation = Column(Boolean)
     consensus_inhibition = Column(Boolean)
-    sources = Column(String)
+    sources = Column(ARRAY(String))
     references = Column(String)
     omnipath = Column(Boolean)
     kinaseextra = Column(Boolean)
@@ -41,7 +41,7 @@ class Interactions(Base):
     dorothea_chipseq = Column(Boolean)
     dorothea_tfbs = Column(Boolean)
     dorothea_coexp = Column(Boolean)
-    dorothea_level = Column(String)
+    dorothea_level = Column(ARRAY(String))
     type = Column(String)
     curation_effort = Column(Integer)
     extra_attrs = Column(JSONB, nullable = True)
