@@ -1,10 +1,18 @@
 from collections.abc import Generator
 import csv
+import json
+import pathlib as pl
 
+from pypath_common import _misc
 from sqlalchemy.orm import decl_api
 
 from .. import _connection
 from ..schema import _legacy as _schema
+
+__all__ = [
+    'Loader',
+    'TableLoader',
+]
 
 
 class Loader:
@@ -16,6 +24,8 @@ class Loader:
         'intercell',
         'annotations',
     ]
+    _fname = 'omnipath_webservice_%s.tsv.gz'
+
 
     def __init__(
             self,
@@ -23,36 +33,59 @@ class Loader:
             tables: dict[str, dict] | None = None,
             exclude: list[str] | None = None,
             con: _connection.Connection | dict | None = None,
-        ):
+    ):
         """
+        Populate the legacy database from TSV files.
+
         Args:
             config:
                 Configuration for loading the database for this service. Under
                 "con_param" connection parameters can be provided, and
         """
 
-        self.path = path
-        self.table = table
+        self.path = pl.Path(path or '.')
+        self.tables = tables
+        self.exclude = exclude
+        self.con = con
+
 
     def create(self):
+        """
+        Create the tables defined in the legacy schema.
+        """
 
         _schema.Base.metadata.create_all(self.con.engine)
 
 
     def load(self):
+        """
+        Load all tables from TSV files into Postgres.
+        """
 
-        for tbl, path in self.legacy_files.items():
+        for tbl in set(self._all_tables) - _misc.to_set(self.exclude):
+
+            self._load_table(tbl)
 
 
-    def _open_tsv(self, path: str) -> Generator[tuple, None, None]:
+    def _load_table(self, tbl: str):
+        """
+        Load one table from a TSV file into Postgres.
 
-        with open(path, 'r') as fp:
+        Args:
+            tbl:
+                Name of the table to load.
+        """
 
-            _ = next(fp)
+        param = self.tables.get(tbl, {})
+        path = self.path / param.get('path', self._fname % tbl)
 
-            for row in fp:
+        if not path.exists():
 
-                yield tuple(f.strip() for f in row.split('\t'))
+            return
+
+        schema = getattr(_schema, tbl.capitalize())
+
+        TableLoader(path, schema, self.con).load()
 
 
 class TableLoader:
@@ -62,8 +95,10 @@ class TableLoader:
             path: str,
             table: decl_api.DeclarativeMeta,
             con: _connection.Connection,
-        ):
+    ):
         """
+        Load data from a TSV file into a Postgres table.
+
         Args:
             path:
                 Path to a TSV file with the data to be loaded.
@@ -92,7 +127,7 @@ class TableLoader:
         Read TSV and process fields according to their types.
         """
 
-        with open(self.path, 'r') as fp:
+        with open(self.path) as fp:
 
             reader = csv.DictReader(fp, delimiter = '\t')
 
