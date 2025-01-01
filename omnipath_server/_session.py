@@ -13,14 +13,13 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
-"""
-OmniPath HTTP server based on Twisted
-"""
+import functools as _ft
 
-__all__ = [
-    '__version__',
-    '__author__',
-]
+from pypath_common import log as _read_log
+from pypath_common import session as _session
 
-from ._metadata import __author__, __version__
-from ._session import log, _log, session
+_get_session = _ft.partial(_session, 'omnipath_server')
+log = _ft.partial(_read_log, 'omnipath_server')
+
+session = _get_session()
+_log = session._logger.msg
