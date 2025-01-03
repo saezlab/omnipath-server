@@ -14,6 +14,7 @@
 #
 
 from contextlib import closing
+from collections.abc import Generator
 import os
 
 from sqlalchemy import create_engine
@@ -25,6 +26,7 @@ from . import _log
 
 __all__ = [
     'Connection',
+    'ensure_con',
 ]
 
 
@@ -127,3 +129,30 @@ class Connection:
 
                     conn.rollback()
                     raise e
+
+
+def ensure_con(
+        con: Connection | dict | str,
+        reconnect: bool = False,
+) -> Connection:
+    """
+    Ensure that the provided connection is an instance of Connection.
+
+    Args:
+        con:
+            Connection object or connection parameters.
+        reconnect:
+            Create new connection even if an existing Connection is provided.
+    """
+
+    if isinstance(con, Connection):
+
+        if reconnect:
+
+            con = con._param.copy()
+
+        else:
+
+            return con
+
+    return Connection(con)

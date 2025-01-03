@@ -61,7 +61,7 @@ class Loader:
         self.path = pl.Path(path or '.')
         self.tables = tables
         self.exclude = exclude
-        self.con = con
+        self.con = _connection.ensure_con(con)
 
 
     def create(self):
