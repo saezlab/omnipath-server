@@ -17,7 +17,7 @@ from contextlib import closing
 from collections.abc import Generator
 import os
 
-from sqlalchemy import create_engine
+from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker
 import yaml
 import psycopg2.extras
@@ -129,6 +129,17 @@ class Connection:
 
                     conn.rollback()
                     raise e
+
+
+    def wipe(self) -> None:
+        """
+        Wipe the database.
+        """
+
+        _log('Wiping database')
+        metadata = MetaData()
+        metadata.reflect(bind = self.engine)
+        metadata.drop_all(bind = self.engine)
 
 
 def ensure_con(
