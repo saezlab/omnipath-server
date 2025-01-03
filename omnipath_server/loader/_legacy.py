@@ -21,7 +21,7 @@ import pathlib as pl
 from pypath_common import _misc
 from sqlalchemy.orm import decl_api
 
-from .. import _connection
+from .. import _log, _connection
 from ..schema import _legacy as _schema
 
 __all__ = [
@@ -69,7 +69,9 @@ class Loader:
         Create the tables defined in the legacy schema.
         """
 
+        _log('Creating tables in legacy database...')
         _schema.Base.metadata.create_all(self.con.engine)
+        _log('Finished creating tables in legacy database...')
 
 
     def load(self):
@@ -77,9 +79,13 @@ class Loader:
         Load all tables from TSV files into Postgres.
         """
 
+        _log('Populating legacy database...')
+
         for tbl in set(self._all_tables) - _misc.to_set(self.exclude):
 
             self._load_table(tbl)
+
+        _log('Finished populating legacy database.')
 
 
     def _load_table(self, tbl: str):
@@ -96,10 +102,12 @@ class Loader:
 
         if not path.exists():
 
+            _log(f'File not found: `{path}`; skipping table `{tbl}`.')
             return
 
         schema = getattr(_schema, tbl.capitalize())
 
+        _log(f'Loading table `{tbl}` from `{path}`...')
         TableLoader(path, schema, self.con).load()
 
 
@@ -133,8 +141,11 @@ class TableLoader:
 
         cols = [col.name for col in self.table.columns]
         query = f'INSERT INTO {self.table.name} ({', '.join(cols)}) VALUES %s'
+        _log(f'Insert query: {query}')
 
+        _log(f'Inserting data into table `{self.table.name}`...')
         self.con.execute_values(query, self._read())
+        _log(f'Finished inserting data into table `{self.table.name}`.')
 
 
     def _read(self) -> Generator[tuple, None, None]:
@@ -143,6 +154,8 @@ class TableLoader:
         """
 
         with open(self.path) as fp:
+
+            _log(f'Opened `{self.path}` for reading.')
 
             reader = csv.DictReader(fp, delimiter = '\t')
 
