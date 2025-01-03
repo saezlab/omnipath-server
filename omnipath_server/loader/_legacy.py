@@ -14,8 +14,11 @@
 #
 
 from collections.abc import Generator
+import re
+import bz2
 import csv
-import json
+import gzip
+import lzma
 import pathlib as pl
 
 from pypath_common import _misc
@@ -39,12 +42,18 @@ class Loader:
         'intercell',
         'annotations',
     ]
+    _compr = {
+        '': (open, {}),
+        '.gz': (gzip.open, {'mode': 'rt'}),
+        '.bz2': (bz2.open, {'mode': 'rt'}),
+        '.xz': (lzma.open, {'mode': 'rt'}),
+    }
     _fname = 'omnipath_webservice_%s.tsv'
 
 
     def __init__(
             self,
-            path: str | None = None,
+            path: str | pl.Path | None = None,
             tables: dict[str, dict] | None = None,
             exclude: list[str] | None = None,
             con: _connection.Connection | dict | None = None,
@@ -101,22 +110,27 @@ class Loader:
         param = self.tables.get(tbl, {})
         path = self.path / param.get('path', self._fname % tbl)
 
-        if not path.exists():
+        for ext in self._compr:
 
-            _log(f'File not found: `{path}`; skipping table `{tbl}`.')
-            return
+            compr_path = path.with_name(path.name + ext)
 
-        schema = getattr(_schema, tbl.capitalize())
+            if compr_path.exists():
 
-        _log(f'Loading table `{tbl}` from `{path}`...')
-        TableLoader(path, schema, self.con).load()
+                schema = getattr(_schema, tbl.capitalize())
+                _log(f'Loading table `{tbl}` from `{compr_path}`...')
+                return TableLoader(compr_path, schema, self.con).load()
+
+        _log(
+            f'File not found: `{path.name}[{'|'.join(self._compr)}]`; '
+            f'skipping table `{tbl}`.',
+        )
 
 
 class TableLoader:
 
     def __init__(
             self,
-            path: str,
+            path: str | pl.Path,
             table: decl_api.DeclarativeMeta,
             con: _connection.Connection,
     ):
@@ -151,7 +165,7 @@ class TableLoader:
 
 
     @property
-    def columns(self) -> "ReadOnlyColumnCollection":
+    def columns(self) -> 'ReadOnlyColumnCollection':
 
         return self.table.__table__.columns
 
@@ -167,7 +181,20 @@ class TableLoader:
         Read TSV and process fields according to their types.
         """
 
-        with open(self.path) as fp:
+        compr = ''
+
+        if m := re.search(r'\.(gz|bz2|xz)$', self.path.name):
+
+            compr = m.group()
+
+        opener, args = Loader._compr[compr]
+
+        _log(
+            f'Opening `{self.path}` by '
+            f'`{opener.__module__}.{opener.__name__}(... {_misc.dict_str(args)})`...',
+        )
+
+        with opener(self.path, **args) as fp:
 
             _log(f'Opened `{self.path}` for reading.')
 
