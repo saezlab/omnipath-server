@@ -178,12 +178,8 @@ class TableLoader:
                 for col, typ in self.columns.items():
 
                     if col not in row:
-                        
+
                         continue
-
-                    if typ.type.python_type is dict:  # JSONB
-
-                        row[col] = json.loads(row[col]) if row[col] else None
 
                     elif typ.type.python_type is list:  # Array
 
@@ -197,4 +193,8 @@ class TableLoader:
 
                         row[col] = typ.type.python_type(row[col]) if row[col] else None
 
-                yield tuple(row[column.name] for column in self.columns if column in row)
+                yield tuple(
+                    row[column.name]
+                    for column in self.columns
+                    if column.name in row
+                )
