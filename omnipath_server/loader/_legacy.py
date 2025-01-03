@@ -110,8 +110,9 @@ class Loader:
 
         param = self.tables.get(tbl, {})
         path = self.path / param.get('path', self._fname % tbl)
+        schema_name = tbl.capitalize().replace('_', '')
 
-        if not (schema := getattr(_schema, tbl.capitalize(), None)):
+        if not (schema := getattr(_schema, schema_name, None)):
 
             _log(f'No schema found for table `{tbl}`; skipping.')
             return
