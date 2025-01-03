@@ -78,8 +78,9 @@ class Loader:
         Create the tables defined in the legacy schema.
         """
 
-        _log('Creating tables in legacy database...')
         self.con.connect()
+        self.con.wipe()
+        _log('Creating tables in legacy database...')
         _schema.Base.metadata.create_all(self.con.engine)
         _log('Finished creating tables in legacy database...')
 
