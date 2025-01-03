@@ -110,13 +110,15 @@ class Loader:
         param = self.tables.get(tbl, {})
         path = self.path / param.get('path', self._fname % tbl)
 
+        if not (schema := getattr(_schema, tbl.capitalize(), None)):
+
+            _log(f'No schema found for table `{tbl}`; skipping.')
+            return
+
         for ext in self._compr:
 
-            compr_path = path.with_name(path.name + ext)
+            if (compr_path := path.with_name(path.name + ext)).exists():
 
-            if compr_path.exists():
-
-                schema = getattr(_schema, tbl.capitalize())
                 _log(f'Loading table `{tbl}` from `{compr_path}`...')
                 return TableLoader(compr_path, schema, self.con).load()
 

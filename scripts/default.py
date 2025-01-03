@@ -11,7 +11,6 @@ con_param = {
 
 loader = legacy_loader.Loader(
     path = sample_dir,
-    exclude = ['complexes', 'enz_sub', 'intercell', 'annotations'],
     con = con_param,
 )
 loader.create()
