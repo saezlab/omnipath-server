@@ -39,7 +39,7 @@ class Loader:
         'intercell',
         'annotations',
     ]
-    _fname = 'omnipath_webservice_%s.tsv.gz'
+    _fname = 'omnipath_webservice_%s.tsv'
 
 
     def __init__(
@@ -140,13 +140,26 @@ class TableLoader:
         Load data from the TSV file into the table.
         """
 
-        cols = [col.name for col in self.table.columns]
-        query = f'INSERT INTO {self.table.name} ({', '.join(cols)}) VALUES %s'
+        cols = [col.name for col in self.columns]
+        query = f'INSERT INTO {self.tablename} ({', '.join(cols)}) VALUES %s'
         _log(f'Insert query: {query}')
 
-        _log(f'Inserting data into table `{self.table.name}`...')
+        _log(f'Inserting data into table `{self.tablename}`...')
         self.con.execute_values(query, self._read())
-        _log(f'Finished inserting data into table `{self.table.name}`.')
+        _log(f'Finished inserting data into table `{self.tablename}`.')
+
+
+
+    @property
+    def columns(self) -> "ReadOnlyColumnCollection":
+
+        return self.table.__table__.columns
+
+
+    @property
+    def tablename(self) -> str:
+
+        return self.table.__table__.name
 
 
     def _read(self) -> Generator[tuple, None, None]:
@@ -162,7 +175,7 @@ class TableLoader:
 
             for row in reader:
 
-                for col, typ in self.table.columns.items():
+                for col, typ in self.columns.items():
 
                     if typ.type.python_type is dict:  # JSONB
 
@@ -180,4 +193,4 @@ class TableLoader:
 
                         row[col] = typ.type.python_type(row[col]) if row[col] else None
 
-                yield tuple(row[column.name] for column in self.table.columns)
+                yield tuple(row[column.name] for column in self.columns)
