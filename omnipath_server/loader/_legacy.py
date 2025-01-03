@@ -140,7 +140,7 @@ class TableLoader:
         Load data from the TSV file into the table.
         """
 
-        cols = [f'"{col.name}"' for col in self.columns if col != 'id']
+        cols = [f'"{col.name}"' for col in self.columns if col.name != 'id']
         query = f'INSERT INTO {self.tablename} ({', '.join(cols)}) VALUES %s'
         _log(f'Insert query: {query}')
 
