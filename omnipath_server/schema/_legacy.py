@@ -14,15 +14,62 @@
 #
 
 from sqlalchemy import ARRAY, Column, String, Boolean, Integer
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql import JSONB
 
 __all__ = [
+    'Annotations',
     'Base',
+    'Complexes',
+    'Enzsub',
     'Interactions',
+    'Intercell',
 ]
 
 Base = declarative_base()
+
+class Annotations(Base):
+
+    __tablename__ = 'annotations'
+    id = Column(Integer, primary_key = True)
+    uniprot = Column(String)
+    genesymbol = Column(String)
+    entity_type = Column(String)
+    source = Column(String)
+    label = Column(String)
+    value = Column(String)
+    record_id = Column(Integer)
+
+
+class Complexes(Base):
+
+    __tablename__ = 'complexes'
+    id = Column(Integer, primary_key = True)
+    name = Column(String)
+    components = Column(String)
+    components_genesymbols = Column(String)
+    stoichiometry = Column(String)
+    sources = Column(ARRAY(String))
+    references = Column(String)  # Could be array
+    identifiers = Column(String)  # Could be array
+
+
+class Enzsub(Base):
+
+    __tablename__ = 'enz_sub'
+    id = Column(Integer, primary_key = True)
+    enzyme = Column(String)
+    enzyme_genesymbol = Column(String)
+    substrate = Column(String)
+    substrate_genesymbol = Column(String)
+    isoforms = Column(String)
+    residue_type = Column(String)
+    residue_offset = Column(Integer)
+    modification = Column(String)
+    sources = Column(ARRAY(String))
+    references = Column(String)
+    curation_effort = Column(Integer)
+    ncbi_tax_id = Column(Integer)
 
 
 class Interactions(Base):
@@ -66,4 +113,23 @@ class Interactions(Base):
     ncbi_tax_id_target = Column(Integer)
     entity_type_target = Column(String)
 
-# TODO: Add schema for all other DBs
+
+class Intercell(Base):
+
+    __tablename__ = 'intercell'
+    id = Column(Integer, primary_key = True)
+    category = Column(String)
+    parent = Column(String)
+    database = Column(String)
+    scope = Column(String)
+    aspect = Column(String)
+    source = Column(String)
+    uniprot = Column(String)
+    genesymbol = Column(String)
+    entity_type = Column(String)
+    consensus_score = Column(Integer)
+    transmitter = Column(Boolean)
+    receiver = Column(Boolean)
+    secreted = Column(Boolean)
+    plasma_membrane_transmembrane = Column(Boolean)
+    plasma_membrane_peripheral = Column(Boolean)
