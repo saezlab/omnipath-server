@@ -59,7 +59,7 @@ class Loader:
         """
 
         self.path = pl.Path(path or '.')
-        self.tables = tables
+        self.tables = tables or {}
         self.exclude = exclude
         self.con = _connection.ensure_con(con)
 
@@ -70,6 +70,7 @@ class Loader:
         """
 
         _log('Creating tables in legacy database...')
+        self.con.connect()
         _schema.Base.metadata.create_all(self.con.engine)
         _log('Finished creating tables in legacy database...')
 
