@@ -15,6 +15,8 @@
 
 from collections.abc import Generator
 
+import psycopg2
+
 from . import _connection
 from .schema import _legacy
 
@@ -36,6 +38,7 @@ class Runner:
         self.con_param = con_param
         self.legacy_files = legacy_files
         self.con = None
+        self.headers = dict()
 
 
     def connect(self, reconnect: bool = False) -> None:
@@ -53,14 +56,28 @@ class Runner:
 
     def load(self):
 
+        raw_con = self.con.engine.raw_connection()
+
         for tbl, path in self.legacy_files.items():
+            result = self._open_tsv(tbl, path)
+
+            with raw_con.cursor() as cursor:
+
+                query = f"""
+                    INSERT INTO {tbl} ({','.join(self.headers[tbl])}) VALUES %s;
+                    """
+                
+                #_log("loading insert statments for structures table")
+
+                psycopg2.extras.execute_values(cursor, query, result, page_size = 1000)
 
 
-    def _open_tsv(self, path: str) -> Generator[tuple, None, None]:
+    def _open_tsv(self, tbl, path: str) -> Generator[tuple, None, None]:
 
         with open(path, 'r') as fp:
 
-            _ = next(fp)
+            # TODO: make separate function for split+strip
+            self.headers[tbl] = [i.strip() for i in next(fp).split('\t')]
 
             for row in fp:
 
