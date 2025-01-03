@@ -1,12 +1,14 @@
-from omnipath_server import _main
+from omnipath_server.loader import _legacy as legacy_loader
 
-d = {
+sample_dir = './tests/data/legacy'
+con_param = {
     'user': 'omnipath',
     'password': 'omnipath123',
     'host': 'localhost',
     'port': '5432',
     'database': 'omnipath',
 }
-db = _main.Runner(d)
-db.connect()
-db.create()
+
+loader = legacy_loader.Loader(path = sample_dir, con = con_param)
+loader.create()
+loader.load()
