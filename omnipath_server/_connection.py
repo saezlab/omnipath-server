@@ -21,6 +21,8 @@ from sqlalchemy.orm import sessionmaker
 import yaml
 import psycopg2.extras
 
+from . import _log
+
 __all__ = [
     'Connection',
 ]
@@ -34,6 +36,15 @@ class Connection:
             param: str | dict | None = None,
             **kwargs,
     ):
+        """
+        Manage an SQLAlchemy+psycopg2 Postgres connection.
+
+        Args:
+            param, kwargs:
+                Connection parameters. If a string is provided, it is assumed
+                to be a path to a YAML file with the connection parameters. The
+                parameters include the host, port, database, user and password.
+        """
 
         self._param = param or kwargs
         self._parse_param()
@@ -45,6 +56,9 @@ class Connection:
 
 
     def _from_file(self) -> None:
+        """
+        Read connection parameters from file (if the file exists).
+        """
 
         if isinstance(self._param, str) and os.path.exists(self._param):
 
@@ -54,6 +68,9 @@ class Connection:
 
     @property
     def _uri(self) -> str:
+        """
+        Connection URI string as used in SQLAlchemy.
+        """
 
         return (
             'postgresql://{user}:{password}@'
@@ -61,10 +78,19 @@ class Connection:
         )
 
     def connect(self):
+        """
+        Connect to the database server.
+        """
 
-        self.engine = create_engine(self._uri)
-        Session = sessionmaker(bind=self.engine)
+        uri = self._uri
+
+        _log(f'Connecting to `{uri}`...')
+
+        self.engine = create_engine(uri)
+        Session = sessionmaker(bind = self.engine)
         self.session = Session()
+
+        _log(f'Connected to `{uri}`.')
 
 
     def __del__(self):
