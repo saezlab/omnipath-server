@@ -140,7 +140,7 @@ class TableLoader:
         Load data from the TSV file into the table.
         """
 
-        cols = [col.name for col in self.columns]
+        cols = [f'"{col.name}"' for col in self.columns if col != 'id']
         query = f'INSERT INTO {self.tablename} ({', '.join(cols)}) VALUES %s'
         _log(f'Insert query: {query}')
 
@@ -177,6 +177,10 @@ class TableLoader:
 
                 for col, typ in self.columns.items():
 
+                    if col not in row:
+                        
+                        continue
+
                     if typ.type.python_type is dict:  # JSONB
 
                         row[col] = json.loads(row[col]) if row[col] else None
@@ -193,4 +197,4 @@ class TableLoader:
 
                         row[col] = typ.type.python_type(row[col]) if row[col] else None
 
-                yield tuple(row[column.name] for column in self.columns)
+                yield tuple(row[column.name] for column in self.columns if column in row)
