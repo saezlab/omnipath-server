@@ -65,3 +65,5 @@ class Interactions(Base):
     entity_type_source = Column(String)
     ncbi_tax_id_target = Column(Integer)
     entity_type_target = Column(String)
+
+# TODO: Add schema for all other DBs

@@ -1,0 +1,100 @@
+uniprot	genesymbol	entity_type	source	label	value	record_id
+P01137	TGFB1	protein	CellChatDB	role	ligand	0
+P01137	TGFB1	protein	CellChatDB	pathway	TGFb	0
+P01137	TGFB1	protein	CellChatDB	category	Secreted Signaling	0
+COMPLEX:P36897_P37173	COMPLEX:TGFBR1_TGFBR2	complex	CellChatDB	role	receptor	1
+COMPLEX:P36897_P37173	COMPLEX:TGFBR1_TGFBR2	complex	CellChatDB	pathway	TGFb	1
+COMPLEX:P36897_P37173	COMPLEX:TGFBR1_TGFBR2	complex	CellChatDB	category	Secreted Signaling	1
+P19883	FST	protein	CellChatDB	role	agonist	2
+P19883	FST	protein	CellChatDB	pathway	NODAL	2
+P19883	FST	protein	CellChatDB	category	Secreted Signaling	2
+P19883	FST	protein	CellChatDB	role	antagonist	3
+P19883	FST	protein	CellChatDB	pathway	ACTIVIN	3
+P19883	FST	protein	CellChatDB	category	Secreted Signaling	3
+P19883	FST	protein	CellChatDB	role	agonist	4
+P19883	FST	protein	CellChatDB	pathway	TGFb	4
+P19883	FST	protein	CellChatDB	category	Secreted Signaling	4
+P07996	THBS1	protein	CellChatDB	role	agonist	5
+P07996	THBS1	protein	CellChatDB	pathway	TGFb	5
+P07996	THBS1	protein	CellChatDB	category	Secreted Signaling	5
+P07996	THBS1	protein	CellChatDB	role	ligand	6
+P07996	THBS1	protein	CellChatDB	pathway	THBS	6
+P07996	THBS1	protein	CellChatDB	category	ECM-Receptor	6
+Q06828	FMOD	protein	CellChatDB	role	antagonist	7
+Q06828	FMOD	protein	CellChatDB	pathway	TGFb	7
+Q06828	FMOD	protein	CellChatDB	category	Secreted Signaling	7
+Q14766	LTBP1	protein	CellChatDB	role	antagonist	8
+Q14766	LTBP1	protein	CellChatDB	pathway	TGFb	8
+Q14766	LTBP1	protein	CellChatDB	category	Secreted Signaling	8
+P55103	INHBC	protein	CellChatDB	role	ligand	9
+P55103	INHBC	protein	CellChatDB	pathway	ACTIVIN	9
+P55103	INHBC	protein	CellChatDB	category	Secreted Signaling	9
+P55103	INHBC	protein	CellChatDB	role	antagonist	10
+P55103	INHBC	protein	CellChatDB	pathway	NODAL	10
+P55103	INHBC	protein	CellChatDB	category	Secreted Signaling	10
+P55103	INHBC	protein	CellChatDB	role	antagonist	11
+P55103	INHBC	protein	CellChatDB	pathway	TGFb	11
+P55103	INHBC	protein	CellChatDB	category	Secreted Signaling	11
+P08476	INHBA	protein	CellChatDB	role	ligand	12
+P08476	INHBA	protein	CellChatDB	pathway	ACTIVIN	12
+P08476	INHBA	protein	CellChatDB	category	Secreted Signaling	12
+P08476	INHBA	protein	CellChatDB	role	antagonist	13
+P08476	INHBA	protein	CellChatDB	pathway	NODAL	13
+P08476	INHBA	protein	CellChatDB	category	Secreted Signaling	13
+P08476	INHBA	protein	CellChatDB	role	antagonist	14
+P08476	INHBA	protein	CellChatDB	pathway	TGFb	14
+P08476	INHBA	protein	CellChatDB	category	Secreted Signaling	14
+P07585	DCN	protein	CellChatDB	role	antagonist	15
+P07585	DCN	protein	CellChatDB	pathway	TGFb	15
+P07585	DCN	protein	CellChatDB	category	Secreted Signaling	15
+P09529	INHBB	protein	CellChatDB	role	ligand	16
+P09529	INHBB	protein	CellChatDB	pathway	ACTIVIN	16
+P09529	INHBB	protein	CellChatDB	category	Secreted Signaling	16
+P09529	INHBB	protein	CellChatDB	role	antagonist	17
+P09529	INHBB	protein	CellChatDB	pathway	NODAL	17
+P09529	INHBB	protein	CellChatDB	category	Secreted Signaling	17
+P09529	INHBB	protein	CellChatDB	role	antagonist	18
+P09529	INHBB	protein	CellChatDB	pathway	TGFb	18
+P09529	INHBB	protein	CellChatDB	category	Secreted Signaling	18
+O75610	LEFTY1	protein	CellChatDB	role	antagonist	19
+O75610	LEFTY1	protein	CellChatDB	pathway	BMP	19
+O75610	LEFTY1	protein	CellChatDB	category	Secreted Signaling	19
+O75610	LEFTY1	protein	CellChatDB	role	antagonist	20
+O75610	LEFTY1	protein	CellChatDB	pathway	NODAL	20
+O75610	LEFTY1	protein	CellChatDB	category	Secreted Signaling	20
+O75610	LEFTY1	protein	CellChatDB	role	antagonist	21
+O75610	LEFTY1	protein	CellChatDB	pathway	TGFb	21
+O75610	LEFTY1	protein	CellChatDB	category	Secreted Signaling	21
+O00292	LEFTY2	protein	CellChatDB	role	antagonist	22
+O00292	LEFTY2	protein	CellChatDB	pathway	BMP	22
+O00292	LEFTY2	protein	CellChatDB	category	Secreted Signaling	22
+O00292	LEFTY2	protein	CellChatDB	role	antagonist	23
+O00292	LEFTY2	protein	CellChatDB	pathway	NODAL	23
+O00292	LEFTY2	protein	CellChatDB	category	Secreted Signaling	23
+O00292	LEFTY2	protein	CellChatDB	role	antagonist	24
+O00292	LEFTY2	protein	CellChatDB	pathway	TGFb	24
+O00292	LEFTY2	protein	CellChatDB	category	Secreted Signaling	24
+Q9Y6C2	EMILIN1	protein	CellChatDB	role	antagonist	25
+Q9Y6C2	EMILIN1	protein	CellChatDB	pathway	TGFb	25
+Q9Y6C2	EMILIN1	protein	CellChatDB	category	Secreted Signaling	25
+P58166	INHBE	protein	CellChatDB	role	ligand	26
+P58166	INHBE	protein	CellChatDB	pathway	ACTIVIN	26
+P58166	INHBE	protein	CellChatDB	category	Secreted Signaling	26
+P58166	INHBE	protein	CellChatDB	role	antagonist	27
+P58166	INHBE	protein	CellChatDB	pathway	NODAL	27
+P58166	INHBE	protein	CellChatDB	category	Secreted Signaling	27
+P58166	INHBE	protein	CellChatDB	role	antagonist	28
+P58166	INHBE	protein	CellChatDB	pathway	TGFb	28
+P58166	INHBE	protein	CellChatDB	category	Secreted Signaling	28
+Q13145	BAMBI	protein	CellChatDB	role	co_I_receptor	29
+Q13145	BAMBI	protein	CellChatDB	pathway	TGFb	29
+Q13145	BAMBI	protein	CellChatDB	category	Secreted Signaling	29
+Q13145	BAMBI	protein	CellChatDB	role	co_I_receptor	30
+Q13145	BAMBI	protein	CellChatDB	pathway	BMP	30
+Q13145	BAMBI	protein	CellChatDB	category	Secreted Signaling	30
+Q13145	BAMBI	protein	CellChatDB	role	co_I_receptor	31
+Q13145	BAMBI	protein	CellChatDB	pathway	ACTIVIN	31
+Q13145	BAMBI	protein	CellChatDB	category	Secreted Signaling	31
+Q13145	BAMBI	protein	CellChatDB	role	co_A_receptor	32
+Q13145	BAMBI	protein	CellChatDB	pathway	WNT	32
+Q13145	BAMBI	protein	CellChatDB	category	Secreted Signaling	32
