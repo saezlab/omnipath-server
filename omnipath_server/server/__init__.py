@@ -25,12 +25,18 @@ class Server(resource.Resource):
     isLeaf = False
 
     def __init__(self):
+        """
+        Main server managing all services.
+        """
 
         super().__init__()
         self.services = {}
 
 
     def render(self, req):
+        """
+        Dispatch request to the appropriate server.
+        """
 
         if (host := req.getHeader('host')) in self.services:
 
