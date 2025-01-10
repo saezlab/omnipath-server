@@ -125,7 +125,7 @@ class Loader:
                 return TableLoader(compr_path, schema, self.con).load()
 
         _log(
-            f'File not found: `{path.name}[{'|'.join(self._compr)}]`; '
+            f'File not found: `{path.name}[{"|".join(self._compr)}]`; '
             f'skipping table `{tbl}`.',
         )
 
@@ -159,7 +159,7 @@ class TableLoader:
         """
 
         cols = [f'"{col.name}"' for col in self.columns if col.name != 'id']
-        query = f'INSERT INTO {self.tablename} ({', '.join(cols)}) VALUES %s'
+        query = f'INSERT INTO {self.tablename} ({", ".join(cols)}) VALUES %s'
         _log(f'Insert query: {query}')
 
         _log(f'Inserting data into table `{self.tablename}`...')
@@ -195,7 +195,8 @@ class TableLoader:
 
         _log(
             f'Opening `{self.path}` by '
-            f'`{opener.__module__}.{opener.__name__}(... {_misc.dict_str(args)})`...',
+            f'`{opener.__module__}.{opener.__name__}'
+            f'(... {_misc.dict_str(args)})`...',
         )
 
         with opener(self.path, **args) as fp:
@@ -222,7 +223,10 @@ class TableLoader:
 
                     elif typ.type.python_type in (int, float):  # Numeric
 
-                        row[col] = typ.type.python_type(row[col]) if row[col] else None
+                        row[col] = (
+                            typ.type.python_type(row[col])
+                            if row[col] else None
+                        )
 
                 yield tuple(
                     row[column.name]
