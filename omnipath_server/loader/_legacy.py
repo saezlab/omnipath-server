@@ -69,7 +69,7 @@ class Loader:
         """
 
         self.path = pl.Path(path or '.')
-        self.tables = tables or {}
+        self.table_param = tables or {}
         self.exclude = exclude
         self.con = _connection.ensure_con(con)
 
@@ -93,11 +93,17 @@ class Loader:
 
         _log('Populating legacy database...')
 
-        for tbl in set(self._all_tables) - _misc.to_set(self.exclude):
+        for tbl in self.tables:
 
             self._load_table(tbl)
 
         _log('Finished populating legacy database.')
+
+
+    @property
+    def tables(self) -> set[str]:
+
+        return set(self._all_tables) - _misc.to_set(self.exclude)
 
 
     def _load_table(self, tbl: str):
@@ -109,7 +115,7 @@ class Loader:
                 Name of the table to load.
         """
 
-        param = self.tables.get(tbl, {})
+        param = self.table_param.get(tbl, {})
         path = self.path / param.get('path', self._fname % tbl)
         schema_name = tbl.capitalize().replace('_', '')
 
@@ -138,7 +144,10 @@ class Loader:
 
         current = self.con.tables
 
-        return current == self.tables
+        if self.tables - set(current):
+
+            self.create()
+
 
 class TableLoader:
 

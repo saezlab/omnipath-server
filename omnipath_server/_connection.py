@@ -79,11 +79,11 @@ class Connection:
             'postgresql://{user}:{password}@'
             '{host}:{port}/{database}'.format(**self._param)
         )
-    
-    @property
-    def tables(self) -> list:
 
-        return inspect(self.engine).get_table_names()
+    @property
+    def tables(self) -> set[str]:
+
+        return set(inspect(self.engine).get_table_names())
 
     def connect(self):
         """
