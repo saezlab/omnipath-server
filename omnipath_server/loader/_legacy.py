@@ -33,6 +33,7 @@ __all__ = [
 ]
 
 
+# TODO: Prevent accidental wipong of DB
 class Loader:
 
     _all_tables: list[str] = [
@@ -129,6 +130,15 @@ class Loader:
             f'skipping table `{tbl}`.',
         )
 
+    def _ensure_tables(self) -> bool:
+        """
+        Verifies whether the tables existing in the database are the same as in
+        the schema.
+        """
+
+        current = self.con.tables
+
+        return current == self.tables
 
 class TableLoader:
 
