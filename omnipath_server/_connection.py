@@ -19,6 +19,7 @@ import os
 
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import inspect
 import yaml
 import psycopg2.extras
 
@@ -78,6 +79,11 @@ class Connection:
             'postgresql://{user}:{password}@'
             '{host}:{port}/{database}'.format(**self._param)
         )
+    
+    @property
+    def tables(self) -> list:
+
+        return inspect(self.engine).get_table_names()
 
     def connect(self):
         """
