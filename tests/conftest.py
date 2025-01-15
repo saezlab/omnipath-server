@@ -12,9 +12,9 @@ sys.path.append(str(pl.Path(__file__).parent.parent))
 @pytest.fixture(scope='session')
 def test_connection():
 
-    return Connection('./test_config.yaml')
+    return Connection('./tests/test_config.yaml')
 
 @pytest.fixture
 def test_path_legacy():
 
-    return './data/legacy/'
+    return './tests/data/legacy/'
