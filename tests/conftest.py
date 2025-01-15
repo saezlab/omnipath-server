@@ -2,14 +2,14 @@ import sys
 import pathlib as pl
 import pytest
 
-from omnipath_server.loader._legacy import Loader
+from omnipath_server._connection import Connection
 
-__all__ = ['loader']
+__all__ = ['test_connection']
 
 sys.path.append(str(pl.Path(__file__).parent.parent))
 
 
-@pytest.fixture
-def loader():
+@pytest.fixture(scope='session')
+def test_connection():
 
-    return Loader(path = './data/legacy/', con = './test_config.yaml')
+    return Connection('./test_config.yaml')
