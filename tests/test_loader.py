@@ -20,3 +20,9 @@ def test_create_table(test_connection, test_path_legacy):
     }
 
     assert set(tables) == tables_expected
+
+def test_load_tables(test_connection, test_path_legacy):
+
+    loader = Loader(path=test_path_legacy, con=test_connection)
+    loader.create()
+    loader.load()
