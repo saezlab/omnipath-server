@@ -33,7 +33,7 @@ __all__ = [
 ]
 
 
-# TODO: Prevent accidental wipong of DB
+# TODO: Prevent accidental wiping of DB
 class Loader:
 
     _all_tables: list[str] = [
@@ -58,6 +58,7 @@ class Loader:
             tables: dict[str, dict] | None = None,
             exclude: list[str] | None = None,
             con: _connection.Connection | dict | None = None,
+            wipe: bool = False,
     ):
         """
         Populate the legacy database from TSV files.
@@ -72,6 +73,7 @@ class Loader:
         self.table_param = tables or {}
         self.exclude = exclude
         self.con = _connection.ensure_con(con)
+        self.wipe = wipe
 
 
     def create(self):
@@ -80,7 +82,10 @@ class Loader:
         """
 
         self.con.connect()
-        self.con.wipe()
+
+        if self.wipe:
+            self.con.wipe()
+
         _log('Creating tables in legacy database...')
         _schema.Base.metadata.create_all(self.con.engine)
         _log('Finished creating tables in legacy database...')
