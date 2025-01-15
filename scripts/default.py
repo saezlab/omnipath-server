@@ -1,6 +1,6 @@
 from omnipath_server.loader import _legacy as legacy_loader
 
-sample_dir = './tests/data/legacy'
+sample_dir = './data/legacy/'
 con_param = {
     'user': 'omnipath',
     'password': 'omnipath123',
