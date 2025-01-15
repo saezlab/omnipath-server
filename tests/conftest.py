@@ -4,7 +4,7 @@ import pytest
 
 from omnipath_server._connection import Connection
 
-__all__ = ['test_connection']
+__all__ = ['test_connection', 'test_path_legacy']
 
 sys.path.append(str(pl.Path(__file__).parent.parent))
 
@@ -13,3 +13,8 @@ sys.path.append(str(pl.Path(__file__).parent.parent))
 def test_connection():
 
     return Connection('./test_config.yaml')
+
+@pytest.fixture
+def test_path_legacy():
+
+    return './data/legacy/'
