@@ -75,16 +75,13 @@ class Loader:
         self.con = _connection.ensure_con(con)
         self.wipe = wipe
 
+        self.con.connect()
+
 
     def create(self):
         """
         Create the tables defined in the legacy schema.
         """
-
-        self.con.connect()
-
-        if self.wipe:
-            self.con.wipe()
 
         _log('Creating tables in legacy database...')
         _schema.Base.metadata.create_all(self.con.engine)
@@ -134,7 +131,13 @@ class Loader:
             if (compr_path := path.with_name(path.name + ext)).exists():
 
                 _log(f'Loading table `{tbl}` from `{compr_path}`...')
-                return TableLoader(compr_path, schema, self.con).load()
+
+                return TableLoader(
+                    compr_path,
+                    schema,
+                    self.con,
+                    wipe = self.wipe
+                ).load()
 
         _log(
             f'File not found: `{path.name}[{"|".join(self._compr)}]`; '
@@ -147,9 +150,7 @@ class Loader:
         the schema.
         """
 
-        current = self.con.tables
-
-        if self.tables - set(current):
+        if self.tables - self.con.tables:
 
             self.create()
 
@@ -161,6 +162,7 @@ class TableLoader:
             path: str | pl.Path,
             table: decl_api.DeclarativeMeta,
             con: _connection.Connection,
+            wipe: bool = False,
     ):
         """
         Load data from a TSV file into a Postgres table.
@@ -175,12 +177,18 @@ class TableLoader:
         self.path = path
         self.table = table
         self.con = con
+        self.wipe = wipe
 
 
     def load(self) -> None:
         """
         Load data from the TSV file into the table.
         """
+
+        if self.wipe:
+            # TODO: Check if it works
+            self.table.__table__.drop()
+            self.table.__table__.create()
 
         cols = [f'"{col.name}"' for col in self.columns if col.name != 'id']
         query = f'INSERT INTO {self.tablename} ({", ".join(cols)}) VALUES %s'
