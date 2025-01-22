@@ -36,7 +36,7 @@ psycopg2 = "^2.9.10"
 pypath-common = "^0.2.5"
 pypath-omnipath = "^0.16.17"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = ">=6.0"
 tox = ">=3.20.1"
 pre-commit = ">=2.17.0"
@@ -56,6 +56,7 @@ pydata-sphinx-theme = "*"
 sphinx-remove-toctrees = "*"
 jupyter-contrib-nbextensions = { git = "https://github.com/deeenes/jupyter_contrib_nbextensions.git", branch = "master" }
 nbsphinx = { git = "https://github.com/deeenes/nbsphinx.git", branch = "timings" }
+flake8-pyproject = { git = "https://github.com/john-hen/Flake8-pyproject.git" }
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/saezlab/omnipath-server/issues"
