@@ -1,0 +1,150 @@
+name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+
+jobs:
+
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash -e {0}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12']
+        os: [ubuntu-latest]
+
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python }}
+      MODULE: omnipath_server
+      PG_USER: omnipath
+      PG_PASSWORD: omnipath
+      PG_DB: omnipath
+      PG_HOST: localhost
+      PG_PORT: 5432
+
+    services:
+      postgres:
+        image: postgres:17
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ${{ env.PG_USER }}
+          POSTGRES_PASSWORD: ${{ env.PG_PASSWORD }}
+          POSTGRES_DB: ${{ env.PG_DB }}
+
+    steps:
+    - name: Check out main
+      uses: actions/checkout@v4
+    - name: Setup Python ${{ matrix.python }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python }}
+
+    - name: System dependencies Linux
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libcurl4-openssl-dev
+
+    - name: System dependencies OSX
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: |
+        brew install openssl
+        export LDFLAGS="-L/usr/local/opt/openssl@3/lib"
+        export CPPFLAGS="-I/usr/local/opt/openssl@3/include"
+        export PKG_CONFIG_PATH="/usr/local/opt/openssl@3/lib/pkgconfig"
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v4
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: ${{ steps.cached-poetry-dependencies.outputs.cache-hit != 'true' }}
+      run: poetry install --no-interaction --no-root
+
+    - name: Install library
+      run: poetry install --no-interaction
+
+    - name: Wait for Postgres to be ready
+      run: |
+        echo 'Waiting for Postgres'
+        for i in {1..30}; do
+          if pg_isready -h $PG_HOST -p $PG_PORT -U $PG_USER; then
+            echo 'Postgres is ready after $((i * 2)) seconds'
+            break
+          fi
+          sleep 2
+        done
+
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        poetry run flake8 $MODULE \
+          --count \
+          --select=E9,F63,F7,F82 \
+          --show-source \
+          --statistics
+        # exit-zero treats all errors as warnings
+        poetry run flake8 $MODULE \
+          --count \
+          --exit-zero \
+          --max-complexity=10 \
+          --max-line-length=127 \
+          --statistics
+
+    - name: Set up Postgres connection config
+      run: |
+        echo 'user: $PG_USER' > 'db_config.yaml'
+        echo 'password: $PG_PASSWORD' >> 'db_config.yaml'
+        echo 'database: $PG_DB' >> 'db_config.yaml'
+        echo 'host: $PG_HOST' >> 'db_config.yaml'
+        echo 'port: $PG_PORT' >> 'db_config.yaml'
+
+    - name: Tests and test coverage
+      if: ${{ github.event_name == 'push' }}
+      run: |
+        poetry run pytest -v \
+          --cov \
+          --color=yes \
+          --durations=0 \
+          --disable-warnings \
+          --db-config=db_config.yaml
+
+    - name: Tests
+      if: ${{ github.event_name == 'pull_request' }}
+      run: |
+        poetry run pytest -v \
+          --color=yes \
+          --durations=0 \
+          --disable-warnings
+          --db-config=db_config.yaml
+
+    - name: Upload coverage reports to Codecov
+      if: ${{ github.event_name == 'push' }}
+      env:
+        CODECOV_NAME: ${{ matrix.python }}-${{ matrix.os }}
+      run: |
+        poetry run codecovcli \
+          --verbose upload-process \
+          -t ${{ secrets.CODECOV_TOKEN }} \
+          -n 'std'-${{ github.run_id }}
