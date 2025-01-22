@@ -9,12 +9,25 @@ __all__ = ['test_connection', 'test_path_legacy']
 sys.path.append(str(pl.Path(__file__).parent.parent))
 
 
-@pytest.fixture(scope='session')
-def test_connection():
-
-    return Connection('./tests/test_config.yaml')
-
 @pytest.fixture
-def test_path_legacy():
+def legacy_data_path() -> str:
 
     return './tests/data/legacy/'
+
+
+def pytest_addoption(parser):
+
+    parser.addoption(
+        '--db-config',
+        default = './tests/test_config.yaml',
+        action = 'store',
+        help = 'Path to database config YAML',
+    )
+
+
+@pytest.fixture(scope = 'session')
+def postgres_con(request) -> Connection:
+
+    config_path = request.config.getoption('--db-config')
+
+    return Connection(config_path)

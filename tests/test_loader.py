@@ -5,9 +5,9 @@ from sqlalchemy import text
 from omnipath_server.loader._legacy import Loader
 
 
-def test_create_table(test_connection, test_path_legacy):
+def test_create_table(postgres_con, legacy_data_path):
 
-    loader = Loader(path=test_path_legacy, con=test_connection)
+    loader = Loader(path = legacy_data_path, con = postgres_con)
     loader.create()
 
     tables = inspect(loader.con.engine).get_table_names()
@@ -22,16 +22,17 @@ def test_create_table(test_connection, test_path_legacy):
 
     assert set(tables) == tables_expected
 
-def test_load_tables(test_connection, test_path_legacy):
 
-    loader = Loader(path=test_path_legacy, con=test_connection, wipe=True)
+def test_load_tables(postgres_con, legacy_data_path):
+
+    loader = Loader(path = legacy_data_path, con = postgres_con, wipe = True)
     loader.create()
     loader.load()
 
     query = 'SELECT COUNT(*) FROM %s;'
 
     for table in loader.tables:
-        
+
         result = loader.con.session.execute(text(query % table))
-        print(result)
+
         assert next(result)[0] == 99
