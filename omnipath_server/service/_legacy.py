@@ -27,6 +27,7 @@ import pandas as pd
 from pypath_common import _misc
 from pypath_common import _constants as _const
 from pypath_common import _settings
+from pypath import resources as resources_mod
 
 from .. import _log, _connection
 from ..schema import _legacy as _schema
