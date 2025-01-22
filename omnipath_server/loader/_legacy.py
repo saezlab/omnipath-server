@@ -246,7 +246,13 @@ class TableLoader:
 
                     elif typ.type.python_type is list:  # Array
 
-                        row[col] = row[col].split(';') if row[col] else []
+                        sep = getattr(
+                            self.table,
+                            '_array_sep',
+                            {}
+                        ).get(col, ';')
+
+                        row[col] = row[col].split(sep) if row[col] else []
 
                     elif typ.type.python_type is bool:  # Boolean
 
