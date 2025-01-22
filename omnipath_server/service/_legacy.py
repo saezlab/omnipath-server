@@ -21,6 +21,7 @@ import itertools
 import json
 import warnings
 import contextlib
+from collections.abc import Generator
 
 import numpy as np
 import pandas as pd
@@ -1025,19 +1026,19 @@ class LegacyService:
         _log('Finished updating resource information.')
 
 
-    def _check_args(self, req):
+    def _check_args(self, args: dict, query_type: str):
+
+        args.pop('self')
 
         result = []
-        argname = req.postpath[0]
+
         ref = (
             self.args_reference['resources']
-                if argname == 'databases' else
-            self.args_reference[argname]
+                if query_type == 'databases' else
+            self.args_reference[query_type]
         )
 
-        for arg, val in req.args.items():
-
-            arg = arg.decode('utf-8')
+        for arg, val in args.items():
 
             if arg in ref:
 
@@ -1045,11 +1046,7 @@ class LegacyService:
 
                     continue
 
-                val = (
-                    {val[0]}
-                    if type(val[0]) is int else
-                    set(val[0].decode('utf-8').split(','))
-                )
+                val = _misc.to_set(val[0])
 
                 unknowns = val - set(ref[arg])
 
@@ -1066,7 +1063,7 @@ class LegacyService:
 
                 result.append(' ==> Unknown argument: `%s`' % arg)
 
-        req.args[b'header'] = self._parse_arg(req.args[b'header'])
+        args[b'header'] = self._parse_bool_arg(args[b'header'])
 
         if result:
 
@@ -1327,7 +1324,7 @@ class LegacyService:
         # provide genesymbols: yes or no
         if (
             b'genesymbols' in req.args and
-            self._parse_arg(req.args[b'genesymbols'])
+            self._parse_bool_arg(req.args[b'genesymbols'])
         ):
             genesymbols = True
             hdr.insert(2, 'source_genesymbol')
@@ -1452,14 +1449,14 @@ class LegacyService:
         # filter directed & signed
         if (
             b'directed' not in req.args or
-            self._parse_arg(req.args[b'directed'])
+            self._parse_bool_arg(req.args[b'directed'])
         ):
 
             tbl = tbl.loc[tbl.is_directed == 1]
 
         if (
             b'signed' in req.args and
-            self._parse_arg(req.args[b'signed'])
+            self._parse_bool_arg(req.args[b'signed'])
         ):
 
             tbl = tbl.loc[np.logical_or(
@@ -1470,7 +1467,7 @@ class LegacyService:
         # loops: remove by default
         if (
             b'loops' not in req.args or
-            not self._parse_arg(req.args[b'loops'])
+            not self._parse_bool_arg(req.args[b'loops'])
         ):
 
             # pandas is a disaster:
@@ -1629,7 +1626,7 @@ class LegacyService:
         # provide genesymbols: yes or no
         if (
             b'genesymbols' in req.args and
-            self._parse_arg(req.args[b'genesymbols'])
+            self._parse_bool_arg(req.args[b'genesymbols'])
         ):
             genesymbols = True
             hdr.insert(2, 'enzyme_genesymbol')
@@ -1797,7 +1794,7 @@ class LegacyService:
         # provide genesymbols: yes or no
         if (
             b'genesymbols' in req.args and
-            self._parse_arg(req.args[b'genesymbols'])
+            self._parse_bool_arg(req.args[b'genesymbols'])
         ):
             genesymbols = True
             hdr.insert(1, 'genesymbol')
@@ -1839,7 +1836,7 @@ class LegacyService:
 
         if (
             b'cytoscape' in req.args and
-            self._parse_arg(req.args[b'cytoscape'])
+            self._parse_bool_arg(req.args[b'cytoscape'])
         ):
 
             cytoscape = True
@@ -1920,11 +1917,11 @@ class LegacyService:
 
             if _long_b in req.args:
 
-                this_arg = self._parse_arg(req.args[_long_b])
+                this_arg = self._parse_bool_arg(req.args[_long_b])
 
             elif short_b in req.args:
 
-                this_arg = self._parse_arg(req.args[short_b])
+                this_arg = self._parse_bool_arg(req.args[short_b])
 
             if this_arg is not None:
 
@@ -2059,24 +2056,27 @@ class LegacyService:
             limit: int | None = None,
         ) -> Generator[tuple]:
 
+        req = locals()
         bad_req = self._check_args(req)
 
         if bad_req:
 
             return bad_req
+        
+        # XXX: WE ARE HERE
 
         if b'databases' in req.args:
 
             req.args[b'resources'] = req.args[b'databases']
 
-        # starting from the entire dataset
+        # Starting from the entire dataset
         tbl = self.data['complexes']
 
         hdr = list(tbl.columns)
         hdr.remove('set_sources')
         hdr.remove('set_proteins')
 
-        # filtering for resources
+        # Filtering for resources
         if b'resources' in req.args:
 
             resources = self._args_set(req, 'resources')
@@ -2088,7 +2088,7 @@ class LegacyService:
                 ]
             ]
 
-        # filtering for proteins
+        # Filtering for proteins
         if b'proteins' in req.args:
 
             proteins = self._args_set(req, 'proteins')
@@ -2357,6 +2357,34 @@ class LegacyService:
             if arg in req.args
             else set()
         )
+    
+    def _parse_bool_arg(self, arg):
+
+        if isinstance(arg, list) and arg:
+
+            arg = arg[0]
+
+        if hasattr(arg, 'decode'):
+
+            arg = arg.decode('utf-8')
+
+        if hasattr(arg, 'lower'):
+
+            arg = arg.lower()
+
+        if hasattr(arg, 'isdigit') and arg.isdigit():
+
+            arg = int(arg)
+
+        if arg in _const.BOOLEAN_FALSE:
+
+            arg = False
+
+        if arg in _const.BOOLEAN_TRUE:
+
+            arg = True
+
+        return bool(arg)
 
 @contextlib.contextmanager
 def ignore_pandas_copywarn():
