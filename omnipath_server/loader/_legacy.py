@@ -186,9 +186,8 @@ class TableLoader:
         """
 
         if self.wipe:
-            # TODO: Check if it works
-            self.table.__table__.drop()
-            self.table.__table__.create()
+            self.table.__table__.drop(bind=self.con.engine)
+            self.table.__table__.create(bind=self.con.engine)
 
         cols = [f'"{col.name}"' for col in self.columns if col.name != 'id']
         query = f'INSERT INTO {self.tablename} ({", ".join(cols)}) VALUES %s'
