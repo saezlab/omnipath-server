@@ -13,7 +13,28 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
-class TableServer(BaseServer):
+import os
+import re
+import copy
+import collections
+import itertools
+import json
+import warnings
+import contextlib
+
+import numpy as np
+import pandas as pd
+from pypath_common import _misc
+from pypath_common import _constants as _const
+from pypath_common import _settings
+
+from .. import _log, _connection
+from ..schema import _legacy as _schema
+
+
+LICENSE_IGNORE = 'ignore'
+
+class LegacyService:
 
     query_types = {
         'annotations',
@@ -689,21 +710,19 @@ class TableServer(BaseServer):
             Paths to tables exported by the ``pypath.websrvtab`` module.
         """
 
-        session_mod.Logger.__init__(self, name = 'server')
-
-        self._log('TableServer starting up.')
+        _log('TableServer starting up.')
 
         self.input_files = copy.deepcopy(self.default_input_files)
         self.input_files.update(input_files or {})
         self.data = {}
 
         self.to_load = (
-            self.data_query_types - common.to_set(exclude_tables)
+            self.data_query_types - _misc.to_set(exclude_tables)
                 if only_tables is None else
-            common.to_set(only_tables)
+            _misc.to_set(only_tables)
         )
 
-        self._log('Datasets to load: %s.' % (', '.join(sorted(self.to_load))))
+        _log('Datasets to load: %s.' % (', '.join(sorted(self.to_load))))
 
         self._read_tables()
 
@@ -714,15 +733,14 @@ class TableServer(BaseServer):
         self._preprocess_intercell()
         self._update_resources()
 
-        BaseServer.__init__(self)
-        self._log('TableServer startup ready.')
+        _log(f'{self.__class__.__name__} startup ready.')
 
 
     def _read_tables(self):
 
-        self._log('Loading data tables.')
+        _log('Loading data tables.')
 
-        for name, fname in iteritems(self.input_files):
+        for name, fname in self.input_files.items():
 
             if name not in self.to_load:
 
@@ -731,11 +749,11 @@ class TableServer(BaseServer):
             fname_gz = f'{fname}.gz'
             fname = fname_gz if os.path.exists(fname_gz) else fname
 
-            self._log('Loading dataset `%s` from file `%s`.' % (name, fname))
+            _log('Loading dataset `%s` from file `%s`.' % (name, fname))
 
             if not os.path.exists(fname):
 
-                self._log(
+                _log(
                     'Missing table: `%s`.' % fname
                 )
                 continue
@@ -749,7 +767,7 @@ class TableServer(BaseServer):
                 dtype = dtype,
             )
 
-            self._log(
+            _log(
                 'Table `%s` loaded from file `%s`.' % (name, fname)
             )
 
@@ -773,7 +791,7 @@ class TableServer(BaseServer):
 
             return
 
-        self._log('Preprocessing interactions.')
+        _log('Preprocessing interactions.')
         tbl = self.data['interactions']
         tbl['set_sources'] = pd.Series(
             [set(s.split(';')) for s in tbl.sources]
@@ -794,7 +812,7 @@ class TableServer(BaseServer):
 
             return
 
-        self._log('Preprocessing enzyme-substrate relationships.')
+        _log('Preprocessing enzyme-substrate relationships.')
         tbl = self.data['enzsub']
         tbl['set_sources'] = pd.Series(
             [set(s.split(';')) for s in tbl.sources]
@@ -807,7 +825,7 @@ class TableServer(BaseServer):
 
             return
 
-        self._log('Preprocessing complexes.')
+        _log('Preprocessing complexes.')
         tbl = self.data['complexes']
 
         tbl = tbl[~tbl.components.isna()]
@@ -849,7 +867,7 @@ class TableServer(BaseServer):
             return result
 
 
-        self._log('Preprocessing annotations.')
+        _log('Preprocessing annotations.')
 
         self.data['annotations_summary'] = self.data['annotations'].groupby(
             ['source', 'label'],
@@ -865,7 +883,7 @@ class TableServer(BaseServer):
         renum = re.compile(r'[-\d\.]+')
 
 
-        self._log('Preprocessing annotations.')
+        _log('Preprocessing annotations.')
 
         values_by_key = collections.defaultdict(set)
 
@@ -899,7 +917,7 @@ class TableServer(BaseServer):
         self.data['annotations_summary'] = pd.DataFrame(
             list(
                 (source, label, '#'.join(sorted(values)))
-                for (source, label), values in iteritems(values_by_key)
+                for (source, label), values in values_by_key.items()
             ),
             columns = ['source', 'label', 'value'],
         )
@@ -911,7 +929,7 @@ class TableServer(BaseServer):
 
             return
 
-        self._log('Preprocessing intercell data.')
+        _log('Preprocessing intercell data.')
         tbl = self.data['intercell']
         tbl.drop('full_name', axis = 1, inplace = True, errors = 'ignore')
         self.data['intercell_summary'] = tbl.filter(
@@ -921,7 +939,7 @@ class TableServer(BaseServer):
 
     def _update_resources(self):
 
-        self._log('Updating resource information.')
+        _log('Updating resource information.')
 
         self._resources_dict = collections.defaultdict(dict)
 
@@ -964,7 +982,7 @@ class TableServer(BaseServer):
                     if license is None:
 
                         msg = 'No license for resource `%s`.' % str(db)
-                        self._log(msg)
+                        _log(msg)
                         raise RuntimeError(msg)
 
                     license_data = license.features
@@ -1023,7 +1041,7 @@ class TableServer(BaseServer):
 
         self._resources_dict = dict(self._resources_dict)
 
-        self._log('Finished updating resource information.')
+        _log('Finished updating resource information.')
 
 
     def _check_args(self, req):
@@ -1036,7 +1054,7 @@ class TableServer(BaseServer):
             self.args_reference[argname]
         )
 
-        for arg, val in iteritems(req.args):
+        for arg, val in req.args.items():
 
             arg = arg.decode('utf-8')
 
@@ -1136,7 +1154,7 @@ class TableServer(BaseServer):
                         if isinstance(v, (list, set, tuple)) else
                     str(v)
                 )
-                for k, v in iteritems(result)
+                for k, v in result.items()
             )
 
 
@@ -1154,7 +1172,7 @@ class TableServer(BaseServer):
                     val
                 )
             )
-            for key, val in iteritems(dct)
+            for key, val in dct.items()
         )
 
 
@@ -1211,7 +1229,7 @@ class TableServer(BaseServer):
         else:
 
             return 'dataset\tresources\n%s' % '\n'.join(
-                '%s\t%s' % (k, ';'.join(v)) for k, v in iteritems(result)
+                '%s\t%s' % (k, ';'.join(v)) for k, v in result.items()
             )
 
 
@@ -1336,7 +1354,7 @@ class TableServer(BaseServer):
         else:
             genesymbols = False
 
-        self._log('Processed arguments: [%s].' % common.dict_str(args))
+        _log('Processed arguments: [%s].' % _misc.dict_str(args))
 
         # starting from the entire dataset
         tbl = self.data['interactions']
@@ -1751,7 +1769,7 @@ class TableServer(BaseServer):
             req.args[b'resources'] = req.args[b'databases']
 
         if (
-            not settings.get('server_annotations_full_download') and
+            not _settings.get('server_annotations_full_download') and
             not b'resources' in req.args and
             not b'proteins' in req.args
         ):
@@ -2125,7 +2143,7 @@ class TableServer(BaseServer):
         return json.dumps(
             dict(
                 (k, v)
-                for k, v in iteritems(self._resources_dict)
+                for k, v in self._resources_dict.items()
                 if (
                     res_ctrl.license(k).enables(license) and
                     (
@@ -2310,7 +2328,7 @@ class TableServer(BaseServer):
 
             for i in data_json:
 
-                for k, v in iteritems(i):
+                for k, v in i.items():
 
                     if k in cls.list_fields:
 
@@ -2353,3 +2371,17 @@ class TableServer(BaseServer):
             else set()
         )
 
+@contextlib.contextmanager
+def ignore_pandas_copywarn():
+
+    try:
+
+        with warnings.catch_warnings():
+
+            warnings.simplefilter('ignore', pd.errors.SettingWithCopyWarning)
+
+            yield
+
+    finally:
+
+        pass
