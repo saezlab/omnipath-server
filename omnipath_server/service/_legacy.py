@@ -730,7 +730,6 @@ class LegacyService:
         self._preprocess_interactions()
         self._preprocess_enzsub()
         self._preprocess_annotations()
-        self._preprocess_complexes()
         self._preprocess_intercell()
         self._update_resources()
 
@@ -818,25 +817,6 @@ class LegacyService:
         tbl['set_sources'] = pd.Series(
             [set(s.split(';')) for s in tbl.sources]
         )
-
-
-    def _preprocess_complexes(self):
-
-        if 'complexes' not in self.data:
-
-            return
-
-        _log('Preprocessing complexes.')
-        tbl = self.data['complexes']
-
-        tbl = tbl[~tbl.components.isna()]
-
-        with ignore_pandas_copywarn():
-
-            tbl['set_sources'] = [set(s.split(';')) for s in tbl.sources]
-            tbl['set_proteins'] = [set(c.split('_')) for c in tbl.components]
-
-        self.data['complexes'] = tbl
 
 
     def _preprocess_annotations_old(self):
@@ -2071,7 +2051,13 @@ class LegacyService:
         return self._serve_dataframe(tbl, req)
 
 
-    def complexes(self, req):
+    def complexes(
+            self,
+            resources: list[str],
+            proteins: list[str] | None = None,
+            fields: list[str] | None = None,
+            limit: int | None = None,
+        ) -> Generator[tuple]:
 
         bad_req = self._check_args(req)
 
