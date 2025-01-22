@@ -44,10 +44,11 @@ class Annotations(Base):
 class Complexes(Base):
 
     __tablename__ = 'complexes'
+    _array_sep = {'components': '_', 'components_genesymbols': '_'}
     id = Column(Integer, primary_key = True)
     name = Column(String)
-    components = Column(String)
-    components_genesymbols = Column(String)
+    components = Column(ARRAY(String))
+    components_genesymbols = Column(ARRAY(String))
     stoichiometry = Column(String)
     sources = Column(ARRAY(String))
     references = Column(String)  # Could be array
