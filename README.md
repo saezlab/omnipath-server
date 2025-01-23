@@ -1,11 +1,11 @@
+[![Tests][badge-ci]][link-ci]
+[![Coverage][badge-cov]][link-cov]
+
+[badge-cov]: https://codecov.io/github/saezlab/omnipath-server/graph/badge.svg
+[link-cov]: https://codecov.io/github/saezlab/omnipath-server
+[badge-ci]: https://img.shields.io/github/actions/workflow/status/saezlab/omnipath-server/ci.yml?branch=main
+[link-ci]: https://github.com/saezlab/omnipath-server/actions/workflows/ci.yml
+
 # OmniPath Server
 
-[![Tests][badge-tests]][link-tests]
-[![Documentation][badge-docs]][link-docs]
-
-[badge-tests]: https://img.shields.io/github/actions/workflow/status/saezlab/omnipath-server/test.yaml?branch=main
-[link-tests]: https://github.com/saezlab/omnipath-server/actions/workflows/test.yml
-[badge-docs]: https://img.shields.io/readthedocs/omnipath-server
-[link-docs]: https://omnipath-server.readthedocs.io
-
-OmniPath HTTP server based on Twisted
+A HTTP server with the OmniPath web services
