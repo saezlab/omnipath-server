@@ -6,7 +6,7 @@ source =
 [run]
 branch = true
 parallel = true
-source = OmniPath Server
+source = omnipath_server
 omit = */__init__.py
 
 [report]
