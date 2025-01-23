@@ -13,6 +13,7 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
+from typing import TYPE_CHECKING
 from collections.abc import Generator
 import re
 import bz2
@@ -23,6 +24,10 @@ import pathlib as pl
 
 from pypath_common import _misc
 from sqlalchemy.orm import decl_api
+
+if TYPE_CHECKING:
+
+    from sqlalchemy.sql.base import ReadOnlyColumnCollection
 
 from .. import _log, _connection
 from ..schema import _legacy as _schema
@@ -136,7 +141,7 @@ class Loader:
                     compr_path,
                     schema,
                     self.con,
-                    wipe = self.wipe
+                    wipe = self.wipe,
                 ).load()
 
         _log(
@@ -200,7 +205,7 @@ class TableLoader:
 
 
     @property
-    def columns(self) -> 'ReadOnlyColumnCollection':
+    def columns(self) -> ReadOnlyColumnCollection:
 
         return self.table.__table__.columns
 
@@ -249,7 +254,7 @@ class TableLoader:
                         sep = getattr(
                             self.table,
                             '_array_sep',
-                            {}
+                            {},
                         ).get(col, ';')
 
                         row[col] = row[col].split(sep) if row[col] else []
