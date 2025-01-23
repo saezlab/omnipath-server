@@ -13,7 +13,6 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
-from typing import TYPE_CHECKING
 from collections.abc import Generator
 import re
 import bz2
@@ -24,10 +23,7 @@ import pathlib as pl
 
 from pypath_common import _misc
 from sqlalchemy.orm import decl_api
-
-if TYPE_CHECKING:
-
-    from sqlalchemy.sql.base import ReadOnlyColumnCollection
+from sqlalchemy.sql.base import ReadOnlyColumnCollection
 
 from .. import _log, _connection
 from ..schema import _legacy as _schema
