@@ -3,8 +3,8 @@
 
 [badge-cov]: https://codecov.io/github/saezlab/omnipath-server/graph/badge.svg
 [link-cov]: https://codecov.io/github/saezlab/omnipath-server
-[badge-ci]: https://img.shields.io/github/actions/workflow/status/saezlab/omnipath-server/ci.yml?branch=main
-[link-ci]: https://github.com/saezlab/omnipath-server/actions/workflows/ci.yml
+[badge-ci]: https://img.shields.io/github/actions/workflow/status/saezlab/omnipath-server/ci.yaml?branch=main
+[link-ci]: https://github.com/saezlab/omnipath-server/actions/workflows/ci.yaml
 
 # OmniPath Server
 
