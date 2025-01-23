@@ -1,7 +1,7 @@
 [paths]
 source =
     project_name
-    */site-packages/OmniPath Server
+    */site-packages/omnipath_server
 
 [run]
 branch = true
