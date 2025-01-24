@@ -708,6 +708,7 @@ class LegacyService:
 
     def __init__(
             self,
+            con: _connection.Connection | dict | None = None,
             input_files = None,
             only_tables = None,
             exclude_tables = None,
@@ -720,6 +721,8 @@ class LegacyService:
         """
 
         _log('TableServer starting up.')
+
+        self.con = _connection.ensure_con(con)
 
         self.input_files = copy.deepcopy(self.default_input_files)
         self.input_files.update(input_files or {})
@@ -1279,6 +1282,10 @@ class LegacyService:
 
             return bad_req
 
+        # Instance of sqlalchemy.orm.Query
+        query = self.con.session.query(self._schema(query_type))
+
+        #HERE
         if 'databases' in args:
 
             args['resources'] = args['databases']
@@ -1286,7 +1293,7 @@ class LegacyService:
         hdr = self._columns(query_type)
 
         # Filtering for resources
-        if b'resources' in req.args:
+        if 'resources' in args:
 
             resources = self._args_set(req, 'resources')
 
