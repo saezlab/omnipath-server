@@ -13,25 +13,32 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
+from collections.abc import Generator
 import os
 import re
 import copy
-import collections
-import itertools
 import json
 import warnings
+import itertools
 import contextlib
-from collections.abc import Generator
+import collections
+
+from pypath import resources as resources_mod
+from pypath_common import _misc, _settings
+from pypath_common import _constants as _const
+from sqlalchemy.sql.base import ReadOnlyColumnCollection
 
 import numpy as np
 import pandas as pd
-from pypath_common import _misc
-from pypath_common import _constants as _const
-from pypath_common import _settings
-from pypath import resources as resources_mod
 
 from .. import _log, _connection
 from ..schema import _legacy as _schema
+
+__all__ = [
+    'LICENSE_IGNORE',
+    'LegacyService',
+    'ignore_pandas_copywarn',
+]
 
 
 LICENSE_IGNORE = 'ignore'
@@ -89,7 +96,7 @@ class LegacyService:
                 'tab',
                 'text',
                 'tsv',
-                'table'
+                'table',
             },
             'license': {
                 'ignore',
@@ -244,7 +251,7 @@ class LegacyService:
                 'OR',
                 'and',
                 'or',
-            }
+            },
         },
         'annotations': {
             'header': None,
@@ -359,7 +366,7 @@ class LegacyService:
                 'trans',
                 'receiver',
                 'rec',
-                'both'
+                'both',
             },
             'topology': {
                 'secreted',
@@ -619,7 +626,7 @@ class LegacyService:
             'secreted': 'bool',
             'plasma_membrane_transmembrane': 'bool',
             'plasma_membrane_peripheral': 'bool',
-        }
+        },
     )
 
     # the annotation attributes served for the cytoscape app
@@ -635,7 +642,7 @@ class LegacyService:
                 'family',
                 'subfamily',
                 #'has_protein_substrates',
-            )
+            ),
         ),
         ('CancerSEA', 'state'),
         ('GO_Intercell', 'mainclass'),
@@ -646,7 +653,7 @@ class LegacyService:
             (
                 'mainclass',
                 #'secreted',
-            )
+            ),
         ),
         (
             'OPM',
@@ -654,7 +661,7 @@ class LegacyService:
                 'membrane',
                 'family',
                 #'transmembrane',
-            )
+            ),
         ),
         ('KEGG', 'pathway'),
         #(
@@ -674,7 +681,7 @@ class LegacyService:
         #('MSigDB', 'geneset'),
         #('Integrins', 'in Integrins'),
         ('HGNC', 'mainclass'),
-        ('CPAD', ('pathway', 'effect_on_cancer', 'cancer', )),
+        ('CPAD', ('pathway', 'effect_on_cancer', 'cancer')),
         ('Signor', 'pathway'),
         ('Ramilowski2015', 'mainclass'),
         ('HPA_subcellular', 'location'),
@@ -704,7 +711,7 @@ class LegacyService:
             input_files = None,
             only_tables = None,
             exclude_tables = None,
-        ):
+    ):
         """
         Server based on ``pandas`` data frames.
 
@@ -750,12 +757,12 @@ class LegacyService:
             fname_gz = f'{fname}.gz'
             fname = fname_gz if os.path.exists(fname_gz) else fname
 
-            _log('Loading dataset `%s` from file `%s`.' % (name, fname))
+            _log(f'Loading dataset `{name}` from file `{fname}`.')
 
             if not os.path.exists(fname):
 
                 _log(
-                    'Missing table: `%s`.' % fname
+                    'Missing table: `%s`.' % fname,
                 )
                 continue
 
@@ -769,7 +776,7 @@ class LegacyService:
             )
 
             _log(
-                'Table `%s` loaded from file `%s`.' % (name, fname)
+                f'Table `{name}` loaded from file `{fname}`.',
             )
 
 
@@ -782,8 +789,11 @@ class LegacyService:
         if b'format' in req.args and req.args['format'] == b'json':
             return json.dumps(val)
         else:
-            return '%s\n%s' % ('\t'.join(hdr), '\t'.join(
-                [str(val[h]) for h in hdr]))
+            return '{}\n{}'.format(
+                '\t'.join(hdr), '\t'.join(
+                [str(val[h]) for h in hdr],
+                ),
+            )
 
 
     def _preprocess_interactions(self):
@@ -795,15 +805,15 @@ class LegacyService:
         _log('Preprocessing interactions.')
         tbl = self.data['interactions']
         tbl['set_sources'] = pd.Series(
-            [set(s.split(';')) for s in tbl.sources]
+            [set(s.split(';')) for s in tbl.sources],
         )
         tbl['set_dorothea_level'] = pd.Series(
             [
                 set(s.split(';'))
                 if not pd.isnull(s) else
-                set([])
+                set()
                 for s in tbl.dorothea_level
-            ]
+            ],
         )
 
 
@@ -816,7 +826,7 @@ class LegacyService:
         _log('Preprocessing enzyme-substrate relationships.')
         tbl = self.data['enzsub']
         tbl['set_sources'] = pd.Series(
-            [set(s.split(';')) for s in tbl.sources]
+            [set(s.split(';')) for s in tbl.sources],
         )
 
 
@@ -832,7 +842,7 @@ class LegacyService:
         def _agg_values(vals):
 
             result = (
-                '#'.join(sorted(set(str(ii) for ii in vals)))
+                '#'.join(sorted({str(ii) for ii in vals}))
                 if not all(
                     isinstance(i, (int, float)) or (
                         isinstance(i, str) and
@@ -941,7 +951,7 @@ class LegacyService:
                 ('database', 'databases'),
                 ('sources', 'databases'),
                 ('source', 'databases'),
-                ('category', 'categories')
+                ('category', 'categories'),
             ):
 
                 if colname in tbl.columns:
@@ -949,11 +959,15 @@ class LegacyService:
                     break
 
             # collecting all resource names
-            values = sorted(set(
-                itertools.chain(*(
-                    val.split(';') for val in getattr(tbl, colname)
-                ))
-            ))
+            values = sorted(
+                set(
+                    itertools.chain(
+                        *(
+                            val.split(';') for val in getattr(tbl, colname)
+                        ),
+                    ),
+                ),
+            )
 
             for db in values:
 
@@ -1011,7 +1025,7 @@ class LegacyService:
 
                         self._resources_dict[db]['queries'][query_type] = {
                             'generic_categories': sorted(
-                                set(tbl_db.category)
+                                set(tbl_db.category),
                             ),
                         }
 
@@ -1053,10 +1067,10 @@ class LegacyService:
                 if unknowns:
 
                     result.append(
-                        ' ==> Unknown values for argument `%s`: `%s`' % (
+                        ' ==> Unknown values for argument `{}`: `{}`'.format(
                             arg,
-                            ', '.join(str(u) for u in unknowns)
-                        )
+                            ', '.join(str(u) for u in unknowns),
+                        ),
                     )
 
             else:
@@ -1097,13 +1111,11 @@ class LegacyService:
 
         if query_type in self.args_reference:
 
-            result = dict(
-                (
-                    k,
+            result = {
+                    k:
                     sorted(v) if isinstance(v, _const.LIST_LIKE) else v
-                )
                 for k, v in self.args_reference[query_type].items()
-            )
+            }
 
             if query_param is not None and query_param in result:
 
@@ -1126,11 +1138,11 @@ class LegacyService:
         else:
 
             return 'argument\tvalues\n%s' % '\n'.join(
-                '%s\t%s' % (
+                '{}\t{}'.format(
                     k,
                     ';'.join(v)
                         if isinstance(v, (list, set, tuple)) else
-                    str(v)
+                    str(v),
                 )
                 for k, v in result.items()
             )
@@ -1139,9 +1151,8 @@ class LegacyService:
     @classmethod
     def _dict_set_to_list(cls, dct):
 
-        return dict(
-            (
-                key,
+        return {
+                key:
                 (
                     sorted(val)
                         if isinstance(val, _const.LIST_LIKE) else
@@ -1149,9 +1160,8 @@ class LegacyService:
                         if isinstance(val, dict) else
                     val
                 )
-            )
             for key, val in dct.items()
-        )
+        }
 
 
     def databases(self, req):
@@ -1191,8 +1201,10 @@ class LegacyService:
 
             for dataset in datasets:
 
-                result[dataset] = sorted(set.union(
-                    *tbl[tbl.type == dataset].set_sources)
+                result[dataset] = sorted(
+                    set.union(
+                        *tbl[tbl.type == dataset].set_sources,
+                    ),
                 )
 
         else:
@@ -1207,7 +1219,7 @@ class LegacyService:
         else:
 
             return 'dataset\tresources\n%s' % '\n'.join(
-                '%s\t%s' % (k, ';'.join(v)) for k, v in result.items()
+                '{}\t{}'.format(k, ';'.join(v)) for k, v in result.items()
             )
 
 
@@ -1240,6 +1252,17 @@ class LegacyService:
 
             return ';'.join(result)
 
+
+    def _schema(self, query_type: str) -> ReadOnlyColumnCollection:
+
+        return getattr(_schems, query_type.capitalize())
+
+
+    def _columns(self, query_type: str) -> list[str]:
+
+        return self._schema(query_type).__table__.columns
+
+
     def _query(self, args: dict, query_type: str) -> str:
         """
         Generates and executes the SQL query based on the request
@@ -1260,7 +1283,39 @@ class LegacyService:
 
             args['resources'] = args['databases']
 
-        # HELLO
+        hdr = self._columns(query_type)
+
+        # Filtering for resources
+        if b'resources' in req.args:
+
+            resources = self._args_set(req, 'resources')
+
+            tbl = tbl.loc[
+                [
+                    bool(sources & resources)
+                    for sources in tbl.set_sources
+                ]
+            ]
+
+        # Filtering for proteins
+        if b'proteins' in req.args:
+
+            proteins = self._args_set(req, 'proteins')
+
+            tbl = tbl.loc[
+                [
+                    bool(this_proteins & proteins)
+                    for this_proteins in tbl.set_proteins
+                ]
+            ]
+
+        license = self._get_license(req)
+
+        tbl = self._filter_by_license_complexes(tbl, license)
+
+        tbl = tbl.loc[:,hdr]
+
+        return self._serve_dataframe(tbl, req)
 
 
     def interactions(
@@ -1271,7 +1326,7 @@ class LegacyService:
             dorothea_levels = {'A', 'B'},
             organisms = {9606},
             source_target = 'OR',
-        ):
+    ):
 
         bad_req = self._check_args(req)
 
@@ -1328,9 +1383,9 @@ class LegacyService:
         # keep only valid dataset names
         args['datasets'] = args['datasets'] & self.datasets_
 
-        args['organisms'] = set(
+        args['organisms'] = {
             int(t) for t in args['organisms'] if t.isdigit()
-        )
+        }
         args['organisms'] = args['organisms'] or organisms
 
         # do not allow impossible values
@@ -1481,10 +1536,12 @@ class LegacyService:
             self._parse_bool_arg(req.args['signed'])
         ):
 
-            tbl = tbl.loc[np.logical_or(
-                tbl.is_stimulation == 1,
-                tbl.is_inhibition == 1
-            )]
+            tbl = tbl.loc[
+                np.logical_or(
+                    tbl.is_stimulation == 1,
+                    tbl.is_inhibition == 1,
+                )
+            ]
 
         # loops: remove by default
         if (
@@ -1533,7 +1590,7 @@ class LegacyService:
                 hdr.extend(
                     set(tbl.columns) &
                     self.args_reference['interactions']['datasets'] &
-                    args['datasets']
+                    args['datasets'],
                 )
 
             else:
@@ -1606,8 +1663,8 @@ class LegacyService:
             self,
             req,
             organisms = {9606},
-            enzyme_substrate = 'OR'
-        ):
+            enzyme_substrate = 'OR',
+    ):
 
         bad_req = self._check_args(req)
 
@@ -1617,7 +1674,7 @@ class LegacyService:
 
         hdr = [
             'enzyme', 'substrate', 'residue_type',
-            'residue_offset', 'modification'
+            'residue_offset', 'modification',
         ]
 
         if b'enzyme_substrate' in req.args:
@@ -1635,14 +1692,14 @@ class LegacyService:
         for arg in (
             'enzymes', 'substrates', 'partners',
             'resources', 'organisms', 'types',
-            'residues'
+            'residues',
         ):
 
             args[arg] = self._args_set(req, arg)
 
-        args['organisms'] = set(
+        args['organisms'] = {
             int(t) for t in args['organisms'] if t.isdigit()
-        )
+        }
         args['organisms'] = args['organisms'] or organisms
 
         # provide genesymbols: yes or no
@@ -1975,12 +2032,12 @@ class LegacyService:
                     (topology & {'secreted', 'sec'}, 'secreted'),
                     (
                         topology & {'plasma_membrane_peripheral', 'pmp'},
-                        'plasma_membrane_peripheral'
+                        'plasma_membrane_peripheral',
                     ),
                     (
                         topology & {'plasma_membrane_transmembrane', 'pmtm'},
-                        'plasma_membrane_transmembrane'
-                    )
+                        'plasma_membrane_transmembrane',
+                    ),
                 )
                 if enabled
             )
@@ -2076,7 +2133,7 @@ class LegacyService:
             proteins: list[str] | None = None,
             fields: list[str] | None = None,
             limit: int | None = None,
-        ) -> Generator[tuple]:
+    ) -> Generator[tuple]:
 
         req = locals()
         bad_req = self._check_args(req)
@@ -2146,8 +2203,8 @@ class LegacyService:
         license = self._get_license(req)
 
         return json.dumps(
-            dict(
-                (k, v)
+            {
+                k: v
                 for k, v in self._resources_dict.items()
                 if (
                     res_ctrl.license(k).enables(license) and
@@ -2156,7 +2213,7 @@ class LegacyService:
                         datasets & set(v['datasets'].keys())
                     )
                 )
-            )
+            },
         )
 
 
@@ -2220,7 +2277,7 @@ class LegacyService:
             res_col,
             simple = False,
             prefix_col = None,
-        ):
+    ):
 
         def filter_resources(res):
 
@@ -2284,14 +2341,16 @@ class LegacyService:
 
                 _new_prefix_col = [
 
-                    ';'.join(sorted(
-                        pref_res
-                        for pref_res in pref_ress.split(';')
-                        if (
-                            pref_res.split(':', maxsplit = 1)[0] in
-                            _res_to_keep[i]
-                        )
-                    ))
+                    ';'.join(
+                        sorted(
+                            pref_res
+                            for pref_res in pref_ress.split(';')
+                            if (
+                                pref_res.split(':', maxsplit = 1)[0] in
+                                _res_to_keep[i]
+                            )
+                        ),
+                    )
 
                         if isinstance(pref_ress, str) else
 
@@ -2375,7 +2434,7 @@ class LegacyService:
             if arg in req.args
             else set()
         )
-    
+
     def _parse_bool_arg(self, arg):
 
         if isinstance(arg, list) and arg:
