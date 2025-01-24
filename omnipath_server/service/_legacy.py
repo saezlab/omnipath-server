@@ -779,7 +779,7 @@ class LegacyService:
         tbl = self.data['network'].field
         val = dict(zip(tbl.field, tbl.value))
 
-        if b'format' in req.args and req.args[b'format'] == b'json':
+        if b'format' in req.args and req.args['format'] == b'json':
             return json.dumps(val)
         else:
             return '%s\n%s' % ('\t'.join(hdr), '\t'.join(
@@ -1063,7 +1063,7 @@ class LegacyService:
 
                 result.append(' ==> Unknown argument: `%s`' % arg)
 
-        args[b'header'] = self._parse_bool_arg(args[b'header'])
+        args['header'] = self._parse_bool_arg(args['header'])
 
         if result:
 
@@ -1119,7 +1119,7 @@ class LegacyService:
 
         result = self._dict_set_to_list(result)
 
-        if b'format' in req.args and req.args[b'format'][0] == b'json':
+        if b'format' in req.args and req.args['format'][0] == b'json':
 
             return json.dumps(result)
 
@@ -1200,7 +1200,7 @@ class LegacyService:
             result = {}
             result['*'] = sorted(set.union(*tbl.set_sources))
 
-        if b'format' in req.args and req.args[b'format'][0] == b'json':
+        if b'format' in req.args and req.args['format'][0] == b'json':
 
             return json.dumps(result)
 
@@ -1232,13 +1232,35 @@ class LegacyService:
 
             result = []
 
-        if b'format' in req.args and req.args[b'format'][0] == b'json':
+        if b'format' in req.args and req.args['format'][0] == b'json':
 
             return json.dumps(result)
 
         else:
 
             return ';'.join(result)
+
+    def _query(self, args: dict, query_type: str) -> str:
+        """
+        Generates and executes the SQL query based on the request
+
+        Args:
+            - args: The query arguments
+            - query_type: The DataBase which to query (e.g. interactions,
+              complexes, etc)
+        """
+
+        bad_req = self._check_args(args, query_type)
+
+        if bad_req:
+
+            return bad_req
+
+        if 'databases' in args:
+
+            args['resources'] = args['databases']
+
+        # HELLO
 
 
     def interactions(
@@ -1271,7 +1293,7 @@ class LegacyService:
         if b'source_target' in req.args:
 
             source_target = (
-                req.args[b'source_target'][0].decode('utf-8').upper()
+                req.args['source_target'][0].decode('utf-8').upper()
             )
 
         # changes the old, "tfregulons" names to new "dorothea"
@@ -1279,7 +1301,7 @@ class LegacyService:
 
         if b'databases' in req.args:
 
-            req.args[b'resources'] = req.args[b'databases']
+            req.args['resources'] = req.args['databases']
 
         args = {}
 
@@ -1324,7 +1346,7 @@ class LegacyService:
         # provide genesymbols: yes or no
         if (
             b'genesymbols' in req.args and
-            self._parse_bool_arg(req.args[b'genesymbols'])
+            self._parse_bool_arg(req.args['genesymbols'])
         ):
             genesymbols = True
             hdr.insert(2, 'source_genesymbol')
@@ -1449,14 +1471,14 @@ class LegacyService:
         # filter directed & signed
         if (
             b'directed' not in req.args or
-            self._parse_bool_arg(req.args[b'directed'])
+            self._parse_bool_arg(req.args['directed'])
         ):
 
             tbl = tbl.loc[tbl.is_directed == 1]
 
         if (
             b'signed' in req.args and
-            self._parse_bool_arg(req.args[b'signed'])
+            self._parse_bool_arg(req.args['signed'])
         ):
 
             tbl = tbl.loc[np.logical_or(
@@ -1467,7 +1489,7 @@ class LegacyService:
         # loops: remove by default
         if (
             b'loops' not in req.args or
-            not self._parse_bool_arg(req.args[b'loops'])
+            not self._parse_bool_arg(req.args['loops'])
         ):
 
             # pandas is a disaster:
@@ -1476,17 +1498,17 @@ class LegacyService:
                 tbl.target.astype('string')
             ]
 
-        req.args[b'fields'] = req.args[b'fields'] or [b'']
+        req.args['fields'] = req.args['fields'] or [b'']
 
         _fields = [
             f for f in
-            req.args[b'fields'][0].decode('utf-8').split(',')
+            req.args['fields'][0].decode('utf-8').split(',')
             if f in self.interaction_fields
         ]
 
         for f in (b'evidences', b'extra_attrs'):
 
-            if f in req.uri and f not in req.args[b'fields'][0]:
+            if f in req.uri and f not in req.args['fields'][0]:
 
                 _fields.append(f.decode('utf-8'))
 
@@ -1601,12 +1623,12 @@ class LegacyService:
         if b'enzyme_substrate' in req.args:
 
             enzyme_substrate = (
-                req.args[b'enzyme_substrate'][0].decode('utf-8').upper()
+                req.args['enzyme_substrate'][0].decode('utf-8').upper()
             )
 
         if b'databases' in req.args:
 
-            req.args[b'resources'] = req.args[b'databases']
+            req.args['resources'] = req.args['databases']
 
         args = {}
 
@@ -1626,7 +1648,7 @@ class LegacyService:
         # provide genesymbols: yes or no
         if (
             b'genesymbols' in req.args and
-            self._parse_bool_arg(req.args[b'genesymbols'])
+            self._parse_bool_arg(req.args['genesymbols'])
         ):
             genesymbols = True
             hdr.insert(2, 'enzyme_genesymbol')
@@ -1689,11 +1711,11 @@ class LegacyService:
                 ]
             ]
 
-        if req.args[b'fields']:
+        if req.args['fields']:
 
             _fields = [
                 f for f in
-                req.args[b'fields'][0].decode('utf-8').split(',')
+                req.args['fields'][0].decode('utf-8').split(',')
                 if f in self.enzsub_fields
             ]
 
@@ -1744,7 +1766,7 @@ class LegacyService:
 
         if b'databases' in req.args:
 
-            req.args[b'resources'] = req.args[b'databases']
+            req.args['resources'] = req.args['databases']
 
         if (
             not _settings.get('server_annotations_full_download') and
@@ -1794,7 +1816,7 @@ class LegacyService:
         # provide genesymbols: yes or no
         if (
             b'genesymbols' in req.args and
-            self._parse_bool_arg(req.args[b'genesymbols'])
+            self._parse_bool_arg(req.args['genesymbols'])
         ):
             genesymbols = True
             hdr.insert(1, 'genesymbol')
@@ -1820,7 +1842,7 @@ class LegacyService:
 
         if b'databases' in req.args:
 
-            req.args[b'resources'] = req.args[b'databases']
+            req.args['resources'] = req.args['databases']
 
         # starting from the entire dataset
         tbl = self.data['annotations_summary']
@@ -1836,7 +1858,7 @@ class LegacyService:
 
         if (
             b'cytoscape' in req.args and
-            self._parse_bool_arg(req.args[b'cytoscape'])
+            self._parse_bool_arg(req.args['cytoscape'])
         ):
 
             cytoscape = True
@@ -1874,7 +1896,7 @@ class LegacyService:
 
         if b'databases' in req.args:
 
-            req.args[b'resources'] = req.args[b'databases']
+            req.args['resources'] = req.args['databases']
 
 
         # starting from the entire dataset
@@ -2012,7 +2034,7 @@ class LegacyService:
 
         if b'databases' in req.args:
 
-            req.args[b'resources'] = req.args[b'databases']
+            req.args['resources'] = req.args['databases']
 
         # starting from the entire dataset
         tbl = self.data['intercell_summary']
@@ -2062,19 +2084,15 @@ class LegacyService:
         if bad_req:
 
             return bad_req
-        
-        # XXX: WE ARE HERE
 
         if b'databases' in req.args:
 
-            req.args[b'resources'] = req.args[b'databases']
+            req.args['resources'] = req.args['databases']
 
         # Starting from the entire dataset
         tbl = self.data['complexes']
 
         hdr = list(tbl.columns)
-        hdr.remove('set_sources')
-        hdr.remove('set_proteins')
 
         # Filtering for resources
         if b'resources' in req.args:
@@ -2115,7 +2133,7 @@ class LegacyService:
 
             {
                 self._query_type(dataset.decode('ascii'))
-                for dataset in req.args[b'datasets']
+                for dataset in req.args['datasets']
             }
 
             if b'datasets' in req.args else
@@ -2146,7 +2164,7 @@ class LegacyService:
     @staticmethod
     def _get_license(req):
 
-        return req.args[b'license'][0].decode('utf-8')
+        return req.args['license'][0].decode('utf-8')
 
 
     @classmethod
@@ -2298,14 +2316,14 @@ class LegacyService:
 
         if b'limit' in req.args:
 
-            limit = req.args[b'limit'][0].decode('utf-8')
+            limit = req.args['limit'][0].decode('utf-8')
 
             if limit.isdigit():
 
                 limit = int(limit)
                 tbl = tbl.head(limit)
 
-        if b'format' in req.args and req.args[b'format'][0] == b'json':
+        if b'format' in req.args and req.args['format'][0] == b'json':
 
             data_json = tbl.to_json(orient = 'records')
             # this is necessary because in the data frame we keep lists
@@ -2342,7 +2360,7 @@ class LegacyService:
             return tbl.to_csv(
                 sep = '\t',
                 index = False,
-                header = bool(req.args[b'header']),
+                header = bool(req.args['header']),
                 chunksize = 2e5,
             )
 
