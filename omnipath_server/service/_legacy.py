@@ -2225,13 +2225,6 @@ class LegacyService:
         )
 
 
-
-    @staticmethod
-    def _get_license(req):
-
-        return req.args['license'][0].decode('utf-8')
-
-
     @classmethod
     def _filter_by_license_complexes(cls, tbl, license):
 
