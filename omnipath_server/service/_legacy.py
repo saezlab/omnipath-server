@@ -13,6 +13,7 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
+from typing import Any, Literal
 from collections.abc import Generator
 import os
 import re
@@ -2431,18 +2432,36 @@ class LegacyService:
             )
 
 
-    @staticmethod
-    def _args_set(req, arg):
+    def _parse_arg(self, arg: Any) -> Any:
+        """
+        Arguments come as strings, here we parse them to the appropriate type.
 
-        arg = arg.encode('utf-8')
+        At least from the HTTP interface, we get them as strings. In case these
+        come from elsewhere, and provided already as numeric or array types,
+        this function simply passes them through.
+        """
 
-        return (
-            set(req.args[arg][0].decode('utf-8').split(','))
-            if arg in req.args
-            else set()
-        )
+        if _misc.is_int(arg):
 
-    def _parse_bool_arg(self, arg):
+            arg = int(arg)
+
+        elif _misc.is_float(arg):
+
+            arg = float(arg)
+
+        elif ',' in arg:
+
+            arg = arg.split(',')
+
+        return arg
+
+
+    def _parse_bool_arg(self, arg: Any) -> bool:
+        """
+        Normalize various representations of Boolean values.
+
+        These can be 0 or 1, True or False, "true" or "false", "yes" or "no".
+        """
 
         if isinstance(arg, list) and arg:
 
