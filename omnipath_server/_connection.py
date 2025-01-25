@@ -13,13 +13,12 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
-from contextlib import closing
+from contextlib import closing, contextmanager
 from collections.abc import Generator
 import os
 
-from sqlalchemy import MetaData, create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import inspect
+from sqlalchemy import MetaData, inspect, create_engine
+from sqlalchemy.orm import sessionmaker, Query
 import yaml
 import psycopg2.extras
 
@@ -85,9 +84,9 @@ class Connection:
 
         return set(inspect(self.engine).get_table_names())
 
-    def connect(self):
+    def init(self):
         """
-        Connect to the database server.
+        Initialize the SQLAlchemy session.
         """
 
         uri = self._uri
@@ -95,7 +94,7 @@ class Connection:
         _log(f'Connecting to `{uri}`...')
 
         self.engine = create_engine(uri)
-        Session = sessionmaker(bind = self.engine)
+        Session = sessionmaker(bind = self.engine, stream_results = True)
         self.session = Session()
 
         _log(f'Connected to `{uri}`.')
@@ -137,6 +136,47 @@ class Connection:
                     raise e
 
 
+    def execute(self, query: str | Query) -> Generator[tuple, None, None]:
+        """
+        Execute an arbitrary SQL query.
+
+        This execute uses the connection's cursor, bypasses SQLAlchemy's ORM.
+        It submits the SQL query as text, and uses a server side cursor,
+        consuming the result in chunks.
+
+        Args:
+            query:
+                An SQL query to execute (Query object or string).
+        """
+
+        query = getattr(query, 'statement', query)
+
+        with self.connect() as con:
+
+            result = con.execute(query)
+
+            while chunk := result.fetchmany(self.chunk_size):
+
+                yield from chunk
+
+
+    @contextmanager
+    def connect(self):
+        """
+        Context manager for connection management.
+        """
+
+        con = self.engine.connect()
+
+        try:
+
+            yield con
+
+        finally:
+
+            con.close()
+
+
     def wipe(self) -> None:
         """
         Wipe the database.
@@ -151,7 +191,7 @@ class Connection:
 def ensure_con(
         con: Connection | dict | str,
         reconnect: bool = False,
-) -> Connection:
+    ) -> Connection:
     """
     Ensure that the provided connection is an instance of Connection.
 
