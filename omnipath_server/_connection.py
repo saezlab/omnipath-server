@@ -36,6 +36,7 @@ class Connection:
     def __init__(
             self,
             param: str | dict | None = None,
+            chunk_size: int = 1000,
             **kwargs,
     ):
         """
@@ -49,6 +50,7 @@ class Connection:
         """
 
         self._param = param or kwargs
+        self.chunk_size = chunk_size
         self._parse_param()
 
 
