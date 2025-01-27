@@ -104,8 +104,13 @@ class Connection:
 
     def __del__(self):
 
-        self.session.close()
-        self.engine.dispose()
+        if hasattr(self, 'session'):
+
+            self.session.close()
+
+        if hasattr(self, 'engine'):
+
+            self.engine.dispose()
 
 
     def execute_values(
