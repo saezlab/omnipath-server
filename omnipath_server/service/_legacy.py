@@ -731,42 +731,36 @@ class LegacyService:
     def __init__(
             self,
             con: _connection.Connection | dict | None = None,
-            input_files = None,
-            only_tables = None,
-            exclude_tables = None,
-    ):
+        ):
         """
-        Server based on ``pandas`` data frames.
-
-        :param dict input_files:
-            Paths to tables exported by the ``pypath.websrvtab`` module.
+        Service for the old OmniPath web API.
         """
 
-        _log('TableServer starting up.')
+        _log('Creating LegacyService.')
 
         self.con = _connection.ensure_con(con)
 
-        self.input_files = copy.deepcopy(self.default_input_files)
-        self.input_files.update(input_files or {})
-        self.data = {}
+        # self.input_files = copy.deepcopy(self.default_input_files)
+        # self.input_files.update(input_files or {})
+        # self.data = {}
 
-        self.to_load = (
-            self.data_query_types - _misc.to_set(exclude_tables)
-                if only_tables is None else
-            _misc.to_set(only_tables)
-        )
+        # self.to_load = (
+        #     self.data_query_types - _misc.to_set(exclude_tables)
+        #         if only_tables is None else
+        #     _misc.to_set(only_tables)
+        # )
 
-        _log('Datasets to load: %s.' % (', '.join(sorted(self.to_load))))
+        # _log('Datasets to load: %s.' % (', '.join(sorted(self.to_load))))
 
-        self._read_tables()
+        # self._read_tables()
 
-        self._preprocess_interactions()
-        self._preprocess_enzsub()
-        self._preprocess_annotations()
-        self._preprocess_intercell()
-        self._update_resources()
+        # self._preprocess_interactions()
+        # self._preprocess_enzsub()
+        # self._preprocess_annotations()
+        # self._preprocess_intercell()
+        # self._update_resources()
 
-        _log(f'{self.__class__.__name__} startup ready.')
+        # _log(f'{self.__class__.__name__} startup ready.')
 
 
     def _read_tables(self):
