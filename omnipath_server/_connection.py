@@ -223,4 +223,7 @@ def ensure_con(
 
             return con
 
-    return Connection(con)
+    con = Connection(con)
+    con.init()
+
+    return con
