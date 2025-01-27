@@ -1,0 +1,18 @@
+from omnipath_server.service import _legacy
+
+con_param = {
+    'user': 'omnipath',
+    'password': 'omnipath123',
+    'host': 'localhost',
+    'port': '5432',
+    'database': 'omnipath',
+}
+
+
+service = _legacy.LegacyService(con = con_param)
+
+query, bad_req = service._query({'limit': 10}, 'complexes')
+
+req = service._request({'limit': 10}, 'complexes')
+
+list(req)
