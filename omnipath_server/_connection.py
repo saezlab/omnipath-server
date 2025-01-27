@@ -18,7 +18,7 @@ from collections.abc import Generator
 import os
 
 from sqlalchemy import MetaData, inspect, create_engine
-from sqlalchemy.orm import sessionmaker, Query
+from sqlalchemy.orm import Query, sessionmaker
 import yaml
 import psycopg2.extras
 
@@ -94,7 +94,7 @@ class Connection:
         _log(f'Connecting to `{uri}`...')
 
         self.engine = create_engine(uri)
-        Session = sessionmaker(bind = self.engine, stream_results = True)
+        Session = sessionmaker(bind = self.engine)
         self.session = Session()
 
         _log(f'Connected to `{uri}`.')
@@ -127,6 +127,7 @@ class Connection:
 
                 try:
 
+                    _log(f'Executing query: {query}')
                     psycopg2.extras.execute_values(cur, query, values)
                     conn.commit()
 
@@ -151,6 +152,8 @@ class Connection:
 
         query = getattr(query, 'statement', query)
 
+        _log(f'Executing query: {query}')
+
         with self.connect() as con:
 
             result = con.execute(query)
@@ -166,6 +169,7 @@ class Connection:
         Context manager for connection management.
         """
 
+        _log('New connection...')
         con = self.engine.connect()
 
         try:
@@ -191,7 +195,7 @@ class Connection:
 def ensure_con(
         con: Connection | dict | str,
         reconnect: bool = False,
-    ) -> Connection:
+) -> Connection:
     """
     Ensure that the provided connection is an instance of Connection.
 
