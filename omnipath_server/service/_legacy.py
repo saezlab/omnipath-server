@@ -14,7 +14,7 @@
 #
 
 from typing import Any, Literal
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 import os
 import re
 import copy
@@ -27,7 +27,10 @@ import collections
 from pypath import resources as resources_mod
 from pypath_common import _misc, _settings
 from pypath_common import _constants as _const
+from sqlalchemy.orm import Query
 from sqlalchemy.sql.base import ReadOnlyColumnCollection
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import numpy as np
 import pandas as pd
@@ -36,6 +39,7 @@ from .. import _log, _connection
 from ..schema import _legacy as _schema
 
 __all__ = [
+    'FORMATS',
     'LICENSE_IGNORE',
     'LegacyService',
     'ignore_pandas_copywarn',
@@ -43,9 +47,26 @@ __all__ = [
 
 
 LICENSE_IGNORE = 'ignore'
+FORMATS = Literal[
+    'raw',
+    'json',
+    'tab',
+    'text',
+    'tsv',
+    'table',
+]
+
 
 class LegacyService:
 
+    query_param = {
+        'complexes': {
+            'where': {
+                'resources': 'sources',
+                'proteins': 'components',
+            },
+        },
+    }
     query_types = {
         'annotations',
         'intercell',
@@ -1259,7 +1280,7 @@ class LegacyService:
 
     def _schema(self, query_type: str) -> ReadOnlyColumnCollection:
 
-        return getattr(_schems, query_type.capitalize())
+        return getattr(_schema, query_type.capitalize())
 
 
     def _columns(self, query_type: str) -> list[str]:
@@ -1267,63 +1288,260 @@ class LegacyService:
         return self._schema(query_type).__table__.columns
 
 
-    def _query(self, args: dict, query_type: str) -> str:
+    def _where_op(
+            self,
+            col: InstrumentedAttribute | Column,
+            val: Any, op: str | None = None,
+    ) -> str:
+        """
+        Infers the operator for the where clause from column and value types.
+        """
+
+        if op is None:
+
+            if isinstance(val, _const.SIMPLE_TYPES):
+
+                if self._isarray(col):
+
+                    # col.val in val.set
+                    op = 'any_'
+
+                else:
+
+                    # col.val == val.val
+                    # Note: this covers BOOL columns, despite
+                    # there the operator is redundant
+                    op = '__eq__'
+
+            elif self._isarray(col):
+
+                # col.set & val.set
+                op = 'overlap'
+
+            else:
+
+                # col.val in set[val]
+                op = 'in_'
+
+        return op
+
+
+    def _isarray(self, col: InstrumentedAttribute) -> bool:
+        """
+        Is the column array type?
+        """
+
+        return col.type.python_type is list
+
+
+    def _where(self, query: Query, args: dict, param: dict) -> Query:
+        """
+        Adds WHERE clauses to the query.
+        """
+
+        # Adding WHERE clauses
+        for key, value in args.items():
+
+            if col_op := param.get(key, None):
+
+                value = self._parse_arg(value)
+                col, *op = _misc.to_tuple(col_op)
+                col = query.statment.columns[col]
+                op = self._where_op(op, col, value)
+                where_expr = getattr(col, op)(value)
+                query = query.filter(where_expr)
+
+        return query
+
+
+    def _select(self, args: dict, query_type: str, param: dict) -> Query:
+        """
+        Creates a new SELECT query.
+        """
+
+        cols = param.get('default_cols', set())
+        tbl = self._schema(query_type)
+        query_fields = self._parse_arg(param.get('fields', None))
+        cols.update(_misc.to_set(query_fields))
+        select = (
+            [tbl]  # this is SELECT * ...
+                if not cols else
+            [c for c in tbl.__table__.columns if c.name in cols]
+        )
+
+        # Instance of sqlalchemy.orm.Query
+        return self.con.session.query(*select)
+
+
+    def _limit(self, query: Query, args: dict) -> Query:
+        """
+        Adds LIMIT clauses to the query.
+        """
+
+        if 'limit' in args:
+
+            query = query.limit(self._parse_arg(args['limit']))
+
+        return query
+
+
+    def _query(
+            self,
+            args: dict,
+            query_type: str,
+    ) -> tuple[Query | None, str | None]:
         """
         Generates and executes the SQL query based on the request
 
         Args:
-            - args: The query arguments
-            - query_type: The DataBase which to query (e.g. interactions,
-              complexes, etc)
+            args:
+                The query arguments
+            query_type:
+                The DataBase which to query (e.g. interactions,
+                complexes, etc)
+
+        Return:
+            To be refined in the future: for now, either an SQL query, or an
+            error message.
         """
 
+        query = None
         bad_req = self._check_args(args, query_type)
 
-        if bad_req:
+        if not bad_req:
 
-            return bad_req
+            # TODO: introduce systematic solution for synonyms
+            if 'databases' in args:
 
-        # Instance of sqlalchemy.orm.Query
-        query = self.con.session.query(self._schema(query_type))
+                args['resources'] = args['databases']
 
-        #HERE
-        if 'databases' in args:
+            query_param = self.query_param[query_type]
 
-            args['resources'] = args['databases']
+            query = self._select(args, query_type, query_param)
+            query = self._where(query, args, query_param.get('where', {}))
+            query = self._limit(query, args)
 
-        hdr = self._columns(query_type)
+            # TODO: reimplement and enable license filtering
+            # tbl = self._filter_by_license_complexes(tbl, license)
 
-        # Filtering for resources
-        if 'resources' in args:
+        return query, bad_req
 
-            resources = self._args_set(req, 'resources')
 
-            tbl = tbl.loc[
-                [
-                    bool(sources & resources)
-                    for sources in tbl.set_sources
-                ]
-            ]
+    def _execute(self, query: Query, args: dict) -> Generator[tuple]:
 
-        # Filtering for proteins
-        if b'proteins' in req.args:
+        for row in self.con.execute(query):
 
-            proteins = self._args_set(req, 'proteins')
+            yield tuple(row)
 
-            tbl = tbl.loc[
-                [
-                    bool(this_proteins & proteins)
-                    for this_proteins in tbl.set_proteins
-                ]
-            ]
 
-        license = self._get_license(req)
+    def _request(
+            self,
+            args: dict,
+            query_type: str,
+            format: FORMATS | None = None,
+            header: bool | None = None,
+            postprocess: Callable[tuple] | None = None,
+            **kwargs,
+    ) -> Generator[tuple | str | dict, None, None]:
+        """
+        Generic request, each request should call this.
 
-        tbl = self._filter_by_license_complexes(tbl, license)
+        Implements the query-execute-postprocess-format pipeline.
+        """
 
-        tbl = tbl.loc[:,hdr]
+        query, bad_req = self._query(args, query_type)
+        colnames = ['<no-column-names>']
 
-        return self._serve_dataframe(tbl, req)
+        if query:
+
+            result = self._execute(query, args)
+            colnames = [c.name for c in query.statement.selected_columns]
+
+            if callable(postprocess):
+
+                result = postprocess(result, **kwargs)
+
+        else:
+
+            result = ((bad_req,),)
+
+        header = args.get('header', True) if header is None else header
+        names = colnames if header or format in {'raw', 'json'} else None
+        result = self._format(result, format = format, names = names)
+
+        yield from result
+
+
+    def _format(
+            self,
+            result: Generator[tuple, None, None],
+            format: FORMATS = 'raw',
+            names: list[str] | None = None,
+    ) -> Generator[tuple, None, None]:
+        """
+        Format the result as Python generator, TSV or JSON.
+
+        Args:
+            result:
+                A generator of tuples, each representing a record.
+            format:
+                One of the supported format literals (raw, tsv, json, ...).
+            names:
+                Column names.
+        """
+
+        formatter = lambda x: x
+
+        if format == 'raw':
+
+            if names:
+
+                record = collections.namedtuple('Record', names)
+                formatter = lambda x: record(*x)
+
+            for rec in result:
+
+                yield formatter(rec)
+
+        elif format == 'json':
+
+            if names:
+
+                formatter = lambda x: dict(zip(names, x))
+
+            for rec in result:
+
+                yield json.dumps(formatter(rec))
+
+        else:
+
+            formatter = self._table_formatter
+
+            if names:
+
+                yield formatter(names)
+
+            for rec in result:
+
+                yield formatter(rec)
+
+
+    @classmethod
+    def _table_formatter(cls, rec: tuple) -> str:
+
+        return '\t'.join(cls._table_field_formatter(f) for f in rec)
+
+
+    @staticmethod
+    def _table_field_formatter(field: Any) -> str:
+
+        return (
+            ';'.join(field)
+                if isinstance(field, _const.LIST_TYPES) else
+            json.dumps(field)
+                if isinstance(field, dict) else
+            str(field)
+        )
 
 
     def interactions(
@@ -2141,55 +2359,12 @@ class LegacyService:
             proteins: list[str] | None = None,
             fields: list[str] | None = None,
             limit: int | None = None,
-    ) -> Generator[tuple]:
+            format: FORMATS | None = None,
+    ) -> Generator[tuple | str, None, None]:
 
-        req = locals()
-        bad_req = self._check_args(req)
+        args = locals()
 
-        if bad_req:
-
-            return bad_req
-
-        if b'databases' in req.args:
-
-            req.args['resources'] = req.args['databases']
-
-        # Starting from the entire dataset
-        tbl = self.data['complexes']
-
-        hdr = list(tbl.columns)
-
-        # Filtering for resources
-        if b'resources' in req.args:
-
-            resources = self._args_set(req, 'resources')
-
-            tbl = tbl.loc[
-                [
-                    bool(sources & resources)
-                    for sources in tbl.set_sources
-                ]
-            ]
-
-        # Filtering for proteins
-        if b'proteins' in req.args:
-
-            proteins = self._args_set(req, 'proteins')
-
-            tbl = tbl.loc[
-                [
-                    bool(this_proteins & proteins)
-                    for this_proteins in tbl.set_proteins
-                ]
-            ]
-
-        license = self._get_license(req)
-
-        tbl = self._filter_by_license_complexes(tbl, license)
-
-        tbl = tbl.loc[:,hdr]
-
-        return self._serve_dataframe(tbl, req)
+        yield from self._request(args, 'complexes')
 
 
     def resources(self, req):
