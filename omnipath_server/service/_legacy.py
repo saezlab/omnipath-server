@@ -17,7 +17,6 @@ from typing import Any, Literal
 from collections.abc import Callable, Generator
 import os
 import re
-import copy
 import json
 import warnings
 import itertools
@@ -40,6 +39,7 @@ from ..schema import _legacy as _schema
 
 __all__ = [
     'FORMATS',
+    'GEN_OF_TUPLES',
     'LICENSE_IGNORE',
     'LegacyService',
     'ignore_pandas_copywarn',
@@ -55,6 +55,7 @@ FORMATS = Literal[
     'tsv',
     'table',
 ]
+GEN_OF_TUPLES = Generator[tuple, None, None]
 
 
 class LegacyService:
@@ -731,7 +732,7 @@ class LegacyService:
     def __init__(
             self,
             con: _connection.Connection | dict | None = None,
-        ):
+    ):
         """
         Service for the old OmniPath web API.
         """
@@ -1061,7 +1062,7 @@ class LegacyService:
 
     def _check_args(self, args: dict, query_type: str):
 
-        args.pop('self')
+        args.pop('self', None)
 
         result = []
 
@@ -1096,7 +1097,7 @@ class LegacyService:
 
                 result.append(' ==> Unknown argument: `%s`' % arg)
 
-        args['header'] = self._parse_bool_arg(args['header'])
+        args['header'] = self._parse_bool_arg(args.get('header', True))
 
         if result:
 
@@ -1421,7 +1422,7 @@ class LegacyService:
         return query, bad_req
 
 
-    def _execute(self, query: Query, args: dict) -> Generator[tuple]:
+    def _execute(self, query: Query, args: dict) -> GEN_OF_TUPLES:
 
         for row in self.con.execute(query):
 
@@ -1434,7 +1435,7 @@ class LegacyService:
             query_type: str,
             format: FORMATS | None = None,
             header: bool | None = None,
-            postprocess: Callable[tuple] | None = None,
+            postprocess: Callable[[GEN_OF_TUPLES], GEN_OF_TUPLES] | None = None,
             **kwargs,
     ) -> Generator[tuple | str | dict, None, None]:
         """
@@ -1468,10 +1469,10 @@ class LegacyService:
 
     def _format(
             self,
-            result: Generator[tuple, None, None],
+            result: GEN_OF_TUPLES,
             format: FORMATS = 'raw',
             names: list[str] | None = None,
-    ) -> Generator[tuple, None, None]:
+    ) -> GEN_OF_TUPLES:
         """
         Format the result as Python generator, TSV or JSON.
 
@@ -1531,7 +1532,7 @@ class LegacyService:
 
         return (
             ';'.join(field)
-                if isinstance(field, _const.LIST_TYPES) else
+                if isinstance(field, _const.LIST_LIKE) else
             json.dumps(field)
                 if isinstance(field, dict) else
             str(field)
@@ -2603,17 +2604,23 @@ class LegacyService:
         this function simply passes them through.
         """
 
-        if _misc.is_int(arg):
+        if arg is None:
 
-            arg = int(arg)
+            arg = []
 
-        elif _misc.is_float(arg):
+        elif isinstance(arg, str):
 
-            arg = float(arg)
+            if _misc.is_int(arg):
 
-        elif ',' in arg:
+                arg = int(arg)
 
-            arg = arg.split(',')
+            elif _misc.is_float(arg):
+
+                arg = float(arg)
+
+            elif ',' in arg:
+
+                arg = arg.split(',')
 
         return arg
 
