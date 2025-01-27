@@ -76,7 +76,7 @@ class Loader:
         self.con = _connection.ensure_con(con)
         self.wipe = wipe
 
-        self.con.connect()
+        self.con.init()
 
 
     def create(self):
