@@ -15,8 +15,8 @@
 
 from sanic import Sanic, Request, response
 
-from .. import _log
-from ..service import LegacyService
+from omnipath_server import _log
+from omnipath_server.service import LegacyService
 
 __all__ = [
 #    'create_server',
@@ -50,6 +50,9 @@ async def legacy_handler(request: Request, path: str):
 
     return response.text(f'No such path: {path}', status = 404)
 
+if __name__ == '__main__':
+    
+    legacy_server.run()
 
 _log('Legacy server ready.')
 
