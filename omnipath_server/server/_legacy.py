@@ -13,7 +13,7 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
-from sanic import Sanic, response
+from sanic import Sanic, Request, response
 
 from ..service import LegacyService
 
@@ -28,9 +28,18 @@ def create_server(**kwargs):
     legacy_server.ctx.service = LegacyService(**kwargs)
 
     @legacy_server.route('/<path:path>')
-    async def legacy_handler(request, path):
+    async def legacy_handler(request: Request, path: str):
 
-        return response.text(f'Legacy: {path}')
+        if (
+            not path.startswith('_') and
+            # TODO: maintain a registry of endpoints,
+            # don't rely on this getattr
+            (endpoint := getattr(request.ctx.service, path, None))
+        ):
+
+            return response.text(endpoint(**request.args))
+
+        return response.text(f'No such path: {path}', status = 404)
 
 
     return legacy_server

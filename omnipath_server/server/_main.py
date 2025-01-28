@@ -13,7 +13,7 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
-from sanic import Sanic, response
+from sanic import Sanic, Request, response
 
 __all__ = [
     'DOMAINS',
@@ -32,7 +32,7 @@ main_server = Sanic('RootServer')
 
 
 @main_server.middleware('request')
-async def route_requests(request):
+async def route_requests(request: Request):
 
     request.ctx.server = None
 
@@ -50,7 +50,7 @@ async def route_requests(request):
     '/<path:path>',
     methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 )
-async def handle_request(request, path):
+async def handle_request(request: Request, path: str):
 
     if (server := request.ctx.server) is not None:
 
