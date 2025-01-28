@@ -739,7 +739,6 @@ class LegacyService:
 
         _log('Creating LegacyService.')
 
-        self.con = _connection.ensure_con(con)
 
         # self.input_files = copy.deepcopy(self.default_input_files)
         # self.input_files.update(input_files or {})
@@ -762,6 +761,28 @@ class LegacyService:
         # self._update_resources()
 
         # _log(f'{self.__class__.__name__} startup ready.')
+
+
+    def _connect(
+            self,
+            con: _connection.Connection | dict | None = None,
+    ) -> None:
+
+        con = con or {}
+
+        if isinstance(con, dict):
+
+            con = {
+                    f'legacy_db_{param}':
+                    session.config.get(
+                        param,
+                        override = con.get(param, None),
+                        default = default,
+                    )
+                for param, default in _connection.DEFAULTS
+            }
+
+        self.con = _connection.ensure_con(con)
 
 
     def _read_tables(self):
