@@ -8,4 +8,5 @@ con_param = {
     'database': 'omnipath',
 }
 
-_legacy.create_server(con = con_param)
+app = _legacy.legacy_server
+app.run(host="0.0.0.0", port=8000)

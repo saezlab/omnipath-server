@@ -19,31 +19,38 @@ from .. import _log
 from ..service import LegacyService
 
 __all__ = [
-    'create_server',
+#    'create_server',
 ]
 
+con_param = {
+    'user': 'omnipath',
+    'password': 'omnipath123',
+    'host': 'localhost',
+    'port': '5432',
+    'database': 'omnipath',
+}
 
-def create_server(**kwargs):
+#def create_server(**kwargs):
 
-    _log('Creating new legacy server...')
-    legacy_server = Sanic('LegacyServer')
-    legacy_server.ctx.service = LegacyService(**kwargs)
+_log('Creating new legacy server...')
+legacy_server = Sanic('LegacyServer')
+legacy_server.ctx.service = LegacyService(con_param)
 
-    @legacy_server.route('/<path:path>')
-    async def legacy_handler(request: Request, path: str):
+@legacy_server.route('/<path:path>')
+async def legacy_handler(request: Request, path: str):
 
-        if (
-            not path.startswith('_') and
-            # TODO: maintain a registry of endpoints,
-            # don't rely on this getattr
-            (endpoint := getattr(request.ctx.service, path, None))
-        ):
+    if (
+        not path.startswith('_') and
+        # TODO: maintain a registry of endpoints,
+        # don't rely on this getattr
+        (endpoint := getattr(request.ctx.service, path, None))
+    ):
 
-            return response.text(endpoint(**request.args))
+        return response.text(endpoint(**request.args))
 
-        return response.text(f'No such path: {path}', status = 404)
+    return response.text(f'No such path: {path}', status = 404)
 
 
-    _log('Legacy server ready.')
+_log('Legacy server ready.')
 
-    return legacy_server
+    # return legacy_server
