@@ -23,7 +23,6 @@ import itertools
 import contextlib
 import collections
 
-from pypath import resources as resources_mod
 from pypath_common import _misc, _settings
 from pypath_common import _constants as _const
 from sqlalchemy.orm import Query
@@ -57,6 +56,10 @@ FORMATS = Literal[
     'table',
 ]
 GEN_OF_TUPLES = Generator[tuple, None, None]
+
+# TODO: replace with `resources` SQL table
+# to avoid having pypath-omnipath as dependency
+resources_mod = None
 
 
 class LegacyService:
