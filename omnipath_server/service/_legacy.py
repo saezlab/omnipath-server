@@ -34,6 +34,7 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 import numpy as np
 import pandas as pd
 
+from omnipath_server import session
 from .. import _log, _connection
 from ..schema import _legacy as _schema
 
