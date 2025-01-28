@@ -33,17 +33,15 @@ def create_server(**kwargs):
 
     async def serve_tsv(request: Request, lines: Generator):
 
-        response = await request.respond(
+        _response = await request.respond(
             content_type = 'text/tab-separated-values',
         )
 
         for line in lines:
 
-            await response.send(line)
+            await _response.send(line)
 
-        await response.eof()
-
-        return response
+        await _response.eof()
 
 
     @legacy_server.route('/<path:path>')
@@ -56,9 +54,11 @@ def create_server(**kwargs):
             (endpoint := getattr(legacy_server.ctx.service, path, None))
         ):
 
-            return await serve_tsv(request, endpoint(**request.args))
+            await serve_tsv(request, endpoint(**request.args))
 
-        return response.text(f'No such path: {path}', status = 404)
+        else:
+
+            return response.text(f'No such path: {path}', status = 404)
 
     _log('Legacy server ready.')
 
