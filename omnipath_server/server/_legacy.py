@@ -13,47 +13,53 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
+from collections.abc import Generator
+
 from sanic import Sanic, Request, response
 
 from omnipath_server import _log
 from omnipath_server.service import LegacyService
 
 __all__ = [
-#    'create_server',
+    'create_server',
 ]
 
-con_param = {
-    'user': 'omnipath',
-    'password': 'omnipath123',
-    'host': 'localhost',
-    'port': '5432',
-    'database': 'omnipath',
-}
 
-#def create_server(**kwargs):
+def create_server(**kwargs):
 
-_log('Creating new legacy server...')
-legacy_server = Sanic('LegacyServer')
-legacy_server.ctx.service = LegacyService(con_param)
+    _log('Creating new legacy server...')
+    legacy_server = Sanic('LegacyServer')
+    legacy_server.ctx.service = LegacyService(kwargs)
 
-@legacy_server.route('/<path:path>')
-async def legacy_handler(request: Request, path: str):
+    async def serve_tsv(request: Request, lines: Generator):
 
-    if (
-        not path.startswith('_') and
-        # TODO: maintain a registry of endpoints,
-        # don't rely on this getattr
-        (endpoint := getattr(request.ctx.service, path, None))
-    ):
+        response = await request.respond(
+            content_type = 'text/tab-separated-values',
+        )
 
-        return response.text(endpoint(**request.args))
+        for line in lines:
 
-    return response.text(f'No such path: {path}', status = 404)
+            await response.send(line)
 
-if __name__ == '__main__':
-    
-    legacy_server.run()
+        await response.eof()
 
-_log('Legacy server ready.')
+        return response
 
-    # return legacy_server
+
+    @legacy_server.route('/<path:path>')
+    async def legacy_handler(request: Request, path: str):
+
+        if (
+            not path.startswith('_') and
+            # TODO: maintain a registry of endpoints,
+            # don't rely on this getattr
+            (endpoint := getattr(legacy_server.ctx.service, path, None))
+        ):
+
+            return await serve_tsv(request, endpoint(**request.args))
+
+        return response.text(f'No such path: {path}', status = 404)
+
+    _log('Legacy server ready.')
+
+    return legacy_server
