@@ -85,7 +85,7 @@ class Connection:
 
         else:
 
-            self._param = {}
+            self._param = self._param or {}
 
 
     @property
