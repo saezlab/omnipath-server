@@ -31,11 +31,19 @@ def create_server(**kwargs):
     legacy_server = Sanic('LegacyServer')
     legacy_server.ctx.service = LegacyService(kwargs)
 
-    async def serve_tsv(request: Request, lines: Generator):
+    async def stream(
+            request: Request,
+            lines: Generator,
+            json_format: bool,
+    ) -> None:
 
-        _response = await request.respond(
-            content_type = 'text/tab-separated-values',
+        content_type = (
+            'application/json'
+                if json_format else
+            'text/tab-separated-values'
         )
+
+        _response = await request.respond(content_type = content_type)
 
         for line in lines:
 
@@ -54,7 +62,24 @@ def create_server(**kwargs):
             (endpoint := getattr(legacy_server.ctx.service, path, None))
         ):
 
-            await serve_tsv(request, endpoint(**request.args))
+            json_format = request.args.get('format', 'tsv') == 'json'
+
+            precontent = ('[\n',) if json_format else ()
+            postcontent = (']',) if json_format else ()
+            postformat = (
+                (lambda x, last: f'{x}\n' if last else f'{x},\n')
+                    if json_format else
+                (lambda x, last: x[:-1] if last else x)
+            )
+
+            lines = endpoint(
+                postformat = postformat,
+                precontent = precontent,
+                postcontent = postcontent,
+                **request.args,
+            )
+
+            await stream(request, lines, json_format)
 
         else:
 

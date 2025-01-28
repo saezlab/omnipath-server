@@ -1098,6 +1098,7 @@ class LegacyService:
         args.pop('self', None)
         args.pop('kwargs', None)
         args = {k: v for k, v in args.items() if v is not None}
+        args['format'] = fmt[0] if (fmt := args.get('format')) else None
 
         return args
 
@@ -1120,7 +1121,8 @@ class LegacyService:
 
                     continue
 
-                val = _misc.to_set(val[0])
+                val = val[0] if isinstance(val, list) else val
+                val = _misc.to_set(val)
 
                 unknowns = val - set(ref[arg])
 
@@ -1441,7 +1443,6 @@ class LegacyService:
         """
 
         query = None
-        args = self._clean_args(args)
         bad_req = self._check_args(args, query_type)
 
         if not bad_req:
@@ -1515,9 +1516,11 @@ class LegacyService:
                 Additional keyword arguments to be passed to the postprocess.
         """
 
+
+        args = self._clean_args(args)
         query, bad_req = self._query(args, query_type)
         colnames = ['<no-column-names>']
-        format = format or args.pop('format', ('tsv',))[0]
+        format = format or args.pop('format', None) or 'tsv'
 
         if query:
 
