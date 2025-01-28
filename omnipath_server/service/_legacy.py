@@ -1087,9 +1087,18 @@ class LegacyService:
         _log('Finished updating resource information.')
 
 
-    def _check_args(self, args: dict, query_type: str):
+    def _clean_args(self, args: dict) -> dict:
+        """
+        Remove empty arguments and self.
+        """
 
         args.pop('self', None)
+        args = {k: v for k, v in args.items() if v is not None}
+
+        return args
+
+
+    def _check_args(self, args: dict, query_type: str):
 
         result = []
 
@@ -1428,6 +1437,7 @@ class LegacyService:
         """
 
         query = None
+        args = self._clean_args(args)
         bad_req = self._check_args(args, query_type)
 
         if not bad_req:
