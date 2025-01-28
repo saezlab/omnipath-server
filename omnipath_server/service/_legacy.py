@@ -2377,7 +2377,7 @@ class LegacyService:
 
     def complexes(
             self,
-            resources: list[str],
+            resources: list[str] | None = None,
             proteins: list[str] | None = None,
             fields: list[str] | None = None,
             limit: int | None = None,
