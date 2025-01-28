@@ -1561,7 +1561,7 @@ class LegacyService:
     @classmethod
     def _table_formatter(cls, rec: tuple) -> str:
 
-        return '\t'.join(cls._table_field_formatter(f) for f in rec)
+        return '\t'.join(cls._table_field_formatter(f) for f in rec) + '\n'
 
 
     @staticmethod
