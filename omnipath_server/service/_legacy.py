@@ -1417,7 +1417,7 @@ class LegacyService:
 
         if 'limit' in args:
 
-            query = query.limit(self._parse_arg(args['limit']))
+            query = query.limit(self._parse_arg(args['limit'], typ = int))
 
         return query
 
@@ -2678,7 +2678,7 @@ class LegacyService:
             )
 
 
-    def _parse_arg(self, arg: Any) -> Any:
+    def _parse_arg(self, arg: Any, typ: type = None) -> Any:
         """
         Arguments come as strings, here we parse them to the appropriate type.
 
@@ -2687,11 +2687,15 @@ class LegacyService:
         this function simply passes them through.
         """
 
-        if arg is None:
+        if isinstance(arg, list) and typ in _const.SIMPLE_TYPES:
+
+            arg = arg[0] if arg else None
+
+        elif arg is None:
 
             arg = []
 
-        elif isinstance(arg, str):
+        if isinstance(arg, str):
 
             if _misc.is_int(arg):
 
