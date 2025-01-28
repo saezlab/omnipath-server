@@ -26,8 +26,17 @@ from . import _log
 
 __all__ = [
     'Connection',
+    'DEFAULTS',
     'ensure_con',
 ]
+
+DEFAULTS = {
+    'user': 'omnipath',
+    'password': 'omnipath',
+    'host': 'localhost',
+    'port': '5432',
+    'database': 'omnipath',
+}
 
 
 class Connection:
@@ -49,7 +58,7 @@ class Connection:
                 parameters include the host, port, database, user and password.
         """
 
-        self._param = param or kwargs
+        self._param = {**DEFAULTS, **(param or kwargs)}
         self.chunk_size = chunk_size
         self._parse_param()
 
