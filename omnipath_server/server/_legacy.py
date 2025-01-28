@@ -15,13 +15,22 @@
 
 from sanic import Sanic, response
 
+from ..service import LegacyService
+
 __all__ = [
-    'legacy_handler',
+    'create_server',
 ]
 
-legacy_server = Sanic('LegacyServer')
 
-@legacy_server.route('/<path:path>')
-async def legacy_handler(request, path):
+def create_server(**kwargs):
 
-    return response.text(f'Legacy: {path}')
+    legacy_server = Sanic('LegacyServer')
+    legacy_server.ctx.service = LegacyService(**kwargs)
+
+    @legacy_server.route('/<path:path>')
+    async def legacy_handler(request, path):
+
+        return response.text(f'Legacy: {path}')
+
+
+    return legacy_server
