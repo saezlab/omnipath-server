@@ -14,34 +14,11 @@
 #
 
 """
-Multiple service Twisted Matrix web server.
+Multiple service Sanic web server.
 """
 
+from ._main import main_server
 
-from twisted.web import server, resource
+if __name__ == '__main__':
 
-
-class Server(resource.Resource):
-    isLeaf = False
-
-    def __init__(self):
-        """
-        Main server managing all services.
-        """
-
-        super().__init__()
-        self.services = {}
-
-
-    def render(self, req):
-        """
-        Dispatch request to the appropriate server.
-        """
-
-        if (host := req.getHeader('host')) in self.services:
-
-            return self.services[host].render(req)
-
-        req.setResponseCode(500)
-
-        return b'No such service.'
+    main_server.run(host = '0.0.0.0', port = 33333)
