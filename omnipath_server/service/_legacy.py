@@ -14,7 +14,7 @@
 #
 
 from typing import Any, Literal
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Iterable, Generator
 import os
 import re
 import json
@@ -39,10 +39,12 @@ from ..schema import _legacy as _schema
 
 __all__ = [
     'FORMATS',
+    'GEN_OF_STR',
     'GEN_OF_TUPLES',
     'LICENSE_IGNORE',
     'LegacyService',
     'ignore_pandas_copywarn',
+    'with_last',
 ]
 
 
@@ -56,6 +58,7 @@ FORMATS = Literal[
     'table',
 ]
 GEN_OF_TUPLES = Generator[tuple, None, None]
+GEN_OF_STR = Generator[str, None, None]
 
 # TODO: replace with `resources` SQL table
 # to avoid having pypath-omnipath as dependency
@@ -1093,6 +1096,7 @@ class LegacyService:
         """
 
         args.pop('self', None)
+        args.pop('kwargs', None)
         args = {k: v for k, v in args.items() if v is not None}
 
         return args
@@ -1472,17 +1476,48 @@ class LegacyService:
             query_type: str,
             format: FORMATS | None = None,
             header: bool | None = None,
-            postprocess: Callable[[GEN_OF_TUPLES], GEN_OF_TUPLES] | None = None,
+            postprocess: Callable[[tuple], tuple] | None = None,
+            postformat: Callable[[str], str] | None = None,
+            precontent: Iterable[str] | None = None,
+            postcontent: Iterable[str] | None = None,
             **kwargs,
     ) -> Generator[tuple | str | dict, None, None]:
         """
         Generic request, each request should call this.
 
         Implements the query-execute-postprocess-format pipeline.
+
+        Args:
+            args:
+                The query arguments
+            query_type:
+                The table to query (e.g. interactions, complexes, etc).
+            format:
+                The format to return (tsv, json, raw); default is tsv. In case
+                of raw format, the tuples will be streamed as they come from
+                the database. In case of tsv or json, lines will be streamed,
+                either tab joined or json encoded strings.
+            header:
+                Whether to include the column names in the response.
+            postprocess:
+                A function to post-process the result. This will be called on
+                each tuple returned by the query.
+            postformat:
+                A function to be called after formatting the result. This will
+                be called on each tab joined or json encoded line. The function
+                must accept bool as its second argument, this signals the last
+                element to enable its special formatting.
+            precontent:
+                A list of lines to be added to the beginning of the response.
+            postcontent:
+                A list of lines to be added to the end of the response.
+            kwargs:
+                Additional keyword arguments to be passed to the postprocess.
         """
 
         query, bad_req = self._query(args, query_type)
         colnames = ['<no-column-names>']
+        format = format or args.pop('format', ('tsv',))[0]
 
         if query:
 
@@ -1491,7 +1526,7 @@ class LegacyService:
 
             if callable(postprocess):
 
-                result = postprocess(result, **kwargs)
+                result = (postprocess(rec, **kwargs) for rec in result)
 
         else:
 
@@ -1501,7 +1536,14 @@ class LegacyService:
         names = colnames if header or format in {'raw', 'json'} else None
         result = self._format(result, format = format, names = names)
 
-        yield from result
+        if query and callable(postformat):
+
+            result = (postformat(*rec, **kwargs) for rec in with_last(result))
+
+        postcontent = () if postcontent is None else postcontent
+        precontent = () if precontent is None else precontent
+
+        yield from itertools.chain(precontent, result, postcontent)
 
 
     def _format(
@@ -2392,11 +2434,12 @@ class LegacyService:
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
+            **kwargs,
     ) -> Generator[tuple | str, None, None]:
 
         args = locals()
 
-        yield from self._request(args, 'complexes')
+        yield from self._request(args, 'complexes', **kwargs)
 
 
     def resources(self, req):
@@ -2709,3 +2752,24 @@ def ignore_pandas_copywarn():
     finally:
 
         pass
+
+
+def with_last(iterable: Iterable[Any]) -> Generator[Any, bool]:
+    """
+    Iterate over an iterable with signaling the last element.
+
+    Yields:
+        Tuple of the elements in the iterable and a boolean value which is True
+        only at the last element.
+    """
+
+    itr = iter(iterable)
+    prev = next(itr)
+
+    for it in itr:
+
+        yield prev, False
+
+        prev = it
+
+    yield prev, True
