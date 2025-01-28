@@ -13,6 +13,17 @@ service = _legacy.LegacyService(con = con_param)
 
 query, bad_req = service._query({'limit': 10}, 'complexes')
 
+# lines
 req = service._request({'limit': 10}, 'complexes')
+
+list(req)
+
+# tuples
+req = service._request({'limit': 10}, 'complexes', format = 'raw')
+
+list(req)
+
+# JSON
+req = service._request({'limit': 10}, 'complexes', format = 'json')
 
 list(req)
