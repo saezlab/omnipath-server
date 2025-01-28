@@ -779,9 +779,9 @@ class LegacyService:
         if isinstance(con, dict):
 
             con = {
-                    f'legacy_db_{param}':
+                    param:
                     session.config.get(
-                        param,
+                        f'legacy_db_{param}',
                         override = con.get(param, None),
                         default = default,
                     )
