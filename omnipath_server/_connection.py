@@ -58,7 +58,7 @@ class Connection:
                 parameters include the host, port, database, user and password.
         """
 
-        self._param = {**DEFAULTS, **(param or kwargs)}
+        self._param = param or kwargs
         self.chunk_size = chunk_size
         self._parse_param()
 
@@ -66,6 +66,10 @@ class Connection:
     def _parse_param(self) -> None:
 
         self._from_file()
+
+        if isinstance(self._param, dict):
+
+            self._param = {**DEFAULTS, **self._param}
 
 
     def _from_file(self) -> None:
@@ -78,6 +82,11 @@ class Connection:
             with closing(open(self._param)) as fp:
 
                 self._param = yaml.load(fp, Loader = yaml.FullLoader)
+
+        else:
+
+            self._param = {}
+
 
     @property
     def _uri(self) -> str:
