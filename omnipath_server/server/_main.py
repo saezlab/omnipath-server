@@ -24,6 +24,7 @@ __all__ = [
 
 DOMAINS = {
     'legacy': ('next.omnipathdb.org', 'omnipathdb.org'),
+    'metabo': ('metabo.omnipathdb.org'),
 }
 
 SERVERS = {}

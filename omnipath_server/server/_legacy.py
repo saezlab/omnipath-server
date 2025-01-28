@@ -15,6 +15,7 @@
 
 from sanic import Sanic, Request, response
 
+from .. import _log
 from ..service import LegacyService
 
 __all__ = [
@@ -24,6 +25,7 @@ __all__ = [
 
 def create_server(**kwargs):
 
+    _log('Creating new legacy server...')
     legacy_server = Sanic('LegacyServer')
     legacy_server.ctx.service = LegacyService(**kwargs)
 
@@ -41,5 +43,7 @@ def create_server(**kwargs):
 
         return response.text(f'No such path: {path}', status = 404)
 
+
+    _log('Legacy server ready.')
 
     return legacy_server

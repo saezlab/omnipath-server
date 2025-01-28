@@ -766,6 +766,8 @@ class LegacyService:
 
         # _log(f'{self.__class__.__name__} startup ready.')
 
+        self._connect(con)
+
 
     def _connect(
             self,
@@ -783,7 +785,7 @@ class LegacyService:
                         override = con.get(param, None),
                         default = default,
                     )
-                for param, default in _connection.DEFAULTS
+                for param, default in _connection.DEFAULTS.items()
             }
 
         self.con = _connection.ensure_con(con)
@@ -1366,7 +1368,7 @@ class LegacyService:
 
                 value = self._parse_arg(value)
                 col, *op = _misc.to_tuple(col_op)
-                col = query.statment.columns[col]
+                col = query.statement.columns[col]
                 op = self._where_op(op, col, value)
                 where_expr = getattr(col, op)(value)
                 query = query.filter(where_expr)
