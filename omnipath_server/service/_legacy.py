@@ -1400,11 +1400,11 @@ class LegacyService:
         tbl = self._schema(query_type)
         query_fields = self._parse_arg(param.get('fields', None))
         cols.update(_misc.to_set(query_fields))
-        select = (
-            [tbl]  # this is SELECT * ...
-                if not cols else
-            [c for c in tbl.__table__.columns if c.name in cols]
-        )
+        select = [
+            c
+            for c in tbl.__table__.columns
+            if c.name != 'id' and (not cols or c.name in cols)
+        ]
 
         # Instance of sqlalchemy.orm.Query
         return self.con.session.query(*select)
