@@ -23,12 +23,14 @@ import itertools
 import contextlib
 import collections
 
+from sqlalchemy import any_
 from pypath_common import _misc, _settings
 from pypath_common import _constants as _const
 from sqlalchemy.orm import Query
 from sqlalchemy.sql.base import ReadOnlyColumnCollection
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.dialects.postgresql import array
 
 import numpy as np
 import pandas as pd
@@ -69,9 +71,24 @@ class LegacyService:
 
     query_param = {
         'complexes': {
+            'array_args': {
+                'resources',
+                'proteins',
+            },
             'where': {
                 'resources': 'sources',
                 'proteins': 'components',
+            },
+        },
+        'enz_sub': {
+            'array_args': {
+                'enzymes'
+                'substrates'
+                'partners',
+                'resources'
+                'organisms'
+                'types',
+                'residues',
             },
         },
     }
@@ -1103,6 +1120,19 @@ class LegacyService:
         return args
 
 
+    def _array_args(self, args: dict, query_type: str):
+
+        array_args = self.query_param[query_type].get('array_args', set())
+        proc = lambda v: v[0].split(',') if len(v) == 1 else _misc.to_list(v)
+
+        args = {
+            k: proc(v) if k in array_args else v
+            for k, v in args.items()
+        }
+
+        return args
+
+
     def _check_args(self, args: dict, query_type: str):
 
         result = []
@@ -1328,39 +1358,45 @@ class LegacyService:
     def _where_op(
             self,
             col: InstrumentedAttribute | Column,
-            val: Any, op: str | None = None,
+            val: Any,
+            op: str | None = None,
     ) -> str:
         """
         Infers the operator for the where clause from column and value types.
         """
 
+        # we can simplify this later, once we are sure
+        # it's fully correct
+
         if op is None:
 
-            if isinstance(val, _const.SIMPLE_TYPES):
+            if self._isarray(col):
 
-                if self._isarray(col):
+                if isinstance(val, _const.SIMPLE_TYPES):
 
-                    # col.val in val.set
-                    op = 'any_'
+                    # col in set[val]
+                    op = 'in'
+                    val = any_(array(val))
 
                 else:
 
-                    # col.val == val.val
-                    # Note: this covers BOOL columns, despite
-                    # there the operator is redundant
-                    op = '__eq__'
+                    # col.any_(val)
+                    op = '&&'
 
-            elif self._isarray(col):
+            elif isinstance(val, _const.SIMPLE_TYPES):
 
-                # col.set & val.set
-                op = 'overlap'
+                # col.val == val.val
+                # Note: this covers BOOL columns, despite
+                # there the operator is redundant
+                op = '='
 
             else:
 
                 # col.val in set[val]
-                op = 'in_'
+                op = 'in'
+                val = array(val)
 
-        return op
+        return op, val
 
 
     def _isarray(self, col: InstrumentedAttribute) -> bool:
@@ -1371,10 +1407,13 @@ class LegacyService:
         return col.type.python_type is list
 
 
-    def _where(self, query: Query, args: dict, param: dict) -> Query:
+    def _where(self, query: Query, args: dict, query_type: str) -> Query:
         """
         Adds WHERE clauses to the query.
         """
+
+        param = self.query_param[query_type].get('where', {})
+        columns = self._columns(query_type)
 
         # Adding WHERE clauses
         for key, value in args.items():
@@ -1382,20 +1421,21 @@ class LegacyService:
             if col_op := param.get(key, None):
 
                 value = self._parse_arg(value)
-                col, *op = _misc.to_tuple(col_op)
-                col = query.statement.columns[col]
-                op = self._where_op(op, col, value)
-                where_expr = getattr(col, op)(value)
+                col, *op = _misc.to_tuple(col_op) + (None,)
+                col = columns[col]
+                op, value = self._where_op(col, value, op[0])
+                where_expr = col.op(op)(value)
                 query = query.filter(where_expr)
 
         return query
 
 
-    def _select(self, args: dict, query_type: str, param: dict) -> Query:
+    def _select(self, args: dict, query_type: str) -> Query:
         """
         Creates a new SELECT query.
         """
 
+        param = self.query_param[query_type]
         cols = param.get('default_cols', set())
         tbl = self._schema(query_type)
         query_fields = self._parse_arg(param.get('fields', None))
@@ -1452,10 +1492,8 @@ class LegacyService:
 
                 args['resources'] = args['databases']
 
-            query_param = self.query_param[query_type]
-
-            query = self._select(args, query_type, query_param)
-            query = self._where(query, args, query_param.get('where', {}))
+            query = self._select(args, query_type)
+            query = self._where(query, args, query_type)
             query = self._limit(query, args)
 
             # TODO: reimplement and enable license filtering
@@ -1518,6 +1556,7 @@ class LegacyService:
 
 
         args = self._clean_args(args)
+        args = self._array_args(args, query_type)
         query, bad_req = self._query(args, query_type)
         colnames = ['<no-column-names>']
         format = format or args.pop('format', None) or 'tsv'
@@ -2771,12 +2810,14 @@ def with_last(iterable: Iterable[Any]) -> Generator[Any, bool]:
     """
 
     itr = iter(iterable)
-    prev = next(itr)
+    prev = next(itr, None)
 
-    for it in itr:
+    if prev is not None:
 
-        yield prev, False
+        for it in itr:
 
-        prev = it
+            yield prev, False
 
-    yield prev, True
+            prev = it
+
+        yield prev, True
