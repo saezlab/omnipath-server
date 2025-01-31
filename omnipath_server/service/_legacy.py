@@ -2047,6 +2047,10 @@ class LegacyService:
         (enzyme = 'Q2' OR enzyme_genesymbol = 'Q2'))
         """
 
+        args = locals()
+        args = self._clean_args(args)
+        args = self._array_args(args, 'enzsub')
+        query, bad_req = self._query(args, 'enzsub')
 
     def old_enzsub(
             self,
