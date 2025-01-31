@@ -23,7 +23,7 @@ import itertools
 import contextlib
 import collections
 
-from sqlalchemy import any_
+from sqlalchemy import any_, or_, and_
 from pypath_common import _misc, _settings
 from pypath_common import _constants as _const
 from sqlalchemy.orm import Query
@@ -2058,16 +2058,20 @@ class LegacyService:
 
             args[side] = args[side] or args['partners']
 
-        columns = self._columns(query_type)
+        columns = self._columns('enzsub')
+        partners_where = []
 
-        for side, gs in itertools.product(sides, ('', '_genesymbol')):
+        for side in sides:
+            conditions = []
 
-            col = columns[f'{side}{gs}']
-            op, val = self._where_op(col, args[side])
-            expr = col.op(op)(val)
+            for suffix in ('', '_genesymbol'):
 
-        query.filter('')
+                col = columns[f'{side}{suffix}']
+                op, val = self._where_op(col, args[side])
+                expr = col.op(op)(val)
+                conditions.append(expr)
 
+            partners_where.append(or_(*conditions))
 
 
     def old_enzsub(
