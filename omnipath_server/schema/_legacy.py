@@ -29,6 +29,9 @@ __all__ = [
 Base = declarative_base()
 
 class Annotations(Base):
+    '''
+    Definition for the `annotations` table columns and types.
+    '''
 
     __tablename__ = 'annotations'
     id = Column(Integer, primary_key = True)
@@ -42,6 +45,9 @@ class Annotations(Base):
 
 
 class Complexes(Base):
+    '''
+    Definition for the `complexes` table columns and types.
+    '''
 
     __tablename__ = 'complexes'
     _array_sep = {'components': '_', 'components_genesymbols': '_'}
@@ -56,6 +62,9 @@ class Complexes(Base):
 
 
 class Enzsub(Base):
+    '''
+    Definition for the `enzyme-substrate` table columns and types.
+    '''
 
     __tablename__ = 'enz_sub'
     id = Column(Integer, primary_key = True)
@@ -74,6 +83,9 @@ class Enzsub(Base):
 
 
 class Interactions(Base):
+    '''
+    Definition for the `interactions` table columns and types.
+    '''
 
     __tablename__ = 'interactions'
     id = Column(Integer, primary_key = True)
@@ -116,6 +128,9 @@ class Interactions(Base):
 
 
 class Intercell(Base):
+    '''
+    Definition for the `intercell` table columns and types.
+    '''
 
     __tablename__ = 'intercell'
     id = Column(Integer, primary_key = True)
