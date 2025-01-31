@@ -34,9 +34,9 @@ __all__ = [
 ]
 
 
-# TODO: Prevent accidental wiping of DB
 class Loader:
 
+    # All Legacy table names
     _all_tables: list[str] = [
         'interactions',
         'enz_sub',
@@ -44,12 +44,14 @@ class Loader:
         'intercell',
         'annotations',
     ]
+    # Compressed file methods
     _compr = {
         '': (open, {}),
         '.gz': (gzip.open, {'mode': 'rt'}),
         '.bz2': (bz2.open, {'mode': 'rt'}),
         '.xz': (lzma.open, {'mode': 'rt'}),
     }
+    # File name regular expression
     _fname = 'omnipath_webservice_%s.tsv'
 
 
@@ -62,12 +64,38 @@ class Loader:
             wipe: bool = False,
     ):
         """
-        Populate the legacy database from TSV files.
+        Loader class that populates the legacy database from TSV files.
 
         Args:
-            config:
-                Configuration for loading the database for this service. Under
-                "con_param" connection parameters can be provided, and
+            path:
+                Path where the TSV files can be found.
+            tables:
+                Dictionary containing keys as table names to be loaded and
+                values are dictionaries whose key/value pairs are configuration
+                options for loading the tables.
+            exclude:
+                List of tables to exclude.
+            con:
+                Connection instance to the SQL database.
+            wipe:
+                Whether to wipe the database contents (if any) prior to loading
+                the tables.
+        
+        Attrs:
+            path:
+                Same as `path` argument. Otherwise, defaults to current current
+                path.
+            table_param:
+                Same as `tables` argumen. Otherwise, defaults to empty dict.
+            exclude:
+                Same as `exclude` argument.
+            con:
+                `Connection` instance to the SQL database.
+            wipe:
+                Same as `wipe` argument.
+            tables:
+                Set of table names to be loaded (i.e. all tables except those
+                specified in the `exclude` parameter).
         """
 
         self.path = pl.Path(path or '.')
@@ -81,7 +109,8 @@ class Loader:
 
     def create(self):
         """
-        Create the tables defined in the legacy schema.
+        Method that creates the tables as defined in the legacy schema. Note
+        that this method just creates the tables and does not populate them.
         """
 
         _log('Creating tables in legacy database...')
@@ -91,7 +120,7 @@ class Loader:
 
     def load(self):
         """
-        Load all tables from TSV files into Postgres.
+        Populates all tables from TSV files into the SQL database.
         """
 
         _log('Populating legacy database...')
@@ -111,11 +140,15 @@ class Loader:
 
     def _load_table(self, tbl: str):
         """
-        Load one table from a TSV file into Postgres.
+        Loads a given table from a TSV file into the SQL database.
 
         Args:
             tbl:
                 Name of the table to load.
+
+        Returns:
+            None. If schema is found for a given table, the `TableLoader.load()`
+            method will be called, otherwise it will be skipped.
         """
 
         param = self.table_param.get(tbl, {})
@@ -125,6 +158,7 @@ class Loader:
         if not (schema := getattr(_schema, schema_name, None)):
 
             _log(f'No schema found for table `{tbl}`; skipping.')
+
             return
 
         for ext in self._compr:
@@ -145,7 +179,7 @@ class Loader:
             f'skipping table `{tbl}`.',
         )
 
-    def _ensure_tables(self) -> bool:
+    def _ensure_tables(self) -> bool: # NOTE: Method not used anywhere?
         """
         Verifies whether the tables existing in the database are the same as in
         the schema.
@@ -166,13 +200,34 @@ class TableLoader:
             wipe: bool = False,
     ):
         """
-        Load data from a TSV file into a Postgres table.
+        Loader class for loading the data from a single TSV file into a single
+        table on the SQL database.
 
         Args:
             path:
-                Path to a TSV file with the data to be loaded.
+                Path to the TSV file with the data to be loaded.
             table:
                 The SQLAlchemy table where we load the data.
+            con:
+                Connection instance to the SQL database.
+            wipe:
+                Whether to wipe the table contents (if any) prior to loading
+                the data from the table file.
+
+        Attrs:
+            path:
+                Same as `path` argument.
+            table:
+                Same as `table` argument.
+            con:
+                Same as `con` argument.
+            wipe:
+                Same as `wipe` argument.
+            columns:
+                SQLAlchemy `ReadOnlyColumnCollection` instance containing the
+                columns in the SQL database table.
+            tablename:
+                Table name as in the SQL database.
         """
 
         self.path = path
@@ -183,10 +238,12 @@ class TableLoader:
 
     def load(self) -> None:
         """
-        Load data from the TSV file into the table.
+        Loads the data from the TSV file and populates the corresponding table
+        on the SQL database.
         """
 
         if self.wipe:
+
             self.table.__table__.drop(bind=self.con.engine)
             self.table.__table__.create(bind=self.con.engine)
 
@@ -214,9 +271,14 @@ class TableLoader:
 
     def _read(self) -> Generator[tuple, None, None]:
         """
-        Read TSV and process fields according to their types.
+        Reads the TSV file and processes the fields according to their types.
+
+        Returns:
+            Generator of entries in the table file that are to be passed to the
+            SQL connection `execute_values` method.
         """
 
+        # Asserting file compression type and corresponding method for opening
         compr = ''
 
         if m := re.search(r'\.(gz|bz2|xz)$', self.path.name):
@@ -231,14 +293,17 @@ class TableLoader:
             f'(... {_misc.dict_str(args)})`...',
         )
 
+        # Opening and processing the file
         with opener(self.path, **args) as fp:
 
             _log(f'Opened `{self.path}` for reading.')
 
             reader = csv.DictReader(fp, delimiter = '\t')
 
+            # Iterating over entries in the table (rows)
             for row in reader:
 
+                # Iterating over columns in entry and ensuring types
                 for col, typ in self.columns.items():
 
                     if col not in row:
