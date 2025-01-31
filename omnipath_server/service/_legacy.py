@@ -116,6 +116,10 @@ class LegacyService:
                         ),
                 }
             ),
+            'where_partners': {
+                'sides': ('enzyme', 'substrate'),
+                'operator': 'enzyme_substrate',
+            }
         },
     }
     query_types = {
@@ -2037,7 +2041,7 @@ class LegacyService:
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
-            enzyme_substrate = 'OR',
+            enzyme_substrate = 'AND',
             organisms = {9606},
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
@@ -2054,15 +2058,37 @@ class LegacyService:
         args = self._array_args(args, 'enzsub')
         query, bad_req = self._query(args, 'enzsub')
 
-        for side in (sides):
+        query.filter(self._where_partners('enzsub', args))
+
+        # TODO: Query over enz/subs partners done, pending rest of arguments
+
+
+    def _where_partners(self, query_type, args):
+        '''
+        Function to deal with filtering interactions by partners.
+
+        e.g. when source/target or enz/subs are provided in the query
+        '''
+
+        sides = self.query_param[query_type]['where_partners']['sides']
+        query_op = self.query_param[query_type]['where_partners']['operator']
+
+        for side in sides:
 
             args[side] = args[side] or args['partners']
 
-        columns = self._columns('enzsub')
+        columns = self._columns(query_type)
+
         partners_where = []
 
         for side in sides:
+
             conditions = []
+
+            # Skip if nothing is provided
+            if not args[side]:
+
+                continue
 
             for suffix in ('', '_genesymbol'):
 
@@ -2072,6 +2098,16 @@ class LegacyService:
                 conditions.append(expr)
 
             partners_where.append(or_(*conditions))
+
+        if len(partners_where) == 1:
+
+            return partners_where[0]
+
+        elif len(partners_where) == 2:
+
+            op = or_ if args[query_op].upper() == 'OR' else and_
+
+            return op(*partners_where)
 
 
     def old_enzsub(
