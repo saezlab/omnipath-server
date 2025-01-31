@@ -2029,6 +2029,27 @@ class LegacyService:
 
     def enzsub(
             self,
+            resources: list[str] | None = None,
+            partners: list[str] | None = None,
+            enzymes: list[str] | None = None,
+            substrates: list[str] | None = None,
+            types: list[str] | None = None,
+            fields: list[str] | None = None,
+            limit: int | None = None,
+            format: FORMATS | None = None,
+            enzyme_substrate = 'OR',
+            organisms = {9606},
+            **kwargs,
+    ) -> Generator[tuple | str, None, None]:
+        """
+        TODO
+        WHERE ((substrate = 'Q1' OR substrate_genesymbol = 'Q1') AND/OR
+        (enzyme = 'Q2' OR enzyme_genesymbol = 'Q2'))
+        """
+
+
+    def old_enzsub(
+            self,
             req,
             organisms = {9606},
             enzyme_substrate = 'OR',
