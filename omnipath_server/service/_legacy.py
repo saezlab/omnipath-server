@@ -80,7 +80,7 @@ class LegacyService:
                 'proteins': 'components',
             },
         },
-        'enz_sub': {
+        'enzsub': {
             'array_args': {
                 'enzymes'
                 'substrates'
@@ -90,6 +90,32 @@ class LegacyService:
                 'types',
                 'residues',
             },
+            'select': {
+                'genesymbol': {'enzyme_genesymbol', 'substrate_genesymbol'},
+            },
+            'select_default': {
+                'enzyme',
+                'substrate',
+                'residue_type',
+                'residue_offset',
+                'modification',
+            },
+            'where': {
+                'organisms': 'ncbi_tax_id',
+                'types': 'modification',
+            },
+            'where_multicol': (
+                {
+                    'enzyme': ('enzyme', 'enzyme_genesymbol'),
+                        'substrate': ('substrate', 'substrate_genesymbol'),
+                        'partners': (
+                            'enzyme',
+                            'substrate',
+                            'enzyme_genesymbol',
+                            'substrate_genesymbol',
+                        ),
+                }
+            ),
         },
     }
     query_types = {
