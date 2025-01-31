@@ -66,7 +66,7 @@ class Enzsub(Base):
     Definition for the `enzyme-substrate` table columns and types.
     '''
 
-    __tablename__ = 'enz_sub'
+    __tablename__ = 'enzsub'
     id = Column(Integer, primary_key = True)
     enzyme = Column(String)
     enzyme_genesymbol = Column(String)
