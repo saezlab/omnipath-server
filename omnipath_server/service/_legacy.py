@@ -2047,10 +2047,28 @@ class LegacyService:
         (enzyme = 'Q2' OR enzyme_genesymbol = 'Q2'))
         """
 
+        sides = ('enzyme', 'substrate')
+
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'enzsub')
         query, bad_req = self._query(args, 'enzsub')
+
+        for side in (sides):
+
+            args[side] = args[side] or args['partners']
+
+        columns = self._columns(query_type)
+
+        for side, gs in itertools.product(sides, ('', '_genesymbol')):
+
+            col = columns[f'{side}{gs}']
+            op, val = self._where_op(col, args[side])
+            expr = col.op(op)(val)
+
+        query.filter('')
+
+
 
     def old_enzsub(
             self,
