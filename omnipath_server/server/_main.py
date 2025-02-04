@@ -34,6 +34,13 @@ main_server = Sanic('RootServer')
 
 @main_server.middleware('request')
 async def route_requests(request: Request):
+    '''
+    Sets the request context to the correct service.
+
+    Args:
+        request:
+            Instance of `Sanic.Request` containing the user request.
+    '''
 
     request.ctx.server = None
 
@@ -52,6 +59,16 @@ async def route_requests(request: Request):
     methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 )
 async def handle_request(request: Request, path: str):
+    '''
+    Passes the request to the assigned service.
+
+    Args:
+        request:
+            Instance of `Sanic.Request` containing the user request.
+        path:
+            Path for the database that has to process the request (e.g. for the
+            legacy service: interactions, annotations, etc.).
+    '''
 
     if (server := request.ctx.server) is not None:
 
