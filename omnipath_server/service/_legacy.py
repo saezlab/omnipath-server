@@ -23,6 +23,7 @@ import itertools
 import contextlib
 import collections
 
+from libpasteurize.fixes.fix_future_builtins import expression
 from sqlalchemy import any_, or_, and_
 from pypath_common import _misc, _settings
 from pypath_common import _constants as _const
@@ -2058,7 +2059,8 @@ class LegacyService:
         args = self._array_args(args, 'enzsub')
         query, bad_req = self._query(args, 'enzsub')
 
-        query.filter(self._where_partners('enzsub', args))
+        if expression := self._where_partners('enzsub', args):
+            query.filter(expression)
 
         # TODO: Query over enz/subs partners done, pending rest of arguments
 
