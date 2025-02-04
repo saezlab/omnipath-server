@@ -23,8 +23,7 @@ import itertools
 import contextlib
 import collections
 
-from libpasteurize.fixes.fix_future_builtins import expression
-from sqlalchemy import any_, or_, and_
+from sqlalchemy import or_, and_, any_
 from pypath_common import _misc, _settings
 from pypath_common import _constants as _const
 from sqlalchemy.orm import Query
@@ -120,7 +119,7 @@ class LegacyService:
             'where_partners': {
                 'sides': ('enzyme', 'substrate'),
                 'operator': 'enzyme_substrate',
-            }
+            },
         },
     }
     query_types = {
@@ -1544,6 +1543,7 @@ class LegacyService:
             self,
             args: dict,
             query_type: str,
+            extra_where: Iterable | None = None,
             format: FORMATS | None = None,
             header: bool | None = None,
             postprocess: Callable[[tuple], tuple] | None = None,
@@ -1593,6 +1593,10 @@ class LegacyService:
         format = format or args.pop('format', None) or 'tsv'
 
         if query:
+
+            if extra_where:
+
+                query = query.filter(*extra_where)
 
             result = self._execute(query, args)
             colnames = [c.name for c in query.statement.selected_columns]
@@ -2057,20 +2061,23 @@ class LegacyService:
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'enzsub')
-        query, bad_req = self._query(args, 'enzsub')
+        extra_where = self._where_partners('enzsub', args)
 
-        if expression := self._where_partners('enzsub', args):
-            query.filter(expression)
+        yield from self._request(
+            args,
+            query_type = 'enzsub',
+            extra_where = extra_where,
+            **kwargs,
+        )
 
-        # TODO: Query over enz/subs partners done, pending rest of arguments
 
 
     def _where_partners(self, query_type, args):
-        '''
+        """
         Function to deal with filtering interactions by partners.
 
         e.g. when source/target or enz/subs are provided in the query
-        '''
+        """
 
         sides = self.query_param[query_type]['where_partners']['sides']
         query_op = self.query_param[query_type]['where_partners']['operator']
