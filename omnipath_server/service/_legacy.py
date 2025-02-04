@@ -2056,8 +2056,6 @@ class LegacyService:
         (enzyme = 'Q2' OR enzyme_genesymbol = 'Q2'))
         """
 
-        sides = ('enzyme', 'substrate')
-
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'enzsub')
@@ -2069,7 +2067,6 @@ class LegacyService:
             extra_where = extra_where,
             **kwargs,
         )
-
 
 
     def _where_partners(self, query_type, args):
@@ -2084,7 +2081,7 @@ class LegacyService:
 
         for side in sides:
 
-            args[side] = args[side] or args['partners']
+            args[side] = args.get(side, None) or args.get('partners', None)
 
         columns = self._columns(query_type)
 
