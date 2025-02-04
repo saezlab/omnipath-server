@@ -25,7 +25,16 @@ __all__ = [
 ]
 
 
-def create_server(**kwargs):
+def create_server(**kwargs) -> Sanic:
+    '''
+    Creates and sets up the legacy database server (implemented in Sanic).
+
+    Args:
+        **kwargs: Arguments passed to the `LegacyService`.
+
+    Returns:
+        Instance of the server.
+    '''
 
     _log('Creating new legacy server...')
     legacy_server = Sanic('LegacyServer')
@@ -36,6 +45,18 @@ def create_server(**kwargs):
             lines: Generator,
             json_format: bool,
     ) -> None:
+        '''
+        Streams the response from the server from a given request.
+
+        Args:
+            request:
+                Instance of `Sanic.Request` containing the user request.
+            lines:
+                Response as a generator of tuples.
+            json_format:
+                Whether to respond in JSON format or not (if not JSON, defaults
+                to TSV).
+        '''
 
         content_type = (
             'application/json'
@@ -54,6 +75,19 @@ def create_server(**kwargs):
 
     @legacy_server.route('/<path:path>')
     async def legacy_handler(request: Request, path: str):
+        '''
+        Request handler
+
+        Args:
+            request:
+                Instance of `Sanic.Request` containing the user request.
+            path:
+                Path for the database that has to process the request (e.g.
+                interactions, annotations, etc.).
+
+        Returns:
+            Server response as text.
+        '''
 
         if (
             not path.startswith('_') and
