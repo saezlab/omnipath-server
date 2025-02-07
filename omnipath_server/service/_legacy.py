@@ -1466,6 +1466,7 @@ class LegacyService:
             self,
             args: dict,
             query_type: str,
+            extra_where: Iterable | None = None,
     ) -> tuple[Query | None, str | None]:
         """
         Generates and executes the SQL query based on the request
@@ -1494,6 +1495,11 @@ class LegacyService:
 
             query = self._select(args, query_type)
             query = self._where(query, args, query_type)
+
+            if extra_where is not None:
+
+                query = query.filter(*extra_where)
+            
             query = self._limit(query, args)
 
             # TODO: reimplement and enable license filtering
@@ -1557,15 +1563,11 @@ class LegacyService:
 
         args = self._clean_args(args)
         args = self._array_args(args, query_type)
-        query, bad_req = self._query(args, query_type)
+        query, bad_req = self._query(args, query_type, extra_where=extra_where)
         colnames = ['no_column_names']
         format = format or args.pop('format', None) or 'tsv'
 
         if query:
-
-            if extra_where is not None:
-
-                query = query.filter(*extra_where)
 
             result = self._execute(query, args)
             colnames = [c.name for c in query.statement.selected_columns]
