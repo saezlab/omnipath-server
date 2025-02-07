@@ -41,6 +41,7 @@ from ..schema import _legacy as _schema
 
 __all__ = [
     'FORMATS',
+    'ORGANISMS',
     'GEN_OF_STR',
     'GEN_OF_TUPLES',
     'LICENSE_IGNORE',
@@ -58,6 +59,11 @@ FORMATS = Literal[
     'text',
     'tsv',
     'table',
+]
+ORGANISMS = Literal[
+    9606,
+    10090,
+    10116,
 ]
 GEN_OF_TUPLES = Generator[tuple, None, None]
 GEN_OF_STR = Generator[str, None, None]
@@ -168,13 +174,7 @@ class LegacyService:
     args_reference = {
         'interactions': {
             'header': None,
-            'format': {
-                'json',
-                'tab',
-                'text',
-                'tsv',
-                'table',
-            },
+            'format': FORMATS.__args__,
             'license': {
                 'ignore',
                 'academic',
@@ -254,11 +254,7 @@ class LegacyService:
                 'coexp',
                 'tfbs',
             },
-            'organisms': {
-                '9606',
-                '10090',
-                '10116',
-            },
+            'organisms': ORGANISMS.__args__,
             'source_target': {
                 'AND',
                 'OR',
@@ -280,14 +276,8 @@ class LegacyService:
             },
         },
         'enzsub': {
-            'header':      None,
-            'format': {
-                'json',
-                'tab',
-                'text',
-                'tsv',
-                'table',
-            },
+            'header': None,
+            'format': FORMATS.__args__,
             'license': {
                 'ignore',
                 'academic',
@@ -303,11 +293,7 @@ class LegacyService:
             'substrates':  None,
             'partners':    None,
             'genesymbols': _const.BOOLEAN_VALUES,
-            'organisms': {
-                '9606',
-                '10090',
-                '10116',
-            },
+            'organisms': ORGANISMS.__args__,
             'databases': None,
             'resources': None,
             'residues':  None,
@@ -332,13 +318,7 @@ class LegacyService:
         },
         'annotations': {
             'header': None,
-            'format': {
-                'json',
-                'tab',
-                'text',
-                'tsv',
-                'table',
-            },
+            'format': FORMATS.__args__,
             'license': {
                 'ignore',
                 'academic',
@@ -368,13 +348,7 @@ class LegacyService:
         },
         'annotations_summary': {
             'header': None,
-            'format': {
-                'json',
-                'tab',
-                'text',
-                'tsv',
-                'table',
-            },
+            'format': FORMATS.__args__,
             'databases': None,
             'resources': None,
             'fields': None,
@@ -382,13 +356,7 @@ class LegacyService:
         },
         'intercell': {
             'header': None,
-            'format': {
-                'json',
-                'tab',
-                'text',
-                'tsv',
-                'table',
-            },
+            'format': FORMATS.__args__,
             'license': {
                 'ignore',
                 'academic',
@@ -456,13 +424,7 @@ class LegacyService:
         },
         'intercell_summary': {
             'header': None,
-            'format': {
-                'json',
-                'tab',
-                'text',
-                'tsv',
-                'table',
-            },
+            'format': FORMATS.__args__,
             'scope': {
                 'specific',
                 'generic',
@@ -493,13 +455,7 @@ class LegacyService:
         },
         'complexes': {
             'header': None,
-            'format': {
-                'json',
-                'tab',
-                'text',
-                'tsv',
-                'table',
-            },
+            'format': FORMATS.__args__,
             'license': {
                 'ignore',
                 'academic',
@@ -546,13 +502,7 @@ class LegacyService:
             'subtypes': None,
         },
         'queries': {
-            'format': {
-                'tab',
-                'text',
-                'tsv',
-                'table',
-                'json',
-            },
+            'format': FORMATS.__args__,
         },
     }
 
