@@ -88,11 +88,11 @@ class LegacyService:
         },
         'enzsub': {
             'array_args': {
-                'enzymes'
-                'substrates'
+                'enzymes',
+                'substrates',
                 'partners',
-                'resources'
-                'organisms'
+                'resources',
+                'organisms',
                 'types',
                 'residues',
             },
@@ -1104,15 +1104,26 @@ class LegacyService:
     def _ensure_str(val: str | Iterable[str] | None = None) -> str | None:
 
         return _misc.first(_misc.to_list(val))
+    
+    @staticmethod
+    def _ensure_array(val: Any | Iterable[Any]):
 
+        if isinstance(val, _const.LIST_LIKE) and len(val) == 1:
+
+            val = _misc.first(val)
+
+        elif isinstance(val, str):
+
+            val = val.split(',')
+
+        return _misc.to_list(val)
 
     def _array_args(self, args: dict, query_type: str):
 
         array_args = self.query_param[query_type].get('array_args', set())
-        proc = lambda v: v[0].split(',') if len(v) == 1 else _misc.to_list(v)
 
         args = {
-            k: proc(v) if k in array_args else v
+            k: self._ensure_array(v) if k in array_args else v
             for k, v in args.items()
         }
 
@@ -1540,7 +1551,6 @@ class LegacyService:
             kwargs:
                 Additional keyword arguments to be passed to the postprocess.
         """
-
 
         args = self._clean_args(args)
         args = self._array_args(args, query_type)
