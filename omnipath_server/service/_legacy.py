@@ -123,7 +123,10 @@ class LegacyService:
                 }
             ),
             'where_partners': {
-                'sides': ('enzyme', 'substrate'),
+                'sides': {
+                    'enzymes': 'enzyme',
+                    'substrates': 'substrate'
+                },
                 'operator': 'enzyme_substrate',
             },
         },
@@ -1560,7 +1563,7 @@ class LegacyService:
 
         if query:
 
-            if extra_where:
+            if extra_where is not None:
 
                 query = query.filter(*extra_where)
 
@@ -2027,6 +2030,9 @@ class LegacyService:
         args = self._array_args(args, 'enzsub')
         extra_where = self._where_partners('enzsub', args)
 
+        _log(f'Args: {_misc.dict_str(args)}')
+        _log(f'Enzsub where: {extra_where}')
+
         yield from self._request(
             args,
             query_type = 'enzsub',
@@ -2053,7 +2059,7 @@ class LegacyService:
 
         partners_where = []
 
-        for side in sides:
+        for side, sidecol in sides.items():
 
             conditions = []
 
@@ -2064,7 +2070,7 @@ class LegacyService:
 
             for suffix in ('', '_genesymbol'):
 
-                col = columns[f'{side}{suffix}']
+                col = columns[f'{sidecol}{suffix}']
                 op, val = self._where_op(col, args[side])
                 expr = col.op(op)(val)
                 conditions.append(expr)
