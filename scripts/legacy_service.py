@@ -11,6 +11,13 @@ con_param = {
 
 service = _legacy.LegacyService(con = con_param)
 
+
+# enz-sub
+req = service.enzsub(limit = 10, format = 'raw')
+
+list(req)
+
+
 query, bad_req = service._query({'limit': 10}, 'complexes')
 
 # lines
