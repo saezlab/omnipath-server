@@ -1145,9 +1145,15 @@ class LegacyService:
         args.pop('self', None)
         args.pop('kwargs', None)
         args = {k: v for k, v in args.items() if v is not None}
-        args['format'] = fmt[0] if (fmt := args.get('format')) else None
+        args['format'] = self._ensure_str(args.get('format'))
 
         return args
+
+
+    @staticmethod
+    def _ensure_str(val: str | Iterable[str] | None = None) -> str | None:
+
+        return _misc.first(_misc.to_list(val))
 
 
     def _array_args(self, args: dict, query_type: str):
@@ -1589,7 +1595,7 @@ class LegacyService:
         args = self._clean_args(args)
         args = self._array_args(args, query_type)
         query, bad_req = self._query(args, query_type)
-        colnames = ['<no-column-names>']
+        colnames = ['no_column_names']
         format = format or args.pop('format', None) or 'tsv'
 
         if query:
