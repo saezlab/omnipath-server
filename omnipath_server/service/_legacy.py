@@ -1429,8 +1429,8 @@ class LegacyService:
             else:
 
                 # col.val in set[val]
-                op = 'in'
-                val = array(val)
+                op = '='
+                val = any_(array(val))
 
         return op, val
 
