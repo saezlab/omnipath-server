@@ -2050,7 +2050,7 @@ class LegacyService:
 
         e.g. when source/target or enz/subs are provided in the query
         """
-
+        print(args)
         sides = self.query_param[query_type]['where_partners']['sides']
         query_op = self.query_param[query_type]['where_partners']['operator']
 
@@ -2079,17 +2079,20 @@ class LegacyService:
                 conditions.append(expr)
 
             partners_where.append(or_(*conditions))
+            print([str(i) for i in partners_where])
 
         if len(partners_where) == 1:
 
-            return partners_where[0]
+            result = partners_where[0]
 
         elif len(partners_where) == 2:
 
             op = or_ if args[query_op].upper() == 'OR' else and_
 
-            return op(*partners_where)
+            result = op(*partners_where)
 
+        print(result)
+        return result
 
     def old_enzsub(
             self,
