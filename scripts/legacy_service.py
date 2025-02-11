@@ -17,6 +17,9 @@ req = service.enzsub(enzymes = 'P06239', substrates = 'O14543', limit = 10, form
 
 list(req)
 
+req = service.enzsub(enzymes=['P06241', 'P12931'], limit = 10, format = 'raw')
+
+list(req)
 
 query, bad_req = service._query({'limit': 10}, 'complexes')
 
