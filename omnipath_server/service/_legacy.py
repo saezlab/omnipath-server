@@ -1572,6 +1572,10 @@ class LegacyService:
         query, bad_req = self._query(args, query_type, extra_where=extra_where)
         colnames = ['no_column_names']
         format = format or args.pop('format', None) or 'tsv'
+        
+        if format == 'query':
+            # TODO: Figure out to return only query for test
+            yield from ((query),)
 
         if query:
 
