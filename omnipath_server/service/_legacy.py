@@ -29,6 +29,7 @@ from pypath_common import _constants as _const
 from sqlalchemy.orm import Query
 from sqlalchemy.sql.base import ReadOnlyColumnCollection
 from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.elements import BooleanClauseList
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.dialects.postgresql import array
 
@@ -126,7 +127,7 @@ class LegacyService:
             'where_partners': {
                 'sides': {
                     'enzymes': 'enzyme',
-                    'substrates': 'substrate'
+                    'substrates': 'substrate',
                 },
                 'operator': 'enzyme_substrate',
             },
@@ -1108,7 +1109,7 @@ class LegacyService:
     def _ensure_str(val: str | Iterable[str] | None = None) -> str | None:
 
         return _misc.first(_misc.to_list(val))
-    
+
     @staticmethod
     def _ensure_array(val: Any | Iterable[Any]):
 
@@ -1499,8 +1500,12 @@ class LegacyService:
 
             if extra_where is not None:
 
-                query = query.filter(*extra_where)
-            
+                if isinstance(extra_where, (list, tuple)):
+
+                    extra_where = and_(*extra_where)
+
+                query = query.filter(extra_where)
+
             query = self._limit(query, args)
 
             # TODO: reimplement and enable license filtering
@@ -2044,13 +2049,16 @@ class LegacyService:
         )
 
 
-    def _where_partners(self, query_type, args):
+    def _where_partners(
+            self,
+            query_type: str,
+            args: dict,
+    ) -> BooleanClauseList | None:
         """
         Function to deal with filtering interactions by partners.
 
         e.g. when source/target or enz/subs are provided in the query
         """
-        print(args)
         sides = self.query_param[query_type]['where_partners']['sides']
         query_op = self.query_param[query_type]['where_partners']['operator']
 
@@ -2079,20 +2087,17 @@ class LegacyService:
                 conditions.append(expr)
 
             partners_where.append(or_(*conditions))
-            print([str(i) for i in partners_where])
 
         if len(partners_where) == 1:
 
-            result = partners_where[0]
+            return partners_where[0]
 
         elif len(partners_where) == 2:
 
             op = or_ if args[query_op].upper() == 'OR' else and_
 
-            result = op(*partners_where)
+            return op(*partners_where)
 
-        print(result)
-        return result
 
     def old_enzsub(
             self,
