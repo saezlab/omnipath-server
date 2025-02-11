@@ -3,6 +3,7 @@ import pathlib as pl
 import pytest
 
 from omnipath_server._connection import Connection
+from omnipath_server.service._legacy import LegacyService 
 
 __all__ = ['test_connection', 'test_path_legacy']
 
@@ -31,3 +32,10 @@ def postgres_con(request) -> Connection:
     config_path = request.config.getoption('--db-config')
 
     return Connection(config_path)
+
+@pytest.fixture(scope = 'session')
+def legacy_service(request) -> LegacyService:
+
+    con = postgres_con(request)
+
+    return LegacyService(con)
