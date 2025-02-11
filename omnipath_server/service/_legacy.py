@@ -109,6 +109,7 @@ class LegacyService:
             'where': {
                 'organisms': 'ncbi_tax_id',
                 'types': 'modification',
+                'resources': 'sources',
             },
             'where_multicol': (
                 {
