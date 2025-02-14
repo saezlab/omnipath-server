@@ -43,11 +43,12 @@ from ..schema import _legacy as _schema
 
 __all__ = [
     'FORMATS',
-    'ORGANISMS',
     'GEN_OF_STR',
     'GEN_OF_TUPLES',
     'LICENSE_IGNORE',
     'LegacyService',
+    'ORGANISMS',
+    'QUERY_TYPES',
     'ignore_pandas_copywarn',
     'with_last',
 ]
@@ -67,6 +68,13 @@ ORGANISMS = Literal[
     9606,
     10090,
     10116,
+]
+QUERY_TYPES = Literal[
+    'complexes',
+    'enzsub',
+    'interactions',
+    'intercell',
+    'annotations',
 ]
 GEN_OF_TUPLES = Generator[tuple, None, None]
 GEN_OF_STR = Generator[str, None, None]
@@ -2069,6 +2077,13 @@ class LegacyService:
             extra_where = extra_where,
             **kwargs,
         )
+
+
+    def query(self, query_type: QUERY_TYPES, **kwargs):
+
+        kwargs['format'] = 'query'
+
+        return next(getattr(self, query_type)(**kwargs))[0]
 
 
     def _where_partners(
