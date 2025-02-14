@@ -61,6 +61,7 @@ FORMATS = Literal[
     'text',
     'tsv',
     'table',
+    'query',
 ]
 ORGANISMS = Literal[
     9606,
@@ -1583,14 +1584,12 @@ class LegacyService:
         args = self._clean_args(args)
         args = self._array_args(args, query_type)
         query, bad_req = self._query(args, query_type, extra_where=extra_where)
-        print(query)
         colnames = ['no_column_names']
         format = format or args.pop('format', None) or 'tsv'
 
         if format == 'query':
             # TODO: Figure out to return only query for test
             result = ((query,),)
-            print(result)
 
         elif query:
 
