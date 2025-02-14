@@ -1,16 +1,15 @@
+from sqlalchemy import text, inspect
 import pytest
-from sqlalchemy import inspect
-from sqlalchemy import text
 
-from omnipath_server.loader._legacy import Loader
+__all__ = [
+    'test_create_table',
+    'test_load_tables',
+]
 
 
-def test_create_table(postgres_con, legacy_data_path):
+def test_create_table(legacy_loader):
 
-    loader = Loader(path = legacy_data_path, con = postgres_con)
-    loader.create()
-
-    tables = inspect(loader.con.engine).get_table_names()
+    tables = inspect(legacy_loader.con.engine).get_table_names()
 
     tables_expected = {
         'annotations',
@@ -23,11 +22,9 @@ def test_create_table(postgres_con, legacy_data_path):
     assert set(tables) == tables_expected
 
 
-def test_load_tables(postgres_con, legacy_data_path):
+def test_load_tables(legacy_db_loaded):
 
-    loader = Loader(path = legacy_data_path, con = postgres_con, wipe = True)
-    loader.create()
-    loader.load()
+    loader = legacy_db_loaded
 
     query = 'SELECT COUNT(*) FROM %s;'
 
