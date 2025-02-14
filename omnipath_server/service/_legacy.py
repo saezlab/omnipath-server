@@ -1645,6 +1645,10 @@ class LegacyService:
 
                 yield json.dumps(formatter(rec))
 
+        elif format == 'query':
+
+            yield from result
+
         else:
 
             formatter = self._table_formatter
