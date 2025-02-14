@@ -61,6 +61,7 @@ class Connection:
         self._param = param or kwargs
         self.chunk_size = chunk_size
         self._parse_param()
+        self.init()
 
 
     def _parse_param(self) -> None:
