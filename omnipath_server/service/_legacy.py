@@ -2086,6 +2086,13 @@ class LegacyService:
         return next(getattr(self, query_type)(**kwargs))[0]
 
 
+    def query_str(self, query_type: QUERY_TYPES, **kwargs):
+
+        q_str = str(self.query(query_type, **kwargs))
+
+        return re.sub(r'\s+', ' ', q_str)
+
+
     def _where_partners(
             self,
             query_type: str,
