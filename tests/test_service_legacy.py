@@ -2,7 +2,7 @@ import pytest
 
 __all__ = [
     'WHERE_CASES',
-    'test_where_statement',
+    'test_statements_where',
 ]
 
 
@@ -64,6 +64,7 @@ WHERE_CASES = {
 @pytest.mark.parametrize(
     'query_type, args, expected',
     ((q, a, e) for q, p in WHERE_CASES.items() for a, e in p),
+    ids = lambda p: '#' if isinstance(p, str) and len(p) > 19 else None,
 )
 def test_statements_where(legacy_service, query_type, args, expected):
 
