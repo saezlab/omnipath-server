@@ -34,8 +34,6 @@ def postgres_con(request) -> Connection:
     return Connection(config_path)
 
 @pytest.fixture(scope = 'session')
-def legacy_service(request) -> LegacyService:
+def legacy_service(postgres_con) -> LegacyService:
 
-    con = postgres_con(request)
-
-    return LegacyService(con)
+    return LegacyService(postgres_con)

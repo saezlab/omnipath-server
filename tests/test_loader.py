@@ -15,7 +15,7 @@ def test_create_table(postgres_con, legacy_data_path):
     tables_expected = {
         'annotations',
         'complexes',
-        'enz_sub',
+        'enzsub',
         'interactions',
         'intercell',
     }
