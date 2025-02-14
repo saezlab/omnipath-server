@@ -1,23 +1,32 @@
 import pytest
+
 from omnipath_server.service import _legacy
 
+__all__ = [
+    'WHERE_CASES',
+    'test_where_statement',
+]
 
-def test_enzsub_statement(legacy_service):
-    pass
-    # TODO: Get only query to check it's correct
-    query_str = str(legacy_service.query(
-        'enzsub',
-        enzymes = 'P06239',
-        substrates = 'O14543',
-        limit = 10)
-    )
 
-    where = query_str.split("WHERE")[1]
-    expectation = (" (enzsub.ncbi_tax_id = ANY (ARRAY[%(param_1)s])) AND "
-                   "((enzsub.enzyme = ANY (ARRAY[%(param_2)s])) OR "
-                   "(enzsub.enzyme_genesymbol = ANY (ARRAY[%(param_3)s]))) AND "
-                   "((enzsub.substrate = ANY (ARRAY[%(param_4)s])) OR "
-                   "(enzsub.substrate_genesymbol = ANY (ARRAY[%(param_5)s]))) \n "
-                   "LIMIT %(param_6)s")
+WHERE_CASES = {
+    'enzsub': [
+        (
+            {'enzymes': 'P06239', 'substrates': 'O14543', 'limit': 10},
+            "((enzsub.ncbi_tax_id = ANY (ARRAY[9606])) AND "
+            "((enzsub.enzyme = ANY (ARRAY['P06239'])) OR "
+            "(enzsub.enzyme_genesymbol = ANY (ARRAY['P06239']))) AND "
+            "((enzsub.substrate = ANY (ARRAY['O14543'])) OR "
+            "(enzsub.substrate_genesymbol = ANY (ARRAY['O14543']))) "
+            "LIMIT 10",
+        ),
+    ],
+}
 
-    assert where == expectation
+
+def test_where_statement(legacy_service):
+
+    for query_type, args in WHERE_CASES.items():
+
+        stm = legacy_service.query(query_type, **args[0])
+
+        assert str(stm).split('WHERE')[1] == args[1]
