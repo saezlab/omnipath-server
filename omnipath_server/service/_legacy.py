@@ -2081,6 +2081,10 @@ class LegacyService:
         )
 
 
+    # synonym
+    enz_sub = enzsub
+
+
     def query(self, query_type: QUERY_TYPES, **kwargs):
 
         kwargs['format'] = 'query'
@@ -2143,160 +2147,6 @@ class LegacyService:
             op = or_ if args[query_op].upper() == 'OR' else and_
 
             return op(*partners_where)
-
-
-    def old_enzsub(
-            self,
-            req,
-            organisms = {9606},
-            enzyme_substrate = 'OR',
-    ):
-
-        bad_req = self._check_args(req)
-
-        if bad_req:
-
-            return bad_req
-
-        hdr = [
-            'enzyme', 'substrate', 'residue_type',
-            'residue_offset', 'modification',
-        ]
-
-        if b'enzyme_substrate' in req.args:
-
-            enzyme_substrate = (
-                req.args['enzyme_substrate'][0].decode('utf-8').upper()
-            )
-
-        if b'databases' in req.args:
-
-            req.args['resources'] = req.args['databases']
-
-        args = {}
-
-        for arg in (
-            'enzymes', 'substrates', 'partners',
-            'resources', 'organisms', 'types',
-            'residues',
-        ):
-
-            args[arg] = self._args_set(req, arg)
-
-        args['organisms'] = {
-            int(t) for t in args['organisms'] if t.isdigit()
-        }
-        args['organisms'] = args['organisms'] or organisms
-
-        # provide genesymbols: yes or no
-        if (
-            b'genesymbols' in req.args and
-            self._parse_bool_arg(req.args['genesymbols'])
-        ):
-            genesymbols = True
-            hdr.insert(2, 'enzyme_genesymbol')
-            hdr.insert(3, 'substrate_genesymbol')
-        else:
-            genesymbols = False
-
-        # starting from the entire dataset
-        tbl = self.data['enzsub']
-
-        # filter by type
-        if args['types']:
-            tbl = tbl.loc[tbl.modification.isin(args['types'])]
-
-        # if partners provided those will overwrite
-        # enzymes and substrates
-        args['enzymes'] = args['enzymes'] or args['partners']
-        args['substrates'] = args['substrates'] or args['partners']
-
-        # then we filter by enzyme and substrate
-        # which matched against both standard names
-        # and gene symbols
-        if (
-            args['enzymes'] and
-            args['substrates'] and
-            enzyme_substrate == 'OR'
-        ):
-
-            tbl = tbl.loc[
-                tbl.substrate.isin(args['substrates']) |
-                tbl.substrate_genesymbol.isin(args['substrates']) |
-                tbl.enzyme.isin(args['enzymes']) |
-                tbl.enzyme_genesymbol.isin(args['enzymes'])
-            ]
-
-        else:
-
-            if args['enzymes']:
-                tbl = tbl.loc[
-                    tbl.enzyme.isin(args['enzymes']) |
-                    tbl.enzyme_genesymbol.isin(args['enzymes'])
-                ]
-
-            if args['substrates']:
-                tbl = tbl.loc[
-                    tbl.substrate.isin(args['substrates']) |
-                    tbl.substrate_genesymbol.isin(args['substrates'])
-                ]
-
-        # filter by organism
-        tbl = tbl.loc[tbl.ncbi_tax_id.isin(args['organisms'])]
-
-        # filter by databases
-        if args['resources']:
-
-            tbl = tbl.loc[
-                [
-                    bool(args['resources'] & sources)
-                    for sources in tbl.set_sources
-                ]
-            ]
-
-        if req.args['fields']:
-
-            _fields = [
-                f for f in
-                req.args['fields'][0].decode('utf-8').split(',')
-                if f in self.enzsub_fields
-            ]
-
-            for f in _fields:
-
-                if f == 'ncbi_tax_id' or f == 'organism':
-
-                    hdr.append('ncbi_tax_id')
-
-                elif f in {'databases', 'resources'}:
-
-                    hdr.append('sources')
-
-                else:
-
-                    hdr.append(f)
-
-        license = self._get_license(req)
-
-        tbl = self._filter_by_license_interactions(tbl, license)
-
-        tbl = tbl.loc[:,hdr]
-
-        return self._serve_dataframe(tbl, req)
-
-
-    def ptms(self, req):
-
-        req.postpath[0] = 'enzsub'
-
-        return self.enzsub(req)
-
-
-    def enz_sub(self, req):
-
-        req.postpath[0] = 'enzsub'
-
-        return self.enzsub(req)
 
 
     def annotations(self, req):
