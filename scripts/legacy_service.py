@@ -11,6 +11,14 @@ con_param = {
 
 service = _legacy.LegacyService(con = con_param)
 
+req = service.enzsub(
+    enzymes = 'P06239',
+    substrates = 'O14543',
+    limit = 10,
+    format = 'query',
+)
+
+list(req)
 
 # enz-sub
 req = service.enzsub(enzymes = 'P06239', substrates = 'O14543', limit = 10, format = 'raw')
