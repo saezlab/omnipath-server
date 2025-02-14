@@ -39,7 +39,7 @@ class Loader:
     # All Legacy table names
     _all_tables: list[str] = [
         'interactions',
-        'enz_sub',
+        'enzsub',
         'complexes',
         'intercell',
         'annotations',
@@ -80,7 +80,7 @@ class Loader:
             wipe:
                 Whether to wipe the database contents (if any) prior to loading
                 the tables.
-        
+
         Attrs:
             path:
                 Same as `path` argument. Otherwise, defaults to current current
