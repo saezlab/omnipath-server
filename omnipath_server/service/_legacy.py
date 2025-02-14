@@ -19,6 +19,7 @@ import os
 import re
 import json
 import warnings
+import importlib as imp
 import itertools
 import contextlib
 import collections
@@ -772,6 +773,18 @@ class LegacyService:
         # _log(f'{self.__class__.__name__} startup ready.')
 
         self._connect(con)
+
+
+    def reload(self):
+        """
+        Reloads the object from the module level.
+        """
+
+        modname = self.__class__.__module__
+        mod = __import__(modname, fromlist = [modname.split('.')[0]])
+        imp.reload(mod)
+        new = getattr(mod, self.__class__.__name__)
+        setattr(self, '__class__', new)
 
 
     def _connect(
@@ -1570,12 +1583,14 @@ class LegacyService:
         args = self._clean_args(args)
         args = self._array_args(args, query_type)
         query, bad_req = self._query(args, query_type, extra_where=extra_where)
+        print(query)
         colnames = ['no_column_names']
         format = format or args.pop('format', None) or 'tsv'
 
         if format == 'query':
             # TODO: Figure out to return only query for test
             result = ((query,),)
+            print(result)
 
         elif query:
 
