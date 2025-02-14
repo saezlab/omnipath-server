@@ -3,7 +3,7 @@
 #
 # This file is part of the `omnipath_server` Python module
 #
-# Copyright 2024
+# Copyright 2024-2025
 # Heidelberg University Hospital
 #
 # File author(s): OmniPath Team (omnipathdb@gmail.com)
@@ -121,6 +121,7 @@ class LegacyService:
                 'organisms': 'ncbi_tax_id',
                 'types': 'modification',
                 'resources': 'sources',
+                'residues': 'residue_type',
             },
             'where_multicol': (
                 {
@@ -2050,6 +2051,7 @@ class LegacyService:
             enzymes: list[str] | None = None,
             substrates: list[str] | None = None,
             types: list[str] | None = None,
+            residues: list[str] | None = None,
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
