@@ -2053,7 +2053,7 @@ class LegacyService:
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
-            enzyme_substrate = 'AND',
+            enzyme_substrate = 'OR',
             organisms = {9606},
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
