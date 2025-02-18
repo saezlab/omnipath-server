@@ -10,6 +10,29 @@ con_param = {
 
 service = _legacy.LegacyService(con = con_param)
 
+# intercell
+req = service.intercell(limit=10, format='raw')
+list(req)
+req = service.intercell(resources='CellPhoneDB', limit=10, format='raw')
+list(req)
+req = service.intercell(resources=['CellPhoneDB', 'UniProt_location'], format='raw')
+req = service.intercell(proteins='EGFR', format='raw')
+req = service.intercell(proteins=['EGFR', 'TGFB1'], format='raw')
+req = service.intercell(entity_types='protein', format='raw')
+req = service.intercell(aspect='functional', format='raw')
+req = service.intercell(scope='generic', format='raw')
+req = service.intercell(source='composite', format='raw')
+req = service.intercell(categories='receptor', format='raw')
+req = service.intercell(categories=['receptor', 'ligand'], format='raw')
+req = service.intercell(parent='receptor', format='raw')
+req = service.intercell(transmitter=True, format='raw')
+req = service.intercell(transmitter=0, format='raw')
+req = service.intercell(receiver='false', format='raw')
+req = service.intercell(receiver='false', transmitter='true', format='raw')
+req = service.intercell(secreted='false', format='raw')
+req = service.intercell(plasma_membrane_transmembrane=1, format='raw')
+req = service.intercell(pmtm=1, format='raw')
+req = service.intercell(pmp=1, format='raw')
 # annotations
 req = service.annotations(limit=10, format='raw')
 
