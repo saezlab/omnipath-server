@@ -49,6 +49,7 @@ __all__ = [
     'LegacyService',
     'ORGANISMS',
     'QUERY_TYPES',
+    'ENTITY_TYPES',
     'ignore_pandas_copywarn',
     'with_last',
 ]
@@ -156,9 +157,9 @@ class LegacyService:
                 'organisms',
             },
             'where': {
-                'organisms': 'ncbi_tax_id',
                 'resources': 'source',
                 'entity_types': 'entity_type',
+                'proteins': ('uniprot', 'genesymbol'),
             },
         },
     }
