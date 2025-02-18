@@ -150,11 +150,32 @@ class LegacyService:
                 'operator': 'enzyme_substrate',
             },
         },
+        'intercell': {
+            'array_args': {
+                'proteins',
+                'resources',
+                'entity_types',
+            },
+            'where': {
+                'resources': 'source',
+                'entity_types': 'entity_type',
+                'proteins': 'uniprot:genesymbol',
+                'aspect': 'aspect',
+                'scope': 'scope',
+                'categories': 'category',
+                'parent': 'parent',
+                'transmitter:trans': 'transmitter',
+                'receiver:rec': 'receiver',
+                'secreted:sec': 'secreted',
+                'plasma_membrane_transmembrane:pmtm': 'plasma_membrane_transmembrane',
+                'plasma_membrane_peripheral:pmp': 'plasma_membrane_peripheral',
+            },
+        },
         'annotations': {
             'array_args': {
                 'proteins',
                 'resources',
-                'organisms',
+                'entity_types',
             },
             'where': {
                 'resources': 'source',
@@ -2256,7 +2277,7 @@ class LegacyService:
         return self._serve_dataframe(tbl, req)
 
 
-    def intercell(self, req):
+    def intercell_old(self, req):
 
         bad_req = self._check_args(req)
 
@@ -2279,8 +2300,6 @@ class LegacyService:
             'aspect',
             'source',
             'scope',
-            'transmitter',
-            'receiver',
             'parent',
             'resources',
         ):
