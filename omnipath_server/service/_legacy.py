@@ -76,6 +76,12 @@ QUERY_TYPES = Literal[
     'intercell',
     'annotations',
 ]
+ENTITY_TYPES = Literal[
+    'complex',
+    'mirna',
+    'protein',
+    'small_molecule',
+]
 GEN_OF_TUPLES = Generator[tuple, None, None]
 GEN_OF_STR = Generator[str, None, None]
 
@@ -141,6 +147,18 @@ class LegacyService:
                     'substrates': 'substrate',
                 },
                 'operator': 'enzyme_substrate',
+            },
+        },
+        'annotations': {
+            'array_args': {
+                'proteins',
+                'resources',
+                'organisms',
+            },
+            'where': {
+                'organisms': 'ncbi_tax_id',
+                'resources': 'source',
+                'entity_types': 'entity_type',
             },
         },
     }
@@ -2148,8 +2166,35 @@ class LegacyService:
 
             return op(*partners_where)
 
+    def annotations(
+            self,
+            resources: list[str] | None = None,
+            proteins: list[str] | None = None,
+            entity_types: ENTITY_TYPES | None = None,
+            fields: list[str] | None = None,
+            limit: int | None = None,
+            format: FORMATS | None = None,
+            organisms = {9606},
+            **kwargs,
+    ) -> Generator[tuple | str, None, None]:
+        '''
+        Creates the generator of entries based on the query arguments for the
+        annotations service.
+        '''
 
-    def annotations(self, req):
+        args = locals()
+        args = self._clean_args(args)
+        args = self._array_args(args, 'annotations')
+
+        _log(f'Args: {_misc.dict_str(args)}')
+
+        yield from self._request(
+            args,
+            query_type = 'annotations',
+            **kwargs,
+        )
+
+    def old_annotations(self, req):
 
         bad_req = self._check_args(req)
 
