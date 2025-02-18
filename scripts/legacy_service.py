@@ -25,7 +25,31 @@ req = service.enzsub(enzymes = 'P06239', substrates = 'O14543', limit = 10, form
 
 list(req)
 
-req = service.enzsub(enzymes=['P06241', 'P12931'], limit = 10, format = 'raw')
+service.query_str(
+    'enzsub',
+    enzymes = ['P06241', 'P12931'],
+    limit = 10,
+).split('WHERE')[1].strip()
+service.query_str(
+    'enzsub',
+    enzymes = 'P06239',
+    substrates = 'O14543',
+    enzyme_substrate = 'AND',
+    limit = 10,
+).split('WHERE')[1].strip()
+service.query_str(
+    'enzsub',
+    organisms = 10090,
+).split('WHERE')[1].strip()
+service.query_str(
+    'enzsub',
+    types = 'phosphorylation',
+).split('WHERE')[1].strip()
+service.query_str(
+    'enzsub',
+    types = ['phosphorylation', 'acetylation'],
+).split('WHERE')[1].strip()
+
 
 list(req)
 
