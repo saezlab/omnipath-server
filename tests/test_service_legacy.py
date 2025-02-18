@@ -1,7 +1,9 @@
 import pytest
 
 __all__ = [
+    'SELECT_CASES',
     'WHERE_CASES',
+    'test_statements_select',
     'test_statements_where',
 ]
 
@@ -57,6 +59,25 @@ WHERE_CASES = {
             "(enzsub.modification = ANY (ARRAY[%(param_1)s, %(param_2)s])) AND "
             "(enzsub.ncbi_tax_id = ANY (ARRAY[%(param_3)s]))",
         ),
+        (
+            # multiple residue types
+            {'residues': ['Y', 'T']},
+            "(enzsub.residue_type = ANY (ARRAY[%(param_1)s, %(param_2)s])) "
+            "AND (enzsub.ncbi_tax_id = ANY (ARRAY[%(param_3)s]))",
+        ),
+    ],
+}
+
+
+SELECT_CASES = {
+    'enzsub': [
+        (
+            {},
+            "SELECT enzsub.enzyme AS enzsub_enzyme, enzsub.substrate AS "
+            "enzsub_substrate, enzsub.residue_type AS enzsub_residue_type, "
+            "enzsub.residue_offset AS enzsub_residue_offset, "
+            "enzsub.modification AS enzsub_modification FROM enzsub",
+        ),
     ],
 }
 
@@ -71,3 +92,15 @@ def test_statements_where(legacy_service, query_type, args, expected):
     stm = legacy_service.query_str(query_type, **args)
 
     assert stm.split('WHERE')[1].strip() == expected
+
+
+@pytest.mark.parametrize(
+    'query_type, args, expected',
+    ((q, a, e) for q, p in SELECT_CASES.items() for a, e in p),
+    ids = lambda p: '#' if isinstance(p, str) and len(p) > 19 else None,
+)
+def test_statements_select(legacy_service, query_type, args, expected):
+
+    stm = legacy_service.query_str(query_type, **args)
+
+    assert stm.split('WHERE')[0].strip() == expected
