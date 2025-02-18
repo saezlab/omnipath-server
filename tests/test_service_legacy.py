@@ -9,6 +9,32 @@ __all__ = [
 
 
 WHERE_CASES = {
+    'annotations': [
+        (
+            {'proteins': 'FST', 'limit': 10},
+            "(annotations.uniprot = ANY (ARRAY[%(param_1)s])) OR "
+            "(annotations.genesymbol = ANY (ARRAY[%(param_1)s])) "
+            "LIMIT %(param_2)s"
+        ),
+        (
+            {'proteins': ['FST', 'TGFB1']},
+            "(annotations.uniprot = ANY (ARRAY[%(param_1)s, %(param_2)s])) OR "
+            "(annotations.genesymbol = ANY (ARRAY[%(param_1)s, %(param_2)s]))"
+        ),
+        (
+            {'resources': ['UniProt_tissue', 'KEGG']},
+            "annotations.source = ANY (ARRAY[%(param_1)s, %(param_2)s])"
+        ),
+        (
+            {'entity_types': 'complex', 'limit': 10},
+            "annotations.entity_type = %(entity_type_1)s "
+            "LIMIT %(param_1)s"
+        ),
+        (
+            {'entity_types': 'potato', 'limit': 10},
+            "None"
+        ),
+    ],
     'enzsub': [
         (
             # basic
@@ -91,7 +117,7 @@ def test_statements_where(legacy_service, query_type, args, expected):
 
     stm = legacy_service.query_str(query_type, **args)
 
-    assert stm.split('WHERE')[1].strip() == expected
+    assert stm.split('WHERE')[-1].strip() == expected
 
 
 @pytest.mark.parametrize(
