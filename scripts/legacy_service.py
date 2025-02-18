@@ -8,8 +8,26 @@ con_param = {
     'database': 'omnipath',
 }
 
-
 service = _legacy.LegacyService(con = con_param)
+
+# annotations
+req = service.annotations(limit=10, format='raw')
+
+list(req)
+
+req = service.annotations(proteins='FST', limit=10, format='raw')
+
+list(req)
+req = service.annotations(proteins=['FST', 'TGFB1'], format='raw')
+list(req)
+req = service.annotations(resources=['UniProt_tissue', 'KEGG'], format='raw')
+list(req)
+req = service.annotations(entity_types='potato', limit=10, format='raw')
+list(req)
+req = service.annotations(entity_types='complex', limit=10, format='raw')
+list(req)
+
+# enz-sub
 
 req = service.enzsub(
     enzymes = 'P06239',
@@ -20,7 +38,6 @@ req = service.enzsub(
 
 list(req)
 
-# enz-sub
 req = service.enzsub(enzymes = 'P06239', substrates = 'O14543', limit = 10, format = 'raw')
 
 list(req)
