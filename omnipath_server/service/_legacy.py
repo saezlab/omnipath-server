@@ -157,19 +157,27 @@ class LegacyService:
                 'entity_types',
             },
             'where': {
-                'resources': 'source',
+                'resources': 'database',
                 'entity_types': 'entity_type',
                 'proteins': 'uniprot:genesymbol',
                 'aspect': 'aspect',
                 'scope': 'scope',
+                'source': 'source',
                 'categories': 'category',
                 'parent': 'parent',
-                'transmitter:trans': 'transmitter',
-                'receiver:rec': 'receiver',
-                'secreted:sec': 'secreted',
-                'plasma_membrane_transmembrane:pmtm': 'plasma_membrane_transmembrane',
-                'plasma_membrane_peripheral:pmp': 'plasma_membrane_peripheral',
+                'transmitter': 'transmitter',
+                'receiver': 'receiver',
+                'secreted': 'secreted',
+                'plasma_membrane_transmembrane': 'plasma_membrane_transmembrane',
+                'plasma_membrane_peripheral': 'plasma_membrane_peripheral',
             },
+            'where_synonyms': {
+                'trans': 'transmitter',
+                'rec': 'receiver',
+                'sec': 'secreted',
+                'pmtm': 'plasma_membrane_transmembrane',
+                'pmp': 'plasma_membrane_peripheral',
+            }
         },
         'annotations': {
             'array_args': {
@@ -1162,11 +1170,22 @@ class LegacyService:
 
         args.pop('self', None)
         args.pop('kwargs', None)
-        args = {k: v for k, v in args.items() if v is not None}
+        args = {
+            k: self._maybe_bool(v)
+            for k, v in args.items()
+            if v is not None
+        }
         args['format'] = self._ensure_str(args.get('format'))
 
         return args
 
+    def _maybe_bool(self, val: Any) -> Any:
+        
+        if (val := str(val).lower()) in _const.BOOLEAN_VALUES:
+        
+            val = str(self._parse_bool_arg(val)).lower()
+        
+        return val
 
     @staticmethod
     def _ensure_str(val: str | Iterable[str] | None = None) -> str | None:
@@ -1478,10 +1497,14 @@ class LegacyService:
         """
 
         param = self.query_param[query_type].get('where', {})
+        synonyms = self.query_param[query_type].get('where_synonyms', {})
         columns = self._columns(query_type)
 
         # Adding WHERE clauses
         for key, value in args.items():
+            
+            # If key has synonym, get long version, otherwise, keep as it is
+            key = synonyms.get(key, key)
 
             if col_op := param.get(key, None):
 
@@ -2275,6 +2298,50 @@ class LegacyService:
             tbl = tbl.loc[list(cytoscape_keys)]
 
         return self._serve_dataframe(tbl, req)
+
+
+
+    def intercell(
+            self,
+            resources: list[str] | None = None,
+            proteins: list[str] | None = None,
+            entity_types: ENTITY_TYPES | None = None,
+            aspect: list[str] | None = None,
+            scope: list[str] | None = None,
+            source: list[str] | None = None,
+            categories: list[str] | None = None,
+            parent: list[str] | None = None,
+            transmitter: bool | None = None,
+            trans: bool | None = None, # Synonym
+            receiver: bool | None = None,
+            rec: bool | None = None, # Synonym
+            secreted: bool | None = None,
+            sec: bool | None = None, # Synonym
+            plasma_membrane_transmembrane: bool | None = None,
+            pmtm: bool | None = None, # Synonym
+            plasma_membrane_peripheral: bool | None = None,
+            pmp: bool | None = None, # Synonym
+            fields: list[str] | None = None,
+            limit: int | None = None,
+            format: FORMATS | None = None,
+            **kwargs,
+    ) -> Generator[tuple | str, None, None]:
+        '''
+        Creates the generator of entries based on the query arguments for the
+        intercell service.
+        '''
+
+        args = locals()
+        args = self._clean_args(args)
+        args = self._array_args(args, 'intercell')
+
+        _log(f'Args: {_misc.dict_str(args)}')
+
+        yield from self._request(
+            args,
+            query_type = 'intercell',
+            **kwargs,
+        )
 
 
     def intercell_old(self, req):
