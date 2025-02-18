@@ -1475,7 +1475,7 @@ class LegacyService:
                     op, value = self._where_op(col, value, op[0])
                     where_expr.append(col.op(op)(value))
 
-            query = query.filter(or_(*where_expr))
+                query = query.filter(or_(*where_expr))
 
         return query
 
@@ -2173,6 +2173,7 @@ class LegacyService:
 
             return op(*partners_where)
 
+
     def annotations(
             self,
             resources: list[str] | None = None,
@@ -2181,7 +2182,6 @@ class LegacyService:
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
-            organisms = {9606},
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         '''
@@ -2200,81 +2200,6 @@ class LegacyService:
             query_type = 'annotations',
             **kwargs,
         )
-
-    def old_annotations(self, req):
-
-        bad_req = self._check_args(req)
-
-        if bad_req:
-
-            return bad_req
-
-        if b'databases' in req.args:
-
-            req.args['resources'] = req.args['databases']
-
-        if (
-            not _settings.get('server_annotations_full_download') and
-            not b'resources' in req.args and
-            not b'proteins' in req.args
-        ):
-
-            return (
-                'Downloading the entire annotations database by the REST '
-                'API is not allowed because of its huge size (>1GB). '
-                'We recommend to query a set of proteins or a few '
-                'resources, depending on your interest. '
-                'You can always download the full database from '
-                'https://archive.omnipathdb.org/'
-                'omnipath_webservice_annotations__recent.tsv'
-            )
-
-        # starting from the entire dataset
-        tbl = self.data['annotations']
-
-        hdr = tbl.columns
-
-        # filtering for resources
-        if b'resources' in req.args:
-
-            resources = self._args_set(req, 'resources')
-
-            tbl = tbl.loc[tbl.source.isin(resources)]
-
-        # filtering for entity types
-        if b'entity_types' in req.args:
-
-            entity_types = self._args_set(req, 'entity_types')
-
-            tbl = tbl.loc[tbl.entity_type.isin(entity_types)]
-
-        # filtering for proteins
-        if b'proteins' in req.args:
-
-            proteins = self._args_set(req, 'proteins')
-
-            tbl = tbl.loc[
-                tbl.uniprot.isin(proteins) |
-                tbl.genesymbol.isin(proteins)
-            ]
-
-        # provide genesymbols: yes or no
-        if (
-            b'genesymbols' in req.args and
-            self._parse_bool_arg(req.args['genesymbols'])
-        ):
-            genesymbols = True
-            hdr.insert(1, 'genesymbol')
-        else:
-            genesymbols = False
-
-        license = self._get_license(req)
-
-        tbl = self._filter_by_license_annotations(tbl, license)
-
-        tbl = tbl.loc[:,hdr]
-
-        return self._serve_dataframe(tbl, req)
 
 
     def annotations_summary(self, req):
