@@ -1461,7 +1461,7 @@ class LegacyService:
         """
 
         param = self.query_param[query_type]
-        cols = param.get('default_cols', set())
+        cols = param.get('select_default', set())
         tbl = self._schema(query_type)
         query_fields = self._parse_arg(param.get('fields', None))
         cols.update(_misc.to_set(query_fields))
