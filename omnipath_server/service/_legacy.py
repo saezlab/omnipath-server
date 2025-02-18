@@ -159,7 +159,7 @@ class LegacyService:
             'where': {
                 'resources': 'source',
                 'entity_types': 'entity_type',
-                'proteins': ('uniprot', 'genesymbol'),
+                'proteins': 'uniprot:genesymbol',
             },
         },
     }
@@ -1465,11 +1465,17 @@ class LegacyService:
             if col_op := param.get(key, None):
 
                 value = self._parse_arg(value)
-                col, *op = _misc.to_tuple(col_op) + (None,)
-                col = columns[col]
-                op, value = self._where_op(col, value, op[0])
-                where_expr = col.op(op)(value)
-                query = query.filter(where_expr)
+                cols, *op = _misc.to_tuple(col_op) + (None,)
+
+                where_expr = []
+
+                for col in cols.split(':'):
+
+                    col = columns[col]
+                    op, value = self._where_op(col, value, op[0])
+                    where_expr.append(col.op(op)(value))
+
+            query = query.filter(or_(*where_expr))
 
         return query
 
