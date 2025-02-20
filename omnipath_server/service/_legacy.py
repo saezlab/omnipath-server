@@ -1167,9 +1167,9 @@ class LegacyService:
 
     def _maybe_bool(self, val: Any) -> Any:
         
-        if (val := str(val).lower()) in _const.BOOLEAN_VALUES:
+        if (bval := str(val).lower()) in _const.BOOLEAN_VALUES:
         
-            val = str(self._parse_bool_arg(val)).lower()
+            val = str(self._parse_bool_arg(bval)).lower()
         
         return val
 
