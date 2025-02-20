@@ -92,6 +92,92 @@ WHERE_CASES = {
             "AND (enzsub.ncbi_tax_id = ANY (ARRAY[%(param_3)s]))",
         ),
     ],
+    'intercell': [
+            (
+                {'resources': 'CellPhoneDB', 'limit': 10},
+                "intercell.database = ANY (ARRAY[%(param_1)s]) LIMIT "
+                "%(param_2)s",
+            ),
+            (
+                {'resources': ['CellPhoneDB', 'UniProt_location']},
+                "intercell.database = ANY (ARRAY[%(param_1)s, %(param_2)s])",
+            ),
+            (
+                {'proteins': 'EGFR'},
+                "(intercell.uniprot = ANY (ARRAY[%(param_1)s])) OR "
+                "(intercell.genesymbol = ANY (ARRAY[%(param_1)s]))",
+            ),
+            (
+                {'proteins': ['EGFR', 'TGFB1']},
+                "(intercell.uniprot = ANY (ARRAY[%(param_1)s, %(param_2)s])) "
+                "OR (intercell.genesymbol = ANY (ARRAY[%(param_1)s, "
+                "%(param_2)s]))",
+            ),
+            (
+                {'entity_types': 'protein'},
+                "intercell.entity_type = ANY (ARRAY[%(param_1)s])",
+            ),
+            (
+                {'aspect': 'functional'},
+                "intercell.aspect = %(aspect_1)s",
+            ),
+            (
+                {'scope': 'generic'},
+                "intercell.scope = %(scope_1)s",
+            ),
+            (
+                {'source': 'composite'},
+                "intercell.source = %(source_1)s",
+            ),
+            (
+                {'categories': 'receptor'},
+                "intercell.category = %(category_1)s",
+            ),
+            (
+                {'categories': ['receptor', 'ligand']},
+                "intercell.category = ANY (ARRAY[%(param_1)s, %(param_2)s])",
+            ),
+            (
+                {'parent': 'receptor'},
+                "intercell.parent = %(parent_1)s",
+            ),
+            (
+                {'transmitter': True},
+                "intercell.transmitter = %(transmitter_1)s",
+            ),
+            (
+                {'transmitter': 0},
+                "intercell.transmitter = %(transmitter_1)s",
+            ),
+            (
+                {'receiver': 'false'},
+                "intercell.receiver = %(receiver_1)s",
+            ),
+            (
+                {'receiver': 'false', 'transmitter': 'true'},
+                "(intercell.transmitter = %(transmitter_1)s) AND "
+                "(intercell.receiver = %(receiver_1)s)",
+            ),
+            (
+                {'secreted': 'false'},
+                "intercell.secreted = %(secreted_1)s",
+            ),
+            (
+                {'plasma_membrane_transmembrane': 1},
+                "intercell.plasma_membrane_transmembrane = "
+                "%(plasma_membrane_transmembrane_1)s",
+            ),
+            (
+                {'pmtm': 1},
+                "intercell.plasma_membrane_transmembrane = "
+                "%(plasma_membrane_transmembrane_1)s",
+            ),
+            (
+                {'pmp': 1},
+                "intercell.plasma_membrane_peripheral = "
+                "%(plasma_membrane_peripheral_1)s",
+            ),
+    ],
 }
 
 

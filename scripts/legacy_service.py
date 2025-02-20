@@ -12,9 +12,7 @@ service = _legacy.LegacyService(con = con_param)
 
 # intercell
 req = service.intercell(limit=10, format='raw')
-list(req)
 req = service.intercell(resources='CellPhoneDB', limit=10, format='raw')
-list(req)
 req = service.intercell(resources=['CellPhoneDB', 'UniProt_location'], format='raw')
 req = service.intercell(proteins='EGFR', format='raw')
 req = service.intercell(proteins=['EGFR', 'TGFB1'], format='raw')
