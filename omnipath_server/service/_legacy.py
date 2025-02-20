@@ -1155,7 +1155,7 @@ class LegacyService:
         """
 
         args.pop('self', None)
-        args.pop('kwargs', None)
+        kwargs = args.pop('kwargs', {})
         args = {
             k: self._maybe_bool(v)
             for k, v in args.items()
@@ -1166,11 +1166,11 @@ class LegacyService:
         return args
 
     def _maybe_bool(self, val: Any) -> Any:
-        
+
         if (bval := str(val).lower()) in _const.BOOLEAN_VALUES:
-        
+
             val = str(self._parse_bool_arg(bval)).lower()
-        
+
         return val
 
     @staticmethod
@@ -1488,7 +1488,7 @@ class LegacyService:
 
         # Adding WHERE clauses
         for key, value in args.items():
-            
+
             # If key has synonym, get long version, otherwise, keep as it is
             key = synonyms.get(key, key)
 
