@@ -10,6 +10,10 @@ con_param = {
 
 service = _legacy.LegacyService(con = con_param)
 
+# interactions
+req = service.interactions(limit=10, format='raw')
+
+
 # intercell
 req = service.intercell(limit=10, format='raw')
 req = service.intercell(resources='CellPhoneDB', limit=10, format='raw')
