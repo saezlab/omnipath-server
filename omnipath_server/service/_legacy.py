@@ -1807,6 +1807,7 @@ class LegacyService:
         )
 
 
+    # TODO: Implement dorothea_methods, types, directed, signed and loops
     def interactions(
             self,
             resources: list[str] | None = None,
@@ -2371,7 +2372,8 @@ class LegacyService:
         return self._serve_dataframe(tbl, req)
 
 
-
+    # TODO: Revisit handling of long/short synonym arguments
+    # TODO: Addd missing causality and topology
     def intercell(
             self,
             resources: list[str] | None = None,
@@ -2415,6 +2417,7 @@ class LegacyService:
         )
 
 
+#### TO BE REMOVED
     def intercell_old(self, req):
 
         bad_req = self._check_args(req)
@@ -2549,6 +2552,7 @@ class LegacyService:
         tbl = tbl.loc[:,hdr]
 
         return self._serve_dataframe(tbl, req)
+###
 
 
     def intercell_summary(self, req):
