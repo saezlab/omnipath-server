@@ -111,6 +111,7 @@ class LegacyService:
             },
             'select': {
                 'genesymbol': {'source_genesymbol', 'target_genesymbol'},
+                'organism': {'ncbi_tax_id_source', 'ncbi_tax_id_target'},
             },
             'select_default': {
                 'source',
@@ -123,19 +124,19 @@ class LegacyService:
                 'consensus_inhibition',
             },
             'where': {
-                'organisms': 'ncbi_tax_id',
                 'resources': 'sources',
             },
             'where_multicol': (
                 {
                     'source': ('source', 'source_genesymbol'),
-                        'target': ('target', 'target_genesymbol'),
-                        'partners': (
-                            'source',
-                            'target',
-                            'source_genesymbol',
-                            'target_genesymbol',
-                        ),
+                    'target': ('target', 'target_genesymbol'),
+                    'partners': (
+                        'source',
+                        'target',
+                        'source_genesymbol',
+                        'target_genesymbol',
+                    ),
+                    'organisms': ('ncbi_tax_id_source', 'ncbi_tax_id_target'),
                 }
             ),
             'where_partners': {
@@ -229,7 +230,7 @@ class LegacyService:
                 'sec': 'secreted',
                 'pmtm': 'plasma_membrane_transmembrane',
                 'pmp': 'plasma_membrane_peripheral',
-            }
+            },
         },
         'annotations': {
             'array_args': {
