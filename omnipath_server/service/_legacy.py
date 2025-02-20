@@ -98,6 +98,54 @@ resources_mod = None
 class LegacyService:
 
     query_param = {
+        'interactions': {
+            'array_args': {
+                'sources',
+                'targets',
+                'partners',
+                'resources',
+                'organisms',
+                'datasets',
+                'datasets',
+                'dorothea_levels',
+            },
+            'select': {
+                'genesymbol': {'source_genesymbol', 'target_genesymbol'},
+            },
+            'select_default': {
+                'source',
+                'target',
+                'is_directed',
+                'is_stimulation',
+                'is_inhibition',
+                'consensus_direction',
+                'consensus_stimulation',
+                'consensus_inhibition',
+            },
+            'where': {
+                'organisms': 'ncbi_tax_id',
+                'resources': 'sources',
+            },
+            'where_multicol': (
+                {
+                    'source': ('source', 'source_genesymbol'),
+                        'target': ('target', 'target_genesymbol'),
+                        'partners': (
+                            'source',
+                            'target',
+                            'source_genesymbol',
+                            'target_genesymbol',
+                        ),
+                }
+            ),
+            'where_partners': {
+                'sides': {
+                    'sources': 'source',
+                    'targets': 'target',
+                },
+                'operator': 'source_target',
+            },
+        },
         'complexes': {
             'array_args': {
                 'resources',
@@ -1759,6 +1807,42 @@ class LegacyService:
 
 
     def interactions(
+            self,
+            resources: list[str] | None = None,
+            partners: list[str] | None = None,
+            sources: list[str] | None = None,
+            targets: list[str] | None = None,
+            fields: list[str] | None = None,
+            limit: int | None = None,
+            format: FORMATS | None = None,
+            source_target = 'OR',
+            organisms = {9606},
+            datasets = {'omnipath'},
+            dorothea_levels = {'A', 'B'},
+            **kwargs,
+    ) -> Generator[tuple | str, None, None]:
+        """
+        Creates the generator of entries based on the query arguments for the
+        interactions service.
+        """
+
+        args = locals()
+        args = self._clean_args(args)
+        args = self._array_args(args, 'interactions')
+        extra_where = self._where_partners('interactions', args)
+
+        _log(f'Args: {_misc.dict_str(args)}')
+        _log(f'Interactions where: {extra_where}')
+
+        yield from self._request(
+            args,
+            query_type = 'interactions',
+            extra_where = extra_where,
+            **kwargs,
+        )
+
+
+    def old_interactions(
             self,
             req,
             datasets  = {'omnipath'},
