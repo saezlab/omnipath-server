@@ -82,6 +82,10 @@ ENTITY_TYPES = Literal[
     'mirna',
     'protein',
     'small_molecule',
+    'lncrna',
+    'drug',
+    'metabolite',
+    'lipid',
 ]
 GEN_OF_TUPLES = Generator[tuple, None, None]
 GEN_OF_STR = Generator[str, None, None]
@@ -399,16 +403,7 @@ class LegacyService:
             'proteins': None,
             'fields': None,
             'genesymbols': _const.BOOLEAN_VALUES,
-            'entity_types': {
-                'protein',
-                'complex',
-                'mirna',
-                'lncrna',
-                'small_molecule',
-                'drug',
-                'metabolite',
-                'lipid',
-            },
+            'entity_types': ENTITY_TYPES.__args__,
         },
         'annotations_summary': {
             'header': None,
@@ -450,16 +445,7 @@ class LegacyService:
             'parent': None,
             'proteins': None,
             'fields': None,
-            'entity_types': {
-                'protein',
-                'complex',
-                'mirna',
-                'lncrna',
-                'small_molecule',
-                'drug',
-                'metabolite',
-                'lipid',
-            },
+            'entity_types': ENTITY_TYPES.__args__,
             'transmitter': _const.BOOLEAN_VALUES,
             'receiver': _const.BOOLEAN_VALUES,
             'trans': _const.BOOLEAN_VALUES,
