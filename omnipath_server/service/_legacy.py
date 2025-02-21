@@ -604,8 +604,6 @@ class LegacyService:
             'format': FORMATS.__args__,
         },
     }
-
-
     query_type_synonyms = {
         'interactions': 'interactions',
         'interaction': 'interactions',
@@ -754,7 +752,6 @@ class LegacyService:
             'plasma_membrane_peripheral': 'bool',
         },
     )
-
     # the annotation attributes served for the cytoscape app
     cytoscape_attributes = {
         ('Zhong2015', 'type'),
@@ -832,12 +829,14 @@ class LegacyService:
         ('LRdb', ('role', 'cell_type')),
     }
 
-    def __init__(
-            self,
-            con: _connection.Connection | dict | None = None,
-    ):
+    def __init__(self, con: _connection.Connection | dict | None = None):
         """
         Service for the old OmniPath web API.
+
+        Args:
+            con:
+                Instance of `Connection` to the SQL database or a dictionary
+                with the connection configuration parameters.
         """
 
         _log('Creating LegacyService.')
@@ -880,10 +879,15 @@ class LegacyService:
         setattr(self, '__class__', new)
 
 
-    def _connect(
-            self,
-            con: _connection.Connection | dict | None = None,
-    ) -> None:
+    def _connect(self, con: _connection.Connection | dict | None = None):
+        """
+        Establishes the connection to the SQL database.
+
+        Args:
+            con:
+                Instance of `Connection` to the SQL database or a dictionary
+                with the connection configuration parameters.
+        """
 
         con = con or {}
 
@@ -901,7 +905,8 @@ class LegacyService:
 
         self.con = _connection.ensure_con(con)
 
-
+    
+    # XXX: Deprecated? (has no attribute input_files)
     def _read_tables(self):
 
         _log('Loading data tables.')
@@ -938,6 +943,7 @@ class LegacyService:
             )
 
 
+    # XXX: Deprecated?
     def _network(self, req):
 
         hdr = ['nodes', 'edges', 'is_directed', 'sources']
@@ -954,6 +960,7 @@ class LegacyService:
             )
 
 
+    # XXX: Deprecated?
     def _preprocess_interactions(self):
 
         if 'interactions' not in self.data:
@@ -975,6 +982,7 @@ class LegacyService:
         )
 
 
+    # XXX: Deprecated?
     def _preprocess_enzsub(self):
 
         if 'enzsub' not in self.data:
@@ -988,6 +996,7 @@ class LegacyService:
         )
 
 
+    # XXX: Deprecated?
     def _preprocess_annotations_old(self):
 
         if 'annotations' not in self.data:
@@ -1024,6 +1033,7 @@ class LegacyService:
         ).agg({'value': _agg_values}).reset_index(drop = False)
 
 
+    # XXX: Deprecated?
     def _preprocess_annotations(self):
 
         if 'annotations' not in self.data:
@@ -1073,6 +1083,7 @@ class LegacyService:
         )
 
 
+    # XXX: Deprecated?
     def _preprocess_intercell(self):
 
         if 'intercell' not in self.data:
@@ -1087,6 +1098,7 @@ class LegacyService:
         ).drop_duplicates()
 
 
+    # XXX: Deprecated?
     def _update_resources(self):
 
         _log('Updating resource information.')
@@ -1200,7 +1212,15 @@ class LegacyService:
 
     def _clean_args(self, args: dict) -> dict:
         """
-        Remove empty arguments and self.
+        Removes empty arguments, `kwargs` and `self` to prepare them for
+        generating the SQL query.
+
+        Args:
+            args:
+                Dictionary of arguments of a query.
+
+        Returns:
+            The clean dictionary of arguments ready to generate a query.
         """
 
         args.pop('self', None)
@@ -1214,7 +1234,20 @@ class LegacyService:
 
         return args
 
+
     def _maybe_bool(self, val: Any) -> Any:
+        """
+        Checks whether a variable is any alternative representation of a boolean
+        value (e.g. `1`/`0`, `'true'`/`'false'`, etc...).
+
+        Args:
+            val:
+                Variable to check.
+
+        Returns:
+            The original value if not boolean-encoded, otherwise
+            `'true'`/`'false'` according to the value.
+        """
 
         if (bval := str(val).lower()) in _const.BOOLEAN_VALUES:
 
@@ -1222,13 +1255,35 @@ class LegacyService:
 
         return val
 
+
     @staticmethod
     def _ensure_str(val: str | Iterable[str] | None = None) -> str | None:
+        """
+        Ensures a given value is a string.
+
+        Args:
+            val:
+                A string or iterable of these.
+
+        Returns:
+            The value in `str` format.
+        """
 
         return _misc.first(_misc.to_list(val))
 
+
     @staticmethod
-    def _ensure_array(val: Any | Iterable[Any]):
+    def _ensure_array(val: Any | Iterable[Any]) -> list[Any]:
+        """
+        Ensures a given value is (or is within) a list.
+
+        Args:
+            val:
+                A value to be ensured as list.
+
+        Returns:
+            The value as (within) a list.
+        """
 
         if isinstance(val, _const.LIST_LIKE) and len(val) == 1:
 
@@ -1240,7 +1295,23 @@ class LegacyService:
 
         return _misc.to_list(val)
 
-    def _array_args(self, args: dict, query_type: str):
+
+    def _array_args(self, args: dict, query_type: str) -> dict:
+        """
+        Ensures array arguments of a query are correctly set in the right
+        format. These are defined for each of the different databases in the
+        class variable `query_param[query_type]['array_args']`.
+
+        Args:
+            args:
+                Collection of query arguments for which to ensure the arrays.
+            query_type:
+                Name of the target database of the query.
+
+        Returns:
+            The provided `args` dictionary where array variables are ensured to
+            be in the right format.
+        """
 
         array_args = self.query_param[query_type].get('array_args', set())
 
@@ -1253,6 +1324,17 @@ class LegacyService:
 
 
     def _check_args(self, args: dict, query_type: str):
+        """
+        Checks the arguments of a given query and ensures consistency and data
+        types as well as raise a warning if a wrong argument and/or value is
+        passed.
+
+        Args:
+            args:
+                Collection of query arguments to check.
+            query_type:
+                Name of the target database of the query.
+        """
 
         result = []
 
@@ -1304,6 +1386,7 @@ class LegacyService:
             )
 
 
+    # XXX Deprecated?
     def queries(self, req):
 
         query_type = (
