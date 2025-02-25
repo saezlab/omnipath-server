@@ -143,38 +143,38 @@ WHERE_CASES = {
             ),
             (
                 {'transmitter': True},
-                "intercell.transmitter = %(transmitter_1)s",
+                "intercell.transmitter IS %(transmitter_1)s",
             ),
             (
                 {'transmitter': 0},
-                "intercell.transmitter = %(transmitter_1)s",
+                "NOT intercell.transmitter",
             ),
             (
                 {'receiver': 'false'},
-                "intercell.receiver = %(receiver_1)s",
+                "NOT intercell.receiver",
             ),
             (
                 {'receiver': 'false', 'transmitter': 'true'},
-                "(intercell.transmitter = %(transmitter_1)s) AND "
-                "(intercell.receiver = %(receiver_1)s)",
+                "(intercell.transmitter IS %(transmitter_1)s) AND "
+                "NOT intercell.receiver",
             ),
             (
                 {'secreted': 'false'},
-                "intercell.secreted = %(secreted_1)s",
+                "NOT intercell.secreted",
             ),
             (
                 {'plasma_membrane_transmembrane': 1},
-                "intercell.plasma_membrane_transmembrane = "
+                "intercell.plasma_membrane_transmembrane IS "
                 "%(plasma_membrane_transmembrane_1)s",
             ),
             (
                 {'pmtm': 1},
-                "intercell.plasma_membrane_transmembrane = "
+                "intercell.plasma_membrane_transmembrane IS "
                 "%(plasma_membrane_transmembrane_1)s",
             ),
             (
                 {'pmp': 1},
-                "intercell.plasma_membrane_peripheral = "
+                "intercell.plasma_membrane_peripheral IS "
                 "%(plasma_membrane_peripheral_1)s",
             ),
     ],
