@@ -1442,6 +1442,7 @@ class LegacyService:
             )
 
 
+    # XXX Deprecated?
     @classmethod
     def _dict_set_to_list(cls, dct):
 
@@ -1457,7 +1458,8 @@ class LegacyService:
             for key, val in dct.items()
         }
 
-
+    
+    # XXX Deprecated?
     def databases(self, req):
 
         query_type = (
@@ -1516,12 +1518,14 @@ class LegacyService:
                 '{}\t{}'.format(k, ';'.join(v)) for k, v in result.items()
             )
 
-
+    
+    # XXX Deprecated?
     def _get_datasets(self):
 
         return list(self.data['interactions'].type.unique())
 
-
+    
+    # XXX Deprecated?
     def datasets(self, req):
 
         query_type = (
@@ -1548,11 +1552,33 @@ class LegacyService:
 
 
     def _schema(self, query_type: str) -> ReadOnlyColumnCollection:
+        """
+        Retrieves the schema class of the corresponding query type (e.g.
+        `Interactions`, `Enzsub`, `Annotations`, etc.).
+
+        Args:
+            query_type:
+                The desired database to retrieve its schema class.
+
+        Returns:
+            The `_schema` class of the requested database.
+        """
 
         return getattr(_schema, query_type.capitalize())
 
 
     def _columns(self, query_type: str) -> list[str]:
+        """
+        Retrieve the list of columns of a given database as defined in its
+        schema.
+
+        Args:
+            query_type:
+                The desired database to retrieve its schema class.
+
+        Returns:
+            The list of columns of the requested database.
+        """
 
         return self._schema(query_type).__table__.columns
 
@@ -1570,7 +1596,7 @@ class LegacyService:
         # we can simplify this later, once we are sure
         # it's fully correct
 
-        if op is None:
+        if op is None: # XXX: If not `None`, basically does nothing?
 
             if self._isarray(col):
 
