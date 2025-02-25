@@ -104,8 +104,8 @@ class LegacyService:
                 'targets',
                 'partners',
                 'resources',
+                'types',
                 'organisms',
-                'datasets',
                 'datasets',
                 'dorothea_levels',
             },
@@ -125,6 +125,8 @@ class LegacyService:
             },
             'where': {
                 'resources': 'sources',
+                'types': 'type',
+                'directed': 'is_directed',
             },
             'where_multicol': (
                 {
@@ -159,6 +161,16 @@ class LegacyService:
                     'lncrna_mrna',
                     'tf_mirna',
                     'small_molecule',
+                },
+                'dorothea_levels': {
+                    'dorothea_curated',
+                    'dorothea_chipseq',
+                    'dorothea_tfbs',
+                    'dorothea_coexpi',
+                },
+                'signed': {
+                    'is_stimulation',
+                    'is_inhibition',
                 },
             },
         },
@@ -1753,7 +1765,7 @@ class LegacyService:
 
                 if isinstance(extra_where, _const.LIST_LIKE):
 
-                    extra_where = (w for w in extra_where if w is not None)                 
+                    extra_where = (w for w in extra_where if w is not None)
                     extra_where = and_(*extra_where)
 
                 query = query.filter(extra_where)
@@ -1990,10 +2002,13 @@ class LegacyService:
         where = []
 
         for arg, cols in bool_args.items():
-            where.append(or_(*[
-                columns[col]
-                for col in set(args.get(arg, set())) & cols
-            ]))
+
+            arg_cols = args.get(arg, set())
+            arg_cols = arg_cols if isinstance(arg_cols, set) else cols
+
+            if (cols := arg_cols & cols):
+
+                where.append(or_(*( columns[col] for col in cols)))
 
         return and_(*where)
 
