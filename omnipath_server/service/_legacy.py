@@ -1692,7 +1692,20 @@ class LegacyService:
 
     def _where(self, query: Query, args: dict, query_type: str) -> Query:
         """
-        Adds WHERE clauses to the query.
+        Adds `WHERE` clauses to the query instance.
+
+        Args:
+             query:
+                The instance of the query to add the `WHERE` clauses
+             args:
+                A dictionary containing the different arguments for the query
+                search (argument name/value pairs).
+             query_type:
+                The target database name for the query (e.g. `'intercell`).
+
+        Returns:
+            The updated query instance with the `WHERE` clauses added according
+            to the arguments.
         """
 
         param = self.query_param[query_type].get('where', {})
@@ -1734,7 +1747,18 @@ class LegacyService:
 
     def _select(self, args: dict, query_type: str) -> Query:
         """
-        Creates a new SELECT query.
+        Creates a query with a `SELECT` clause.
+
+        Args:
+             args:
+                A dictionary containing the different arguments for the query
+                selection (argument name/value pairs).
+             query_type:
+                The target database name for the query (e.g. `'intercell`).
+
+        Returns:
+            The newly created query instance with the `SELECT` clause based on
+            the provided arguments.
         """
 
         param = self.query_param[query_type]
