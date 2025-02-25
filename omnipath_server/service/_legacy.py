@@ -1961,6 +1961,7 @@ class LegacyService:
         args = self._clean_args(args)
         args = self._array_args(args, 'interactions')
         extra_where = self._where_partners('interactions', args)
+        where_bool = self._where_bool(#MISSING)
 
         _log(f'Args: {_misc.dict_str(args)}')
         _log(f'Interactions where: {extra_where}')
@@ -1971,6 +1972,27 @@ class LegacyService:
             extra_where = extra_where,
             **kwargs,
         )
+
+
+    def _where_bool(
+            self,
+            query_type: str,
+            args: dict,
+    ) -> BooleanClauseList | None:
+        """
+        Hi
+        """
+
+        bool_args = self.query_param[query_type].get('where_bool', {})
+        columns = self._columns(query_type)
+
+        for arg, cols in bool_args.items():
+            expr = or_(*[columns[col] for col in args.get(arg, set()) | cols])
+            # HERE
+
+
+
+
 
 
     def old_interactions(
@@ -2379,6 +2401,7 @@ class LegacyService:
 
         e.g. when source/target or enz/subs are provided in the query
         """
+
         sides = self.query_param[query_type]['where_partners']['sides']
         query_op = self.query_param[query_type]['where_partners']['operator']
 
