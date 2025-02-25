@@ -1380,6 +1380,7 @@ class LegacyService:
                     continue
 
                 val = val[0] if isinstance(val, list) else val
+                val = str(val).lower() if isinstance(val, bool) else val
                 val = _misc.to_set(val)
 
                 unknowns = val - set(ref[arg])
@@ -1624,8 +1625,6 @@ class LegacyService:
         # it's fully correct
 
         if op is None: # XXX: If not `None`, basically does nothing?
-            
-            print(val)
 
             if self._isarray(col):
 
@@ -1641,7 +1640,7 @@ class LegacyService:
                     op = '&&'
 
             elif val is True:
-                op = None
+                op = 'IS'
 
             elif val is False:
                 op = 'NOT'
@@ -1696,19 +1695,15 @@ class LegacyService:
 
                     col = columns[col]
                     op, value = self._where_op(col, value, op[0])
-                    
-                    if op is None:
 
-                        expr = col
-
-                    elif op == 'NOT':
+                    if op == 'NOT':
 
                         expr = not_(col)
                     
                     else:
 
                         expr = col.op(op)(value)
-                    
+
                     where_expr.append(expr)
 
                 query = query.filter(or_(*where_expr))
