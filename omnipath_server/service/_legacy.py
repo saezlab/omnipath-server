@@ -1778,7 +1778,19 @@ class LegacyService:
 
     def _limit(self, query: Query, args: dict) -> Query:
         """
-        Adds LIMIT clauses to the query.
+        Adds `LIMIT` clauses to the query instance.
+
+        Args:
+             query:
+                The instance of the query to add the `LIMIT` clause.
+             args:
+                A dictionary containing the different arguments for the query
+                search (argument name/value pairs). Only the one under the
+                `'limit'` key will be used in this case.
+
+        Returns:
+            The updated query instance with the `LIMIT` clauses added according
+            to the arguments.
         """
 
         if 'limit' in args:
@@ -1795,14 +1807,14 @@ class LegacyService:
             extra_where: Iterable | None = None,
     ) -> tuple[Query | None, str | None]:
         """
-        Generates and executes the SQL query based on the request
+        Generates the SQL query based on the request arguments.
 
         Args:
             args:
                 The query arguments
             query_type:
-                The DataBase which to query (e.g. interactions,
-                complexes, etc)
+                The database which to query (e.g. `'interactions'`,
+                `'complexes'`, etc).
 
         Return:
             To be refined in the future: for now, either an SQL query, or an
