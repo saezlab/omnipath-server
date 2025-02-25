@@ -24,7 +24,7 @@ import itertools
 import contextlib
 import collections
 
-from sqlalchemy import or_, and_, any_
+from sqlalchemy import or_, and_, any_, not_
 from pypath_common import _misc, _settings
 from pypath_common import _constants as _const
 from sqlalchemy.orm import Query
@@ -166,7 +166,7 @@ class LegacyService:
                     'dorothea_curated',
                     'dorothea_chipseq',
                     'dorothea_tfbs',
-                    'dorothea_coexpi',
+                    'dorothea_coexp',
                 },
                 'signed': {
                     'is_stimulation',
@@ -1278,7 +1278,7 @@ class LegacyService:
 
         if (bval := str(val).lower()) in _const.BOOLEAN_VALUES:
 
-            val = str(self._parse_bool_arg(bval)).lower()
+            val = self._parse_bool_arg(bval)
 
         return val
 
@@ -1624,6 +1624,8 @@ class LegacyService:
         # it's fully correct
 
         if op is None: # XXX: If not `None`, basically does nothing?
+            
+            print(val)
 
             if self._isarray(col):
 
@@ -1637,6 +1639,12 @@ class LegacyService:
 
                     # col.any_(val)
                     op = '&&'
+
+            elif val is True:
+                op = None
+
+            elif val is False:
+                op = 'NOT'
 
             elif isinstance(val, _const.SIMPLE_TYPES):
 
@@ -1688,7 +1696,20 @@ class LegacyService:
 
                     col = columns[col]
                     op, value = self._where_op(col, value, op[0])
-                    where_expr.append(col.op(op)(value))
+                    
+                    if op is None:
+
+                        expr = col
+
+                    elif op == 'NOT':
+
+                        expr = not_(col)
+                    
+                    else:
+
+                        expr = col.op(op)(value)
+                    
+                    where_expr.append(expr)
 
                 query = query.filter(or_(*where_expr))
 
