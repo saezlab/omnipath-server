@@ -1618,7 +1618,21 @@ class LegacyService:
             op: str | None = None,
     ) -> str:
         """
-        Infers the operator for the where clause from column and value types.
+        Infers the SQL operator for the `WHERE` clause based on column and value
+        types.
+
+        Args:
+            col:
+                Column in the database where the search is performed.
+            val:
+                The value to be searched.
+            op:
+                Pre-defined operator (if any).
+
+        Returns:
+            Pair of operator/value according to the column and data type. If any
+            operator has been already provided in the arguments, returns that
+            operator and value without performing any checks.
         """
 
         # we can simplify this later, once we are sure
@@ -1663,7 +1677,14 @@ class LegacyService:
 
     def _isarray(self, col: InstrumentedAttribute) -> bool:
         """
-        Is the column array type?
+        Checks whether a given column is array type.
+
+        Args:
+            col:
+                The column to perform the check.
+
+        Returns:
+            Whether the column contains array data or not.
         """
 
         return col.type.python_type is list
