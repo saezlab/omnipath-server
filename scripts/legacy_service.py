@@ -11,7 +11,7 @@ con_param = {
 service = _legacy.LegacyService(con = con_param)
 
 # interactions
-req = service.interactions(limit=10, format='raw')
+req = service.interactions(limit=10, datasets=["collectri", 'omnipath'], format='query')
 
 
 # intercell
