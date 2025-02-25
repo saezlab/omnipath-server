@@ -14,7 +14,7 @@
 #
 
 from typing import Any, Literal
-from collections.abc import Callable, Iterable, Generator
+from collections.abc import Callable, Iterable, Generator, Collection
 import os
 import re
 import json
@@ -145,6 +145,21 @@ class LegacyService:
                     'targets': 'target',
                 },
                 'operator': 'source_target',
+            },
+            'where_bool': {
+                'datasets': {
+                    'omnipath',
+                    'kinaseextra',
+                    'ligrecextra',
+                    'pathwayextra',
+                    'mirnatarget',
+                    'dorothea',
+                    'collectri',
+                    'tf_target',
+                    'lncrna_mrna',
+                    'tf_mirna',
+                    'small_molecule',
+                },
             },
         },
         'complexes': {
@@ -905,7 +920,7 @@ class LegacyService:
 
         self.con = _connection.ensure_con(con)
 
-    
+
     # XXX: Deprecated? (has no attribute input_files)
     def _read_tables(self):
 
@@ -1458,7 +1473,7 @@ class LegacyService:
             for key, val in dct.items()
         }
 
-    
+
     # XXX Deprecated?
     def databases(self, req):
 
@@ -1518,13 +1533,13 @@ class LegacyService:
                 '{}\t{}'.format(k, ';'.join(v)) for k, v in result.items()
             )
 
-    
+
     # XXX Deprecated?
     def _get_datasets(self):
 
         return list(self.data['interactions'].type.unique())
 
-    
+
     # XXX Deprecated?
     def datasets(self, req):
 
@@ -1926,10 +1941,15 @@ class LegacyService:
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
-            source_target = 'OR',
-            organisms = {9606},
-            datasets = {'omnipath'},
-            dorothea_levels = {'A', 'B'},
+            source_target: Literal['OR', 'AND'] = 'OR',
+            organisms: Collection | None  = {9606},
+            datasets: Collection | None  = {'omnipath'},
+            dorothea_levels: Collection | None = {'A', 'B'},
+            dorothea_methods: Collection | None = None,
+            types: Collection | None = None,
+            directed: bool = True,
+            signed: bool = False,
+            loops: bool = False,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
