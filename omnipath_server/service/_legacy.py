@@ -1751,8 +1751,9 @@ class LegacyService:
 
             if extra_where is not None:
 
-                if isinstance(extra_where, (list, tuple)):
+                if isinstance(extra_where, _const.LIST_LIKE):
 
+                    extra_where = (w for w in extra_where if w is not None)                 
                     extra_where = and_(*extra_where)
 
                 query = query.filter(extra_where)
@@ -1961,7 +1962,7 @@ class LegacyService:
         args = self._clean_args(args)
         args = self._array_args(args, 'interactions')
         extra_where = self._where_partners('interactions', args)
-        where_bool = self._where_bool(#MISSING)
+        where_bool = self._where_bool('interactions', args)
 
         _log(f'Args: {_misc.dict_str(args)}')
         _log(f'Interactions where: {extra_where}')
@@ -1969,7 +1970,7 @@ class LegacyService:
         yield from self._request(
             args,
             query_type = 'interactions',
-            extra_where = extra_where,
+            extra_where = [extra_where, where_bool],
             **kwargs,
         )
 
@@ -1986,13 +1987,15 @@ class LegacyService:
         bool_args = self.query_param[query_type].get('where_bool', {})
         columns = self._columns(query_type)
 
+        where = []
+
         for arg, cols in bool_args.items():
-            expr = or_(*[columns[col] for col in args.get(arg, set()) | cols])
-            # HERE
+            where.append(or_(*[
+                columns[col]
+                for col in set(args.get(arg, set())) & cols
+            ]))
 
-
-
-
+        return and_(*where)
 
 
     def old_interactions(
