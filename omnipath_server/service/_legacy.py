@@ -110,6 +110,7 @@ class LegacyService:
                 'dorothea_levels',
                 'dorothea_methods',
                 'entity_types',
+                'fields',
             },
             'select': {
                 'genesymbol': {'source_genesymbol', 'target_genesymbol'},
@@ -1739,9 +1740,21 @@ class LegacyService:
         """
 
         param = self.query_param[query_type]
+        synonyms = param.get('select', {})
         cols = param.get('select_default', set())
         tbl = self._schema(query_type)
-        query_fields = self._parse_arg(param.get('fields', None))
+        query_fields = set()
+
+        print(param)
+        print("|")
+        print(self._parse_arg(param.get('fields', None)))
+        
+        for query_field in self._parse_arg(param.get('fields', None)):
+
+            query_fields |= _misc.to_set(synonyms.get(query_field, query_field))
+
+        print(query_fields)
+        
         cols.update(_misc.to_set(query_fields))
         select = [
             c
