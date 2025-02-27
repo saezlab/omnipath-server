@@ -108,10 +108,13 @@ class LegacyService:
                 'organisms',
                 'datasets',
                 'dorothea_levels',
+                'dorothea_methods',
+                'entity_types',
             },
             'select': {
                 'genesymbol': {'source_genesymbol', 'target_genesymbol'},
                 'organism': {'ncbi_tax_id_source', 'ncbi_tax_id_target'},
+                'entity_types': {'entity_type_source', 'entity_type_target'},
             },
             'select_default': {
                 'source',
@@ -139,6 +142,10 @@ class LegacyService:
                         'target_genesymbol',
                     ),
                     'organisms': ('ncbi_tax_id_source', 'ncbi_tax_id_target'),
+                    'entity_types': (
+                        'entity_type_source',
+                        'entity_type_target'
+                    ),
                 }
             ),
             'where_partners': {
@@ -390,16 +397,7 @@ class LegacyService:
             'directed': _const.BOOLEAN_VALUES,
             'signed': _const.BOOLEAN_VALUES,
             'loops': _const.BOOLEAN_VALUES,
-            'entity_types': {
-                'protein',
-                'complex',
-                'mirna',
-                'lncrna',
-                'small_molecule',
-                'drug',
-                'metabolite',
-                'lipid',
-            },
+            'entity_types': ENTITY_TYPES.__args__,
         },
         'enzsub': {
             'header': None,
@@ -2035,7 +2033,7 @@ class LegacyService:
         )
 
 
-    def interactions(
+    def interactions( # TODO: entity_types, evidences?, extra_attrs?
             self,
             resources: list[str] | None = None,
             partners: list[str] | None = None,
@@ -2053,6 +2051,7 @@ class LegacyService:
             directed: bool = True,
             signed: bool = False,
             loops: bool = False,
+            entity_types: Collection[ENTITY_TYPES.__args__] | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """

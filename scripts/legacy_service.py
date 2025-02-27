@@ -13,6 +13,7 @@ service = _legacy.LegacyService(con = con_param)
 # interactions
 req = service.interactions(limit=10, datasets=["collectri", 'omnipath'], format='query')
 req = service.interactions(limit=10, directed=True, format='query')
+req = service.interactions(limit=10, entity_types='protein', fields=['entity_type'], format='query')
 str(next(req)[0])
 
 # intercell
