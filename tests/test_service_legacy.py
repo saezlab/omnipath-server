@@ -44,7 +44,7 @@ WHERE_CASES = {
             "(enzsub.enzyme_genesymbol = ANY (ARRAY[%(param_3)s])) OR "
             "(enzsub.substrate = ANY (ARRAY[%(param_4)s])) OR "
             "(enzsub.substrate_genesymbol = ANY (ARRAY[%(param_5)s]))) "
-            "LIMIT %(param_6)s",
+            "AND (enzsub.enzyme != enzsub.substrate) LIMIT %(param_6)s",
         ),
         (
             # multiple enzymes
@@ -52,7 +52,8 @@ WHERE_CASES = {
             "(enzsub.ncbi_tax_id = ANY (ARRAY[%(param_1)s])) AND "
             "((enzsub.enzyme = ANY (ARRAY[%(param_2)s, %(param_3)s])) OR "
             "(enzsub.enzyme_genesymbol = "
-            "ANY (ARRAY[%(param_4)s, %(param_5)s]))) LIMIT %(param_6)s",
+            "ANY (ARRAY[%(param_4)s, %(param_5)s]))) AND "
+            "(enzsub.enzyme != enzsub.substrate) LIMIT %(param_6)s",
         ),
         (
             # enzyme AND substrate (instead of default OR)
@@ -67,29 +68,37 @@ WHERE_CASES = {
             "(enzsub.enzyme_genesymbol = ANY (ARRAY[%(param_3)s]))) "
             "AND ((enzsub.substrate = ANY (ARRAY[%(param_4)s])) OR "
             "(enzsub.substrate_genesymbol = ANY (ARRAY[%(param_5)s]))) "
-            "LIMIT %(param_6)s",
+            "AND (enzsub.enzyme != enzsub.substrate) LIMIT %(param_6)s",
         ),
         (
             {'organisms': 10090},
-            "enzsub.ncbi_tax_id = ANY (ARRAY[%(param_1)s])",
+            "(enzsub.ncbi_tax_id = ANY (ARRAY[%(param_1)s])) "
+            "AND (enzsub.enzyme != enzsub.substrate)",
         ),
         (
             # modification types
             {'types': 'phosphorylation'},
             "(enzsub.modification = ANY (ARRAY[%(param_1)s])) AND "
-            "(enzsub.ncbi_tax_id = ANY (ARRAY[%(param_2)s]))",
+            "(enzsub.ncbi_tax_id = ANY (ARRAY[%(param_2)s])) AND "
+            "(enzsub.enzyme != enzsub.substrate)",
         ),
         (
             # multiple modification types
             {'types': ['phosphorylation', 'acetylation']},
             "(enzsub.modification = ANY (ARRAY[%(param_1)s, %(param_2)s])) AND "
-            "(enzsub.ncbi_tax_id = ANY (ARRAY[%(param_3)s]))",
+            "(enzsub.ncbi_tax_id = ANY (ARRAY[%(param_3)s])) AND "
+            "(enzsub.enzyme != enzsub.substrate)",
         ),
         (
             # multiple residue types
             {'residues': ['Y', 'T']},
             "(enzsub.residue_type = ANY (ARRAY[%(param_1)s, %(param_2)s])) "
-            "AND (enzsub.ncbi_tax_id = ANY (ARRAY[%(param_3)s]))",
+            "AND (enzsub.ncbi_tax_id = ANY (ARRAY[%(param_3)s])) AND "
+            "(enzsub.enzyme != enzsub.substrate)",
+        ),
+        (
+            {'loops': True},
+            '(enzsub.ncbi_tax_id = ANY (ARRAY[%(param_1)s]))',
         ),
     ],
     'intercell': [

@@ -443,6 +443,7 @@ class LegacyService:
             'residues':  None,
             'modification': None,
             'types': None,
+            'loops': _const.BOOLEAN_VALUES,
             'fields': {
                 'sources',
                 'references',
@@ -2060,7 +2061,7 @@ class LegacyService:
         )
 
 
-    # TODO: Implement dorothea_methods, types, directed, signed and loops
+    # TODO: Implement  loops
     def interactions(
             self,
             resources: list[str] | None = None,
@@ -2129,15 +2130,16 @@ class LegacyService:
         args = self._clean_args(args)
         args = self._array_args(args, 'interactions')
         extra_where = self._where_partners('interactions', args)
+        where_loops = self._where_loops('interactions', args)
         where_bool = self._where_bool('interactions', args)
 
         _log(f'Args: {_misc.dict_str(args)}')
-        _log(f'Interactions where: {extra_where}')
+        _log(f'Interactions where: {extra_where}, {where_bool}, {where_loops}')
 
         yield from self._request(
             args,
             query_type = 'interactions',
-            extra_where = [extra_where, where_bool],
+            extra_where = [extra_where, where_bool, where_loops],
             **kwargs,
         )
 
@@ -2522,6 +2524,7 @@ class LegacyService:
             format: FORMATS | None = None,
             enzyme_substrate = 'OR',
             organisms = {9606},
+            loops: bool = False,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
@@ -2533,15 +2536,16 @@ class LegacyService:
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'enzsub')
+        where_loops = self._where_loops('enzsub', args)
         extra_where = self._where_partners('enzsub', args)
 
         _log(f'Args: {_misc.dict_str(args)}')
-        _log(f'Enzsub where: {extra_where}')
+        _log(f'Enzsub where: {extra_where}, {where_loops}')
 
         yield from self._request(
             args,
             query_type = 'enzsub',
-            extra_where = extra_where,
+            extra_where = [extra_where, where_loops],
             **kwargs,
         )
 
@@ -2563,10 +2567,27 @@ class LegacyService:
 
         return re.sub(r'\s+', ' ', q_str)
 
+    def _where_loops(
+            self,
+            query_type: QUERY_TYPES,
+            args: dict
+    ) -> BooleanClauseList | None:
+        """
+        """
+
+        sides = self.query_param[query_type]['where_partners']['sides']
+        columns = self._columns(query_type)
+
+        if not args.get('loops', False):
+            
+            cols = [columns[side] for side in sides.values()]
+            
+            return cols[0].op('!=')(cols[1])
+
 
     def _where_partners(
             self,
-            query_type: str,
+            query_type: QUERY_TYPES,
             args: dict,
     ) -> BooleanClauseList | None:
         """
