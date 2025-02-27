@@ -1815,6 +1815,8 @@ class LegacyService:
             query_type:
                 The database which to query (e.g. `'interactions'`,
                 `'complexes'`, etc).
+            extra_where:
+                Extra arguments for the WHERE statement.
 
         Return:
             To be refined in the future: for now, either an SQL query, or an
@@ -1851,7 +1853,20 @@ class LegacyService:
         return query, bad_req
 
 
+    # XXX: args not used, remove?
     def _execute(self, query: Query, args: dict) -> GEN_OF_TUPLES:
+        """
+        Executes a query and returns a generator of the response.
+
+        Args:
+            query:
+                The query to execute.
+            args:
+                Not used.
+
+        Returns:
+            Generator of tuples with the response rows.
+        """
 
         for row in self.con.execute(query):
 
@@ -1872,20 +1887,21 @@ class LegacyService:
             **kwargs,
     ) -> Generator[tuple | str | dict, None, None]:
         """
-        Generic request, each request should call this.
-
-        Implements the query-execute-postprocess-format pipeline.
+        Generic request, each request should call this. Implements the
+        query-execute-postprocess-format pipeline.
 
         Args:
             args:
-                The query arguments
+                The query argument.
             query_type:
-                The table to query (e.g. interactions, complexes, etc).
+                The table to query (e.g. `'interactions'`, `'complexes'`, etc).
+            extra_where:
+                Extra arguments for the WHERE statement.
             format:
-                The format to return (tsv, json, raw); default is tsv. In case
-                of raw format, the tuples will be streamed as they come from
-                the database. In case of tsv or json, lines will be streamed,
-                either tab joined or json encoded strings.
+                The format to return (`'tsv'`, `'json'`, `'raw'`); default is
+                `'tsv'`. In case of raw format, the tuples will be streamed as
+                they come from the database. In case of tsv or json, lines will
+                be streamed, either tab joined or json encoded strings.
             header:
                 Whether to include the column names in the response.
             postprocess:
@@ -1902,6 +1918,10 @@ class LegacyService:
                 A list of lines to be added to the end of the response.
             kwargs:
                 Additional keyword arguments to be passed to the postprocess.
+
+        Returns:
+            Generator of tuples with the result of the request after
+            post-processing.
         """
 
         args = self._clean_args(args)
@@ -1911,7 +1931,6 @@ class LegacyService:
         format = format or args.pop('format', None) or 'tsv'
 
         if format == 'query':
-            # TODO: Figure out to return only query for test
             result = ((query,),)
 
         elif query:
@@ -1948,15 +1967,19 @@ class LegacyService:
             names: list[str] | None = None,
     ) -> GEN_OF_TUPLES:
         """
-        Format the result as Python generator, TSV or JSON.
+        Formats the result as Python generator, TSV or JSON.
 
         Args:
             result:
                 A generator of tuples, each representing a record.
             format:
-                One of the supported format literals (raw, tsv, json, ...).
+                One of the supported format literals (`'raw'`, `'tsv'`,
+                `'json'`, ...).
             names:
                 Column names.
+
+        Returns:
+            Generator of tuples with the formatted results.
         """
 
         formatter = lambda x: x
