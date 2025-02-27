@@ -1837,13 +1837,9 @@ class LegacyService:
             query = self._select(args, query_type)
             query = self._where(query, args, query_type)
 
-            if extra_where is not None:
+            if extra_where := [w for w in _misc.to_list(extra_where) if w is not None]:
 
-                if isinstance(extra_where, _const.LIST_LIKE):
-
-                    extra_where = (w for w in extra_where if w is not None)
-                    extra_where = and_(*extra_where)
-
+                extra_where = and_(*extra_where)
                 query = query.filter(extra_where)
 
             query = self._limit(query, args)

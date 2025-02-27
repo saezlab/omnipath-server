@@ -98,7 +98,7 @@ WHERE_CASES = {
         ),
         (
             {'loops': True},
-            '(enzsub.ncbi_tax_id = ANY (ARRAY[%(param_1)s]))',
+            'enzsub.ncbi_tax_id = ANY (ARRAY[%(param_1)s])',
         ),
     ],
     'intercell': [
