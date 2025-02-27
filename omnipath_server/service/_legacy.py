@@ -131,24 +131,9 @@ class LegacyService:
                 'resources': 'sources',
                 'types': 'type',
                 'directed': 'is_directed',
+                'organisms': 'ncbi_tax_id_source:ncbi_tax_id_target',
+                'entity_types': 'entity_type_source:entity_type_target',
             },
-            'where_multicol': (
-                {
-                    'source': ('source', 'source_genesymbol'),
-                    'target': ('target', 'target_genesymbol'),
-                    'partners': (
-                        'source',
-                        'target',
-                        'source_genesymbol',
-                        'target_genesymbol',
-                    ),
-                    'organisms': ('ncbi_tax_id_source', 'ncbi_tax_id_target'),
-                    'entity_types': (
-                        'entity_type_source',
-                        'entity_type_target',
-                    ),
-                }
-            ),
             'where_partners': {
                 'sides': {
                     'sources': 'source',
@@ -218,18 +203,6 @@ class LegacyService:
                 'resources': 'sources',
                 'residues': 'residue_type',
             },
-            'where_multicol': (
-                {
-                    'enzyme': ('enzyme', 'enzyme_genesymbol'),
-                        'substrate': ('substrate', 'substrate_genesymbol'),
-                        'partners': (
-                            'enzyme',
-                            'substrate',
-                            'enzyme_genesymbol',
-                            'substrate_genesymbol',
-                        ),
-                }
-            ),
             'where_partners': {
                 'sides': {
                     'enzymes': 'enzyme',
