@@ -2024,12 +2024,32 @@ class LegacyService:
 
     @classmethod
     def _table_formatter(cls, rec: tuple) -> str:
+        """
+        Fortmats result record as a tab-separated entry.
+
+        Args:
+            rec:
+                A record entry as a tuple.
+
+        Returns:
+            The entry formatted as tab-separated text.
+        """
 
         return '\t'.join(cls._table_field_formatter(f) for f in rec) + '\n'
 
 
     @staticmethod
     def _table_field_formatter(field: Any) -> str:
+        """
+        Formats an individual field from a record.
+
+        Args:
+            field:
+                The field to be formatted.
+
+        Returns:
+            The formatted field.
+        """
 
         return (
             ';'.join(field)
@@ -2064,6 +2084,45 @@ class LegacyService:
         """
         Creates the generator of entries based on the query arguments for the
         interactions service.
+
+        Args:
+            resources:
+                Defines which resource(s) to use records from.
+            partners:
+                
+            sources:
+                
+            targets:
+                
+            fields:
+                
+            limit:
+                
+            format:
+                
+            source_target:
+                
+            organisms:
+                
+            datasets:
+                
+            dorothea_levels:
+                
+            dorothea_methods:
+                
+            types:
+                
+            directed:
+                
+            signed:
+                
+            loops:
+                
+            **kwargs:
+                
+
+        Returns:
+            asdadkawld
         """
 
         args = locals()
