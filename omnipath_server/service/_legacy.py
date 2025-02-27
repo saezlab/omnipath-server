@@ -115,7 +115,7 @@ class LegacyService:
             'select': {
                 'genesymbol': {'source_genesymbol', 'target_genesymbol'},
                 'organism': {'ncbi_tax_id_source', 'ncbi_tax_id_target'},
-                'entity_types': {'entity_type_source', 'entity_type_target'},
+                'entity_type': {'entity_type_source', 'entity_type_target'},
             },
             'select_default': {
                 'source',
@@ -145,7 +145,7 @@ class LegacyService:
                     'organisms': ('ncbi_tax_id_source', 'ncbi_tax_id_target'),
                     'entity_types': (
                         'entity_type_source',
-                        'entity_type_target'
+                        'entity_type_target',
                     ),
                 }
             ),
@@ -1745,16 +1745,10 @@ class LegacyService:
         tbl = self._schema(query_type)
         query_fields = set()
 
-        print(param)
-        print("|")
-        print(self._parse_arg(param.get('fields', None)))
-        
-        for query_field in self._parse_arg(param.get('fields', None)):
+        for query_field in self._parse_arg(args.get('fields', None)):
 
             query_fields |= _misc.to_set(synonyms.get(query_field, query_field))
 
-        print(query_fields)
-        
         cols.update(_misc.to_set(query_fields))
         select = [
             c
