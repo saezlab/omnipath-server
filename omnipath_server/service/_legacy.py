@@ -306,11 +306,6 @@ class LegacyService:
 
     field_synonyms = {
         'organism': 'ncbi_tax_id',
-        'tfregulons_level': 'dorothea_level',
-        'tfregulons_curated': 'dorothea_curated',
-        'tfregulons_chipseq': 'dorothea_chipseq',
-        'tfregulons_tfbs': 'dorothea_tfbs',
-        'tfregulons_coexp': 'dorothea_coexp',
         'sources': 'resources',
         'databases': 'resources',
     }
@@ -332,7 +327,6 @@ class LegacyService:
             'limit': None,
             'datasets': {
                 'omnipath',
-                'tfregulons',
                 'dorothea',
                 'collectri',
                 'tf_target',
@@ -364,11 +358,6 @@ class LegacyService:
                 'entity_type',
                 'references',
                 'sources',
-                'tfregulons_level',
-                'tfregulons_curated',
-                'tfregulons_chipseq',
-                'tfregulons_tfbs',
-                'tfregulons_coexp',
                 'dorothea_level',
                 'dorothea_curated',
                 'dorothea_chipseq',
@@ -383,13 +372,6 @@ class LegacyService:
                 'datasets',
                 'extra_attrs',
                 'evidences',
-            },
-            'tfregulons_levels':  {'A', 'B', 'C', 'D', 'E'},
-            'tfregulons_methods': {
-                'curated',
-                'chipseq',
-                'coexp',
-                'tfbs',
             },
             'dorothea_levels':  {'A', 'B', 'C', 'D', 'E'},
             'dorothea_methods': {
@@ -654,7 +636,6 @@ class LegacyService:
     }
     datasets_ = {
         'omnipath',
-        'tfregulons',
         'dorothea',
         'collectri',
         'tf_target',
@@ -669,7 +650,6 @@ class LegacyService:
     dorothea_methods = {'curated', 'coexp', 'chipseq', 'tfbs'}
     dataset2type = {
         'omnipath': 'post_translational',
-        'tfregulons': 'transcriptional',
         'dorothea': 'transcriptional',
         'collectri': 'transcriptional',
         'tf_target': 'transcriptional',
@@ -685,8 +665,6 @@ class LegacyService:
         'references', 'sources', 'dorothea_level',
         'dorothea_curated', 'dorothea_chipseq',
         'dorothea_tfbs', 'dorothea_coexp',
-        'tfregulons_level', 'tfregulons_curated',
-        'tfregulons_chipseq', 'tfregulons_tfbs', 'tfregulons_coexp',
         'type', 'ncbi_tax_id', 'databases', 'organism',
         'curation_effort', 'resources', 'entity_type',
         'datasets', 'extra_attrs', 'evidences',
@@ -1734,7 +1712,7 @@ class LegacyService:
                     if op == 'NOT':
 
                         expr = not_(col)
-                    
+
                     else:
 
                         expr = col.op(op)(value)
@@ -2057,7 +2035,6 @@ class LegacyService:
         )
 
 
-    # TODO: Implement  loops
     def interactions(
             self,
             resources: list[str] | None = None,
@@ -2086,37 +2063,37 @@ class LegacyService:
             resources:
                 Defines which resource(s) to use records from.
             partners:
-                
+
             sources:
-                
+
             targets:
-                
+
             fields:
-                
+
             limit:
-                
+
             format:
-                
+
             source_target:
-                
+
             organisms:
-                
+
             datasets:
-                
+
             dorothea_levels:
-                
+
             dorothea_methods:
-                
+
             types:
-                
+
             directed:
-                
+
             signed:
-                
+
             loops:
-                
+
             **kwargs:
-                
+
 
         Returns:
             asdadkawld
@@ -2198,9 +2175,6 @@ class LegacyService:
             source_target = (
                 req.args['source_target'][0].decode('utf-8').upper()
             )
-
-        # changes the old, "tfregulons" names to new "dorothea"
-        self._tfregulons_dorothea(req)
 
         if b'databases' in req.args:
 
@@ -2485,28 +2459,6 @@ class LegacyService:
         )
 
 
-    def _tfregulons_dorothea(self, req):
-
-        for arg in (b'datasets', b'fields'):
-
-            if arg in req.args:
-
-                req.args[arg] = [
-                    it.replace(b'tfregulons', b'dorothea')
-                    for it in req.args[arg]
-                ]
-
-        for postfix in (b'levels', b'methods'):
-
-            key = b'tfregulons_%s' % postfix
-            new_key = b'dorothea_%s' % postfix
-
-            if key in req.args and new_key not in req.args:
-
-                req.args[new_key] = req.args[key]
-                _ = req.args.pop(key)
-
-
     def enzsub(
             self,
             resources: list[str] | None = None,
@@ -2566,7 +2518,7 @@ class LegacyService:
     def _where_loops(
             self,
             query_type: QUERY_TYPES,
-            args: dict
+            args: dict,
     ) -> BooleanClauseList | None:
         """
         """
@@ -2575,9 +2527,9 @@ class LegacyService:
         columns = self._columns(query_type)
 
         if not args.get('loops', False):
-            
+
             cols = [columns[side] for side in sides.values()]
-            
+
             return cols[0].op('!=')(cols[1])
 
 
