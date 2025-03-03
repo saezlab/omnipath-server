@@ -1851,10 +1851,12 @@ class LegacyService:
             extra_where:
                 Extra arguments for the WHERE statement.
             format:
-                The format to return (`'tsv'`, `'json'`, `'raw'`); default is
-                `'tsv'`. In case of raw format, the tuples will be streamed as
-                they come from the database. In case of tsv or json, lines will
-                be streamed, either tab joined or json encoded strings.
+                The format to return (`'raw'`, `'json'`, `'tab'`, `'text'`,
+                `'tsv'`, `'table'`, `'query'`); default is `'tsv'`. In case of
+                raw format, the tuples will be streamed as they come from the
+                database. In case of tsv or json, lines will be streamed, either
+                tab joined or json encoded strings. The query format, returns
+                the instance of the query object.
             header:
                 Whether to include the column names in the response.
             postprocess:
@@ -2042,40 +2044,52 @@ class LegacyService:
             resources:
                 Defines which resource(s) to use records from.
             partners:
-
+                Entities to search interactions for, regardless of their role as
+                source or target in the interaction.
             sources:
-
+                Entities to search interactions for, acting as source nodes of
+                the interaction.
             targets:
-
+                Entities to search interactions for, acting as target nodes of
+                the interaction.
             fields:
-
+                Fields (columns) to include in the output result table.
             limit:
-
+                Limit number of entries in the search result.
             format:
-
+                The format to return (`'raw'`, `'json'`, `'tab'`, `'text'`,
+                `'tsv'`, `'table'`, `'query'`); default is `'tsv'`. In case of
+                raw format, the tuples will be streamed as they come from the
+                database. In case of tsv or json, lines will be streamed, either
+                tab joined or json encoded strings. The query format, returns
+                the instance of the query object.
             source_target:
-
+                Operator to use between sources and targets arguments.
             organisms:
-
+                Organism to search interactions from.
             datasets:
-
+                Datasets to include in the search space.
             dorothea_levels:
-
+                Which levels of confidence to include in the search space for
+                the DoRothEA interactions.
             dorothea_methods:
-
+                Which methods to include from DoRothEA interactions.
             types:
-
+                Types of interactions to include in the search.
             directed:
-
+                Whether to search only directed interactions or all (both
+                directed and undirected).
             signed:
-
+                Whether to search only signed interactions or all (both
+                signed and unsigned).
             loops:
-
+                Whether to include self loops or not in the results.
             **kwargs:
-
+                Keyword arguments passed to the `_request` method.
 
         Returns:
-            asdadkawld
+            Generator of the search results in the interactions database in the
+            requested format.
         """
 
         args = locals()
