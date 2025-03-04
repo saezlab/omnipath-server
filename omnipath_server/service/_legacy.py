@@ -135,7 +135,7 @@ class LegacyService:
                 'directed': 'is_directed',
                 'organisms': 'ncbi_tax_id_source:ncbi_tax_id_target',
                 'entity_types': 'entity_type_source:entity_type_target',
-                'dorothea_levels': 'dorothea_level'
+                'dorothea_levels': 'dorothea_level',
             },
             'where_partners': {
                 'sides': {
@@ -2034,9 +2034,9 @@ class LegacyService:
             limit: int | None = None,
             format: FORMATS | None = None,
             source_target: Literal['OR', 'AND'] = 'OR',
-            organisms: Collection | None  = {9606},
-            datasets: Collection | None  = {'omnipath'},
-            dorothea_levels: Collection | None = {'A', 'B'},
+            organisms: Collection[str | int] | None  = None,
+            datasets: Collection | None  = None,
+            dorothea_levels: Collection | None = None,
             dorothea_methods: Collection | None = None,
             types: Collection | None = None,
             directed: bool = True,
@@ -2101,6 +2101,9 @@ class LegacyService:
             requested format.
         """
 
+        dorothea_levels = dorothea_levels or {'A', 'B'}
+        datasets = datasets or {'omnipath'}
+        organisms = organisms or {9606}
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'interactions')
@@ -2490,7 +2493,7 @@ class LegacyService:
             limit: int | None = None,
             format: FORMATS | None = None,
             enzyme_substrate = 'OR',
-            organisms = {9606},
+            organisms: Collection[int | str] | None = None,
             loops: bool = False,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
@@ -2539,6 +2542,7 @@ class LegacyService:
             requested format.
         """
 
+        organisms = organisms or {9606}
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'enzsub')
