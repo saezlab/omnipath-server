@@ -155,7 +155,7 @@ class LegacyService:
                     'tf_mirna',
                     'small_molecule',
                 },
-                'dorothea_levels': {
+                'dorothea_methods': {
                     'dorothea_curated',
                     'dorothea_chipseq',
                     'dorothea_tfbs',
@@ -2138,8 +2138,7 @@ class LegacyService:
 
         for arg, cols in bool_args.items():
 
-            arg_cols = args.get(arg, set())
-            arg_cols = arg_cols if isinstance(arg_cols, set) else cols
+            arg_cols = _misc.to_set(args.get(arg, set()))
 
             if (cols := arg_cols & cols):
 
@@ -2437,7 +2436,7 @@ class LegacyService:
     # XXX: Deprecated?
     @classmethod
     def _dataset_included(cls, dataset: str, args: dict) -> bool:
-        
+
 
         return (
             dataset in args['datasets'] or
