@@ -2116,7 +2116,16 @@ class LegacyService:
             args: dict,
     ) -> BooleanClauseList | None:
         """
-        Hi
+        Generates WHERE statement(s) of a boolean variable(s).
+
+        Args:
+            query_type:
+                The table to query (e.g. `'interactions'`, `'complexes'`, etc).
+            args:
+                The query arguments.
+
+        Returns:
+            The boolean variable clause (multiple ones joined by and operator).
         """
 
         bool_args = self.query_param[query_type].get('where_bool', {})
@@ -2136,6 +2145,7 @@ class LegacyService:
         return and_(*where)
 
 
+    # XXX: Deprecated
     def old_interactions(
             self,
             req,
@@ -2421,8 +2431,10 @@ class LegacyService:
         return self._serve_dataframe(tbl, req)
 
 
+    # XXX: Deprecated?
     @classmethod
     def _dataset_included(cls, dataset: str, args: dict) -> bool:
+        
 
         return (
             dataset in args['datasets'] or
@@ -2433,6 +2445,7 @@ class LegacyService:
         )
 
 
+    # XXX: Deprecated?
     @classmethod
     def _dorothea_dataset_filter(cls, tbl: pd.DataFrame, args: dict):
 
@@ -2469,9 +2482,48 @@ class LegacyService:
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
-        TODO
-        WHERE ((substrate = 'Q1' OR substrate_genesymbol = 'Q1') AND/OR
-        (enzyme = 'Q2' OR enzyme_genesymbol = 'Q2'))
+        Creates the generator of entries based on the query arguments for the
+        enzyme-substrate service.
+
+        Args:
+            resources:
+                Defines which resource(s) to use records from.
+            partners:
+                Entities to search interactions for, regardless of their role as
+                enzyme or substrate in the interaction.
+            enzymes:
+                Entities to search interactions for, acting as enzymes of the
+                interaction.
+            substrates:
+                Entities to search interactions for, acting as substrates of the
+                interaction.
+            types:
+                Types of enzyme-substrate interactions to include in the search.
+            residues:
+                Search term for specific modified residues in a protein.
+            fields:
+                Fields (columns) to include in the output result table.
+            limit:
+                Limit number of entries in the search result.
+            format:
+                The format to return (`'raw'`, `'json'`, `'tab'`, `'text'`,
+                `'tsv'`, `'table'`, `'query'`); default is `'tsv'`. In case of
+                raw format, the tuples will be streamed as they come from the
+                database. In case of tsv or json, lines will be streamed, either
+                tab joined or json encoded strings. The query format, returns
+                the instance of the query object.
+            enzyme_substrate:
+                Operator to use between enzymes and substrates arguments.
+            organisms:
+                Organism to search interactions from.
+            loops:
+                Whether to include self loops or not in the results.
+            **kwargs:
+                Keyword arguments passed to the `_request` method.
+
+        Returns:
+            Generator of the search results in the enzsub database in the
+            requested format.
         """
 
         args = locals()
@@ -2491,11 +2543,13 @@ class LegacyService:
         )
 
 
-    # synonym
+    # Synonym
     enz_sub = enzsub
 
 
     def query(self, query_type: QUERY_TYPES, **kwargs):
+        """
+        """
 
         kwargs['format'] = 'query'
 
