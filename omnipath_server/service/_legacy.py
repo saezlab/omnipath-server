@@ -116,6 +116,8 @@ class LegacyService:
                 'genesymbol': {'source_genesymbol', 'target_genesymbol'},
                 'organism': {'ncbi_tax_id_source', 'ncbi_tax_id_target'},
                 'entity_type': {'entity_type_source', 'entity_type_target'},
+                'extra_attrs': 'extra_attrs',
+                'evidences': 'evidences',
             },
             'select_default': {
                 'source',
@@ -133,6 +135,7 @@ class LegacyService:
                 'directed': 'is_directed',
                 'organisms': 'ncbi_tax_id_source:ncbi_tax_id_target',
                 'entity_types': 'entity_type_source:entity_type_target',
+                'dorothea_levels': 'dorothea_level'
             },
             'where_partners': {
                 'sides': {
@@ -2019,7 +2022,6 @@ class LegacyService:
         )
 
 
-# Fix dataset selection and dorothea methods
 # Fix dorothea levels
 
     def interactions( # TODO: entity_types, evidences?, extra_attrs?
