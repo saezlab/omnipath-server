@@ -156,10 +156,10 @@ class LegacyService:
                     'small_molecule',
                 },
                 'dorothea_methods': {
-                    'dorothea_curated',
-                    'dorothea_chipseq',
-                    'dorothea_tfbs',
-                    'dorothea_coexp',
+                    'curated': 'dorothea_curated',
+                    'chipseq': 'dorothea_chipseq',
+                    'tfbs': 'dorothea_tfbs',
+                    'coexp': 'dorothea_coexp',
                 },
                 'signed': {
                     'is_stimulation',
@@ -360,6 +360,10 @@ class LegacyService:
                 'chipseq',
                 'coexp',
                 'tfbs',
+                'dorothea_curated',
+                'dorothea_chipseq',
+                'dorothea_coexp',
+                'dorothea_tfbs',
             },
             'organisms': ORGANISMS.__args__,
             'source_target': {
@@ -2139,6 +2143,11 @@ class LegacyService:
         for arg, cols in bool_args.items():
 
             arg_cols = _misc.to_set(args.get(arg, set()))
+
+            if isinstance(cols, dict):
+
+                arg_cols = {cols.get(x, x) for x in arg_cols}
+                cols = set(cols.values())
 
             if (cols := arg_cols & cols):
 
