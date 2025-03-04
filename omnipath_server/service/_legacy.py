@@ -2026,6 +2026,15 @@ class LegacyService:
         # if dorothea_included FALSE, then we don't handle with anyting
         # if we have transcriptional interactions and NO datasets selected type = transcriptional
 
+        # if collectri or dorothea in datasets, types must include transcriptional
+        # if dorothea in datasets, force levels (taken care of by defaults)
+        
+        # WIP - need to add conditionals here
+
+        # Only if dorothea in datasets or transcriptional in types
+        args['dorothea_levels'] = args['dorothea_levels'] or {'A', 'B'}
+
+        
         dorothea_included = (
             'dorothea' in args['datasets'] or
             any(res.endswith('DoRothEA') for res in args['resources']) or
@@ -2135,7 +2144,6 @@ class LegacyService:
             requested format.
         """
 
-        dorothea_levels = dorothea_levels or {'A', 'B'}
         datasets = datasets if types else datasets or {'omnipath'}
         organisms = organisms or {9606}
         args = locals()
