@@ -2015,6 +2015,9 @@ class LegacyService:
         )
 
 
+# Fix dataset selection and dorothea methods
+# Fix dorothea levels
+
     def interactions( # TODO: entity_types, evidences?, extra_attrs?
             self,
             resources: list[str] | None = None,
@@ -2031,7 +2034,7 @@ class LegacyService:
             dorothea_methods: Collection | None = None,
             types: Collection | None = None,
             directed: bool = True,
-            signed: bool = False,
+            signed: bool = None,
             loops: bool = False,
             entity_types: Collection[ENTITY_TYPES.__args__] | None = None,
             **kwargs,
@@ -2549,6 +2552,7 @@ class LegacyService:
 
     def query(self, query_type: QUERY_TYPES, **kwargs):
         """
+        Returns the search results as a query instance
         """
 
         kwargs['format'] = 'query'
