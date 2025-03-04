@@ -2020,10 +2020,44 @@ class LegacyService:
                 if isinstance(field, dict) else
             str(field)
         )
+    
+
+    def _dorothea_where(self, args):
+        # if dorothea_included FALSE, then we don't handle with anyting
+        # if we have transcriptional interactions and NO datasets selected type = transcriptional
+
+        dorothea_included = (
+            'dorothea' in args['datasets'] or
+            any(res.endswith('DoRothEA') for res in args['resources']) or
+            (
+                'transcriptional' in args['types'] and
+                not args['datasets']
+            )
+        )
+
+        if dorothea_included and args['dorothea_levels']:
+
+            tbl = tbl.loc[
+                self._dorothea_dataset_filter(tbl, args) |
+                [
+                    bool(levels & args['dorothea_levels'])
+                    for levels in tbl.set_dorothea_level
+                ]
+            ]
+
+        # WHERE ... (collectri) AND (dorothea_level IN ARRAY['A', 'B'] OR NOT dorothea)
+
+        if dorothea_included and args['dorothea_methods']:
+
+            q = ['dorothea_%s' % m for m in args['dorothea_methods']]
+
+            tbl = tbl.loc[
+                self._dorothea_dataset_filter(tbl, args) |
+                tbl[q].any(1)
+            ]
 
 
-# Fix dorothea levels
-
+    # Fix dorothea levels
     def interactions( # TODO: entity_types, evidences?, extra_attrs?
             self,
             resources: list[str] | None = None,
@@ -2102,7 +2136,7 @@ class LegacyService:
         """
 
         dorothea_levels = dorothea_levels or {'A', 'B'}
-        datasets = datasets or {'omnipath'}
+        datasets = datasets if types else datasets or {'omnipath'}
         organisms = organisms or {9606}
         args = locals()
         args = self._clean_args(args)
