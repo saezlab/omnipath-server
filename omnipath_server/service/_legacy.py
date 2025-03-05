@@ -1372,7 +1372,7 @@ class LegacyService:
             )
 
 
-    # XXX Deprecated?
+    # XXX: Deprecated?
     def queries(self, req):
 
         query_type = (
@@ -1428,7 +1428,7 @@ class LegacyService:
             )
 
 
-    # XXX Deprecated?
+    # XXX: Deprecated?
     @classmethod
     def _dict_set_to_list(cls, dct):
 
@@ -1445,7 +1445,7 @@ class LegacyService:
         }
 
 
-    # XXX Deprecated?
+    # XXX: Deprecated?
     def databases(self, req):
 
         query_type = (
@@ -1505,13 +1505,13 @@ class LegacyService:
             )
 
 
-    # XXX Deprecated?
+    # XXX: Deprecated?
     def _get_datasets(self):
 
         return list(self.data['interactions'].type.unique())
 
 
-    # XXX Deprecated?
+    # XXX: Deprecated?
     def datasets(self, req):
 
         query_type = (
@@ -2023,6 +2023,9 @@ class LegacyService:
     
 
     def _dorothea_where(self, args):
+        """
+        TODO
+        """
         # if dorothea_included FALSE, then we don't handle with anyting
         # if we have transcriptional interactions and NO datasets selected type = transcriptional
 
@@ -2606,9 +2609,20 @@ class LegacyService:
     enz_sub = enzsub
 
 
-    def query(self, query_type: QUERY_TYPES, **kwargs):
+    def query(self, query_type: QUERY_TYPES, **kwargs) -> Query:
         """
-        Returns the search results as a query instance
+        Returns the query instance of a search instead of the actual results.
+
+        Args:
+            query_type:
+                The database which to query (e.g. `'interactions'`,
+                `'complexes'`, etc).
+            **kwargs:
+                Arguments passed to the corresponding query method
+                (`interactions`, `enzsub`, ...).
+
+        Returns:
+            Instance of the SQLalchemy query object.
         """
 
         kwargs['format'] = 'query'
@@ -2616,11 +2630,26 @@ class LegacyService:
         return next(getattr(self, query_type)(**kwargs))[0]
 
 
-    def query_str(self, query_type: QUERY_TYPES, **kwargs):
+    def query_str(self, query_type: QUERY_TYPES, **kwargs) -> str:
+        """
+        Returns the query string instead of the actual results.
+
+        Args:
+            query_type:
+                The database which to query (e.g. `'interactions'`,
+                `'complexes'`, etc).
+            **kwargs:
+                Arguments passed to the corresponding query method
+                (`interactions`, `enzsub`, ...).
+
+        Returns:
+            The SQL query string.
+        """
 
         q_str = str(self.query(query_type, **kwargs))
 
         return re.sub(r'\s+', ' ', q_str)
+
 
     def _where_loops(
             self,
