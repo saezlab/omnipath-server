@@ -2793,6 +2793,7 @@ class LegacyService:
         )
 
 
+    # XXX: Deprecated?
     def annotations_summary(self, req):
 
         bad_req = self._check_args(req)
@@ -2877,6 +2878,70 @@ class LegacyService:
         '''
         Creates the generator of entries based on the query arguments for the
         intercell service.
+
+        Args:
+            resources:
+                Defines which resource(s) to use records from.
+            proteins:
+                Entities to search interactions for.
+            entity_types:
+                Type of entities to search annotations for (e.g. `'complex'`,
+                `'protein'`, `'drug'`, `'mirna'`, etc.).
+            aspect:
+                Type of intercellular annotation (e.g. `'functional'` or
+                `'locational'`).
+            scope:
+                Scope of the intercellular annotation (`'generic'` or
+                `'specific'`).
+            source:
+                Type of source for the intercellular annotation (`'composite'`
+                or `'resource_specific'`).
+            categories:
+                Type(s) of entity(ies) involved in the interaction(s) (e.g.
+                `'adhesion'`, `'chemokine'`, `'gpcr'`, etc.).
+            parent:
+                Parent category(ies) of the entity(ies) involved in the
+                interaction(s) (e.g. `'ecm'`, `'receptor'`, `'transporter'`,
+                etc.).
+            transmitter:
+                Source node(s) of the interaction(s)/transmitter of the signal.
+            trans:
+                Synonym of `transmitter`.
+            receiver:
+                Target node(s) of the interaction(s)/receiver of the signal.
+            rec:
+                Synonym of `receiver`.
+            secreted:
+                Whether to search specifically for secreted molecules or not.
+            sec:
+                Synonym of `secreted`.
+            plasma_membrane_transmembrane:
+                Whether to search specifically for transmembrane molecules or
+                not.
+            pmtm:
+                Synonym of `plasma_membrane_transmembrane`.
+            plasma_membrane_peripheral:
+                Whether to search specifically for peripheral to the plasma
+                membrane molecules or not.
+            pmp:
+                Synonym of `plasma_membrane_peripheral`.
+            fields:
+                Fields (columns) to include in the output result table.
+            limit:
+                Limit number of entries in the search result.
+            format:
+                The format to return (`'raw'`, `'json'`, `'tab'`, `'text'`,
+                `'tsv'`, `'table'`, `'query'`); default is `'tsv'`. In case of
+                raw format, the tuples will be streamed as they come from the
+                database. In case of tsv or json, lines will be streamed, either
+                tab joined or json encoded strings. The query format, returns
+                the instance of the query object.
+            **kwargs:
+                Keyword arguments passed to the `_request` method.
+
+        Returns:
+            Generator of the search results in the intercell database in the
+            requested format.
         '''
 
         args = locals()
