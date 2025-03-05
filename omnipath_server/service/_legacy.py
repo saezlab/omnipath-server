@@ -3183,6 +3183,7 @@ class LegacyService:
         yield from self._request(args, 'complexes', **kwargs)
 
 
+    # XXX: Deprecated?
     def resources(self, req):
 
         datasets = (
@@ -3216,6 +3217,7 @@ class LegacyService:
         )
 
 
+    # XXX: Deprecated?
     @classmethod
     def _filter_by_license_complexes(cls, tbl, license):
 
@@ -3227,7 +3229,8 @@ class LegacyService:
             prefix_col = 'identifiers',
         )
 
-
+    
+    # XXX: Deprecated?
     @classmethod
     def _filter_by_license_interactions(cls, tbl, license):
 
@@ -3240,6 +3243,7 @@ class LegacyService:
         )
 
 
+    # XXX: Deprecated?
     @classmethod
     def _filter_by_license_annotations(cls, tbl, license):
 
@@ -3251,6 +3255,7 @@ class LegacyService:
         )
 
 
+    # XXX: Deprecated?
     @classmethod
     def _filter_by_license_intercell(cls, tbl, license):
 
@@ -3262,6 +3267,7 @@ class LegacyService:
         )
 
 
+    # XXX: Deprecated?
     @staticmethod
     def _filter_by_license(
             tbl,
@@ -3362,6 +3368,7 @@ class LegacyService:
         return tbl
 
 
+    # XXX: Deprecated?
     @classmethod
     def _serve_dataframe(cls, tbl, req):
 
