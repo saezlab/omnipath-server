@@ -2752,6 +2752,32 @@ class LegacyService:
         '''
         Creates the generator of entries based on the query arguments for the
         annotations service.
+
+        Args:
+            resources:
+                Defines which resource(s) to use records from.
+            proteins:
+                Entities to search annotations for.
+            entity_types:
+                Type of entities to search annotations for (e.g. `'complex'`,
+                `'protein'`, `'drug'`, `'mirna'`, etc.).
+            fields:
+                Fields (columns) to include in the output result table.
+            limit:
+                Limit number of entries in the search result.
+            format:
+                The format to return (`'raw'`, `'json'`, `'tab'`, `'text'`,
+                `'tsv'`, `'table'`, `'query'`); default is `'tsv'`. In case of
+                raw format, the tuples will be streamed as they come from the
+                database. In case of tsv or json, lines will be streamed, either
+                tab joined or json encoded strings. The query format, returns
+                the instance of the query object.
+            **kwargs:
+                Keyword arguments passed to the `_request` method.
+
+        Returns:
+            Generator of the search results in the annotations database in the
+            requested format.
         '''
 
         args = locals()
