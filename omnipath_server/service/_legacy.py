@@ -2657,6 +2657,16 @@ class LegacyService:
             args: dict,
     ) -> BooleanClauseList | None:
         """
+        Generates WHERE statement for loops option.
+
+        Args:
+            query_type:
+                The table to query (e.g. `'interactions'`, `'enzsub'`, etc).
+            args:
+                The query arguments.
+
+        Returns:
+            The loops variable WHERE clause.
         """
 
         sides = self.query_param[query_type]['where_partners']['sides']
@@ -2675,9 +2685,18 @@ class LegacyService:
             args: dict,
     ) -> BooleanClauseList | None:
         """
-        Function to deal with filtering interactions by partners.
+        Generates WHERE statement(s) that deal with filtering interactions by
+        partners e.g. when source/target or enz/subs are provided in the query.
 
-        e.g. when source/target or enz/subs are provided in the query
+        Args:
+            query_type:
+                The table to query (e.g. `'interactions'`, `'enzsub'`, etc).
+            args:
+                The query arguments.
+
+        Returns:
+            The boolean variable clause (multiple ones joined according to
+            specified operator in `args` otherwise, defaults to and).
         """
 
         sides = self.query_param[query_type]['where_partners']['sides']
