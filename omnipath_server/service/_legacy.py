@@ -1824,8 +1824,8 @@ class LegacyService:
             args:
                 Not used.
 
-        Returns:
-            Generator of tuples with the response rows.
+        Yields:
+            Tuples with the response rows.
         """
 
         for row in self.con.execute(query):
@@ -1881,9 +1881,8 @@ class LegacyService:
             kwargs:
                 Additional keyword arguments to be passed to the postprocess.
 
-        Returns:
-            Generator of tuples with the result of the request after
-            post-processing.
+        Yields:
+            Tuples with the result of the request after post-processing.
         """
 
         args = self._clean_args(args)
@@ -1940,8 +1939,8 @@ class LegacyService:
             names:
                 Column names.
 
-        Returns:
-            Generator of tuples with the formatted results.
+        Yields:
+            Tuples with the formatted results.
         """
 
         formatter = lambda x: x
@@ -2142,9 +2141,9 @@ class LegacyService:
             **kwargs:
                 Keyword arguments passed to the `_request` method.
 
-        Returns:
-            Generator of the search results in the interactions database in the
-            requested format.
+        Yields:
+            The search results in the interactions database in the requested
+            format.
         """
 
         datasets = datasets if types else datasets or {'omnipath'}
@@ -2582,9 +2581,8 @@ class LegacyService:
             **kwargs:
                 Keyword arguments passed to the `_request` method.
 
-        Returns:
-            Generator of the search results in the enzsub database in the
-            requested format.
+        Yields:
+            The search results in the enzsub database in the requested format.
         """
 
         organisms = organisms or {9606}
@@ -2775,9 +2773,9 @@ class LegacyService:
             **kwargs:
                 Keyword arguments passed to the `_request` method.
 
-        Returns:
-            Generator of the search results in the annotations database in the
-            requested format.
+        Yields:
+            The search results in the annotations database in the requested
+            format.
         '''
 
         args = locals()
@@ -2939,9 +2937,9 @@ class LegacyService:
             **kwargs:
                 Keyword arguments passed to the `_request` method.
 
-        Returns:
-            Generator of the search results in the intercell database in the
-            requested format.
+        Yields:
+            The search results in the intercell database in the requested
+            format.
         '''
 
         args = locals()
@@ -3173,9 +3171,9 @@ class LegacyService:
             **kwargs:
                 Keyword arguments passed to the `_request` method.
 
-        Returns:
-            Generator of the search results in the complexes database in the
-            requested format.
+        Yields:
+            The search results in the complexes database in the requested
+            format.
         """
 
         args = locals()
@@ -3425,11 +3423,21 @@ class LegacyService:
 
     def _parse_arg(self, arg: Any, typ: type = None) -> Any:
         """
-        Arguments come as strings, here we parse them to the appropriate type.
+        Arguments come as strings, here we parse individual arguments to the
+        appropriate type. At least from the HTTP interface, we get them as
+        strings. In case these come from elsewhere, and provided already as
+        numeric or array types, this function simply passes them through without
+        modification.
 
-        At least from the HTTP interface, we get them as strings. In case these
-        come from elsewhere, and provided already as numeric or array types,
-        this function simply passes them through.
+        Args:
+            arg:
+                The argument value to parse.
+            typ:
+                Type of the contents in the argument (only used when passing
+                arg as a list).
+
+        Returns:
+            The argument formatted in the correct type.
         """
 
         if isinstance(arg, list) and typ in _const.SIMPLE_TYPES:
@@ -3459,9 +3467,16 @@ class LegacyService:
 
     def _parse_bool_arg(self, arg: Any) -> bool:
         """
-        Normalize various representations of Boolean values.
+        Normalizes various representations of Boolean values. These can be `0`
+        or `1`, `True` or `False`, `"true"` or `"false"`, `"yes"` or `"no"`.
 
-        These can be 0 or 1, True or False, "true" or "false", "yes" or "no".
+        Args:
+            arg:
+                The argument to parse.
+
+        Returns:
+            The corresponding boolean value according to the boolean-encoded
+            argument.
         """
 
         if isinstance(arg, list) and arg:
@@ -3490,6 +3505,8 @@ class LegacyService:
 
         return bool(arg)
 
+
+# XXX: Deprecated?
 @contextlib.contextmanager
 def ignore_pandas_copywarn():
 
