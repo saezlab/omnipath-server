@@ -2957,7 +2957,7 @@ class LegacyService:
         )
 
 
-#### TO BE REMOVED
+    # XXX: Deprecated
     def intercell_old(self, req):
 
         bad_req = self._check_args(req)
@@ -3092,9 +3092,9 @@ class LegacyService:
         tbl = tbl.loc[:,hdr]
 
         return self._serve_dataframe(tbl, req)
-###
 
 
+    # XXX: Deprecated?
     def intercell_summary(self, req):
 
         bad_req = self._check_args(req)
@@ -3150,6 +3150,33 @@ class LegacyService:
             format: FORMATS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
+        """
+        Creates the generator of entries based on the query arguments for the
+        complexes service.
+
+        Args:
+            resources:
+                Defines which resource(s) to use records from.
+            proteins:
+                Entities to search complexes for.
+            fields:
+                Fields (columns) to include in the output result table.
+            limit:
+                Limit number of entries in the search result.
+            format:
+                The format to return (`'raw'`, `'json'`, `'tab'`, `'text'`,
+                `'tsv'`, `'table'`, `'query'`); default is `'tsv'`. In case of
+                raw format, the tuples will be streamed as they come from the
+                database. In case of tsv or json, lines will be streamed, either
+                tab joined or json encoded strings. The query format, returns
+                the instance of the query object.
+            **kwargs:
+                Keyword arguments passed to the `_request` method.
+
+        Returns:
+            Generator of the search results in the complexes database in the
+            requested format.
+        """
 
         args = locals()
 
