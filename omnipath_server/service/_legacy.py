@@ -128,6 +128,7 @@ class LegacyService:
                 'consensus_direction',
                 'consensus_stimulation',
                 'consensus_inhibition',
+                'type',
             },
             'where': {
                 'resources': 'sources',
