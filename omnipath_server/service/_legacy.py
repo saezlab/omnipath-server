@@ -2050,8 +2050,7 @@ class LegacyService:
 
             if 'transcriptional' in in_args('types'):
 
-                args['datasets'] = in_args('datasets').append('collectri')
-
+                args['datasets'] = in_args('datasets') + ['collectri']
 
         if 'dorothea' in in_args('datasets') and not in_args('dorothea_levels'):
 
