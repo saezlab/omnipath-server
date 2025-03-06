@@ -16,6 +16,10 @@ req = service.interactions(limit=10, directed=True, format='query')
 req = service.interactions(limit=10, entity_types='protein', fields=['entity_type'], organisms=9606, format='query')
 req = service.interactions(limit=10, dorothea_methods='dorothea_curated', format='query')
 req = service.interactions(limit=10, format='query')
+req = service.interactions(limit=10, types='post_translational', format='query')
+req = service.interactions(limit=10, types='post_transcriptional', format='query')
+req = service.interactions(limit=10, datasets='dorothea', format='query')
+req = service.interactions(limit=10, datasets=['dorothea', 'collectri'], format='query')
 
 
 str(next(req)[0])
