@@ -2021,7 +2021,7 @@ class LegacyService:
         )
     
 
-    def _dorothea_where(self, args):
+    def _interactions_where(self, args):
         """
         TODO
         """
@@ -2146,11 +2146,13 @@ class LegacyService:
             format.
         """
 
-        datasets = datasets if types else datasets or {'omnipath'}
         organisms = organisms or {9606}
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'interactions')
+    
+        args, inter_where = self._interactions_where(args)
+
         extra_where = self._where_partners('interactions', args)
         where_loops = self._where_loops('interactions', args)
         where_bool = self._where_bool('interactions', args)
@@ -2161,7 +2163,7 @@ class LegacyService:
         yield from self._request(
             args,
             query_type = 'interactions',
-            extra_where = [extra_where, where_bool, where_loops],
+            extra_where = [extra_where, where_bool, where_loops, inter_where],
             **kwargs,
         )
 
