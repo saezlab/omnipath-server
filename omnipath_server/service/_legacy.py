@@ -2020,11 +2020,12 @@ class LegacyService:
                 if isinstance(field, dict) else
             str(field)
         )
-    
+
 
     def _interactions_defaults(self, args: dict) -> dict:
         """
         Handles default arguments depending on values of other arguments.
+
         If no sources, datasets or types (or types includes post_translational),
         includes by default the omnipath dataset to the query.
         If no sources or datasets provided and type includes transcriptional,
@@ -2039,18 +2040,20 @@ class LegacyService:
             The updated args dictionary with the described defaults above.
         """
 
-        if not args['sources'] and not args['datasets']:
+        in_args = lambda k: args.get(k, [])
 
-            if (not args['types'] or 'post_translational' in args['types']):
+        if not in_args('resources') and not in_args('datasets'):
 
-                args['datasets'].append('omnipath')
+            if not in_args('types') or 'post_translational' in in_args('types'):
 
-            if 'transcriptional' in args['types']:
+                args['datasets'] = ['omnipath']
 
-                args['datasets'].append('collectri')
+            if 'transcriptional' in in_args('types'):
+
+                args['datasets'] = in_args('datasets').append('collectri')
 
 
-        if 'dorothea' in args['datasets'] and not args['dorothea_levels']:
+        if 'dorothea' in in_args('datasets') and not in_args('dorothea_levels'):
 
             args['dorothea_levels'] = {'A', 'B'}
 
@@ -2139,7 +2142,7 @@ class LegacyService:
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'interactions')
-    
+
         args = self._interactions_defaults(args)
 
         extra_where = self._where_partners('interactions', args)
@@ -3218,7 +3221,7 @@ class LegacyService:
             prefix_col = 'identifiers',
         )
 
-    
+
     # XXX: Deprecated?
     @classmethod
     def _filter_by_license_interactions(cls, tbl, license):
