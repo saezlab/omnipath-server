@@ -2021,51 +2021,39 @@ class LegacyService:
         )
     
 
-    def _interactions_where(self, args):
+    def _interactions_defaults(self, args: dict) -> dict:
         """
-        TODO
+        Handles default arguments depending on values of other arguments.
+        If no sources, datasets or types (or types includes post_translational),
+        includes by default the omnipath dataset to the query.
+        If no sources or datasets provided and type includes transcriptional,
+        adds collectri to datasets by default.
+        If dorothea in datasets, sets default dorothea_levels to A and B.
+
+        Args:
+            args:
+                The query arguments dictionary for the interactions database.
+
+        Returns:
+            The updated args dictionary with the described defaults above.
         """
-        # if dorothea_included FALSE, then we don't handle with anyting
-        # if we have transcriptional interactions and NO datasets selected type = transcriptional
 
-        # if collectri or dorothea in datasets, types must include transcriptional
-        # if dorothea in datasets, force levels (taken care of by defaults)
-        
-        # WIP - need to add conditionals here
+        if not args['sources'] and not args['datasets']:
 
-        # Only if dorothea in datasets or transcriptional in types
-        args['dorothea_levels'] = args['dorothea_levels'] or {'A', 'B'}
+            if (not args['types'] or 'post_translational' in args['types']):
 
-        
-        dorothea_included = (
-            'dorothea' in args['datasets'] or
-            any(res.endswith('DoRothEA') for res in args['resources']) or
-            (
-                'transcriptional' in args['types'] and
-                not args['datasets']
-            )
-        )
+                args['datasets'].append('omnipath')
 
-        if dorothea_included and args['dorothea_levels']:
+            if 'transcriptional' in args['types']:
 
-            tbl = tbl.loc[
-                self._dorothea_dataset_filter(tbl, args) |
-                [
-                    bool(levels & args['dorothea_levels'])
-                    for levels in tbl.set_dorothea_level
-                ]
-            ]
+                args['datasets'].append('collectri')
 
-        # WHERE ... (collectri) AND (dorothea_level IN ARRAY['A', 'B'] OR NOT dorothea)
 
-        if dorothea_included and args['dorothea_methods']:
+        if 'dorothea' in args['datasets'] and not args['dorothea_levels']:
 
-            q = ['dorothea_%s' % m for m in args['dorothea_methods']]
+            args['dorothea_levels'] = {'A', 'B'}
 
-            tbl = tbl.loc[
-                self._dorothea_dataset_filter(tbl, args) |
-                tbl[q].any(1)
-            ]
+        return args
 
 
     # Fix dorothea levels
@@ -2151,7 +2139,7 @@ class LegacyService:
         args = self._clean_args(args)
         args = self._array_args(args, 'interactions')
     
-        args, inter_where = self._interactions_where(args)
+        args = self._interactions_defaults(args)
 
         extra_where = self._where_partners('interactions', args)
         where_loops = self._where_loops('interactions', args)
@@ -2163,7 +2151,7 @@ class LegacyService:
         yield from self._request(
             args,
             query_type = 'interactions',
-            extra_where = [extra_where, where_bool, where_loops, inter_where],
+            extra_where = [extra_where, where_bool, where_loops],
             **kwargs,
         )
 
