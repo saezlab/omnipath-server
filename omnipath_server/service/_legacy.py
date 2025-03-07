@@ -175,10 +175,10 @@ class LegacyService:
                 },
             },
             'where_bool_override': {
-                'dorothea': (
-                    'dorothea_levels',
-                    'dorothea_level',
-                ),
+                'dorothea': {
+                    'dorothea_levels': 'dorothea_level',
+                    'dorothea_methods': 'dorothea_method',
+                },
             },
         },
         'complexes': {
@@ -2079,7 +2079,7 @@ class LegacyService:
         return args
 
 
-    def interactions( # TODO: evidences?, extra_attrs?
+    def interactions(
             self,
             resources: list[str] | None = None,
             partners: list[str] | None = None,
@@ -2207,11 +2207,17 @@ class LegacyService:
 
             if (arg_col := override.get(col)):
 
-                arg, _col = arg_col
-                value = args[arg]
-                _col = columns[_col]
-                op, value = self._where_op(_col, value)
-                expr = _col.op(op)(value)
+                expr = []
+
+                for arg, _col in arg_col.items():
+
+                    if value := args.get(arg):
+
+                        _col = columns[_col]
+                        op, value = self._where_op(_col, value)
+                        expr.append(_col.op(op)(value))
+
+                expr = and_(*expr)
 
             else:
 
