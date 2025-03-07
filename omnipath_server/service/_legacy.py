@@ -136,7 +136,6 @@ class LegacyService:
                 'directed': 'is_directed',
                 'organisms': 'ncbi_tax_id_source:ncbi_tax_id_target',
                 'entity_types': 'entity_type_source:entity_type_target',
-                'dorothea_levels': 'dorothea_level',
             },
             'where_partners': {
                 'sides': {
@@ -169,6 +168,11 @@ class LegacyService:
                     'is_stimulation',
                     'is_inhibition',
                 },
+            },
+            'where_bool_override': {
+                'dorothea': {
+                    'dorothea_levels': 'dorothea_level',
+                }
             },
         },
         'complexes': {
@@ -2177,6 +2181,8 @@ class LegacyService:
             The boolean variable clause (multiple ones joined by and operator).
         """
 
+        override = self.query_param[query_type].get('where_bool_override', {})
+
         bool_args = self.query_param[query_type].get('where_bool', {})
         columns = self._columns(query_type)
 
@@ -2193,7 +2199,13 @@ class LegacyService:
 
             if (cols := arg_cols & cols):
 
-                where.append(or_(*( columns[col] for col in cols)))
+                aux = or_(*(
+                    override.get(col)
+                    if # TODO
+                    else columns[col]
+                    for col in cols
+                ))
+                where.append(aux)
 
         return and_(*where)
 
