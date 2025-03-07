@@ -20,6 +20,7 @@ req = service.interactions(limit=10, types='post_translational', format='query')
 req = service.interactions(limit=10, types='post_transcriptional', format='query')
 req = service.interactions(limit=10, datasets='dorothea', format='query')
 req = service.interactions(limit=10, datasets=['dorothea', 'collectri'], format='query')
+req = service.interactions(limit=10, evidences=True, format='query')
 
 
 str(next(req)[0])
