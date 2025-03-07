@@ -2079,7 +2079,7 @@ class LegacyService:
         return args
 
 
-    def interactions( # TODO: evidences?, extra_attrs?
+    def interactions(
             self,
             resources: list[str] | None = None,
             partners: list[str] | None = None,
@@ -2151,10 +2151,15 @@ class LegacyService:
                 signed and unsigned).
             loops:
                 Whether to include self loops or not in the results.
-            entity_types: TODO
-            evidences: TODO
-            genesymbols: TODO
-            extra_attrs: TODO
+            entity_types:
+                Which types of entities to show interactions for (e.g.
+                `'proteins'`, `'complex'`, `'drug'`, etc.).
+            evidences:
+                Whether or not to show evidences for each record.
+            genesymbols:
+                Whether or not to display genesymbols as identifiers.
+            extra_attrs:
+                Whether or not to show extra attributes assigned to each record.
             **kwargs:
                 Keyword arguments passed to the `_request` method.
 
@@ -2617,7 +2622,8 @@ class LegacyService:
                 Organism to search interactions from.
             loops:
                 Whether to include self loops or not in the results.
-            genesymbols: TODO
+            genesymbols:
+                Whether or not to display genesymbols as identifiers.
             **kwargs:
                 Keyword arguments passed to the `_request` method.
 
