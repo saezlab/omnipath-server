@@ -202,7 +202,10 @@ class LegacyService:
                 'residues',
             },
             'select': {
-                'genesymbol': {'enzyme_genesymbol', 'substrate_genesymbol'},
+                'genesymbols': {'enzyme_genesymbol', 'substrate_genesymbol'},
+            },
+            'select_args': {
+                'genesymbols',
             },
             'select_default': {
                 'enzyme',
@@ -1742,14 +1745,10 @@ class LegacyService:
             for f in param.get('select_args', set())
             if args.get(f, False)
         }
-        print(args)
-        print(fields_arg)
 
         for query_field in fields_arg:
 
             query_fields |= _misc.to_set(synonyms.get(query_field, query_field))
-
-        print(query_fields)
 
         cols.update(_misc.to_set(query_fields))
         select = [
@@ -1907,9 +1906,7 @@ class LegacyService:
             Tuples with the result of the request after post-processing.
         """
 
-        print(args)
         args = self._clean_args(args)
-        print(args)
         args = self._array_args(args, query_type)
         query, bad_req = self._query(args, query_type, extra_where=extra_where)
         colnames = ['no_column_names']
@@ -2102,6 +2099,7 @@ class LegacyService:
             loops: bool = False,
             entity_types: Collection[ENTITY_TYPES.__args__] | None = None,
             evidences: bool = False,
+            genesymbols: bool = False,
             extra_attrs: bool = False,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
@@ -2153,6 +2151,10 @@ class LegacyService:
                 signed and unsigned).
             loops:
                 Whether to include self loops or not in the results.
+            entity_types: TODO
+            evidences: TODO
+            genesymbols: TODO
+            extra_attrs: TODO
             **kwargs:
                 Keyword arguments passed to the `_request` method.
 
@@ -2575,6 +2577,7 @@ class LegacyService:
             enzyme_substrate = 'OR',
             organisms: Collection[int | str] | None = None,
             loops: bool = False,
+            genesymbols: bool = False,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
@@ -2614,6 +2617,7 @@ class LegacyService:
                 Organism to search interactions from.
             loops:
                 Whether to include self loops or not in the results.
+            genesymbols: TODO
             **kwargs:
                 Keyword arguments passed to the `_request` method.
 
