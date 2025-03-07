@@ -2184,11 +2184,12 @@ class LegacyService:
 
         def _override(col):
 
-            if (arg, _col := override.get(col)):
+            if (arg_col := override.get(col)):
 
+                arg, _col = arg_col
                 value = args[arg]
-                op, value = self._where_op(_col, value)
                 _col = columns[_col]
+                op, value = self._where_op(_col, value)
                 expr = _col.op(op)(value)
 
             else:
@@ -2216,7 +2217,7 @@ class LegacyService:
 
             if (cols := arg_cols & cols):
 
-                where.append(or_(*(_override.get(col) for col in cols)))
+                where.append(or_(*(_override(col) for col in cols)))
 
         return and_(*where)
 
