@@ -2209,6 +2209,7 @@ class LegacyService:
 
                 expr = []
 
+                # We are here: make this work with dorothea_methods
                 for arg, _col in arg_col.items():
 
                     if value := args.get(arg):
