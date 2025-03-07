@@ -170,9 +170,10 @@ class LegacyService:
                 },
             },
             'where_bool_override': {
-                'dorothea': {
-                    'dorothea_levels': 'dorothea_level',
-                }
+                'dorothea': (
+                    'dorothea_levels',
+                    'dorothea_level',
+                ),
             },
         },
         'complexes': {
@@ -2180,6 +2181,14 @@ class LegacyService:
         Returns:
             The boolean variable clause (multiple ones joined by and operator).
         """
+
+        def _override(col):
+
+            if (arg, _col := override.get(col)):
+                 pass
+            
+            else:
+                columns[col]
 
         override = self.query_param[query_type].get('where_bool_override', {})
 
