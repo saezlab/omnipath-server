@@ -119,6 +119,11 @@ class LegacyService:
                 'extra_attrs': 'extra_attrs',
                 'evidences': 'evidences',
             },
+            'select_args': {
+                'genesymbol',
+                'extra_attrs',
+                'evidences',
+            },
             'select_default': {
                 'source',
                 'target',
@@ -1731,7 +1736,9 @@ class LegacyService:
         tbl = self._schema(query_type)
         query_fields = set()
 
-        for query_field in self._parse_arg(args.get('fields', None)):
+        fields_arg = set(self._parse_arg(args.get('fields', None)))
+
+        for query_field in fields_arg:
 
             query_fields |= _misc.to_set(synonyms.get(query_field, query_field))
 
@@ -2064,8 +2071,7 @@ class LegacyService:
         return args
 
 
-    # Fix dorothea levels
-    def interactions( # TODO: entity_types, evidences?, extra_attrs?
+    def interactions( # TODO: evidences?, extra_attrs?
             self,
             resources: list[str] | None = None,
             partners: list[str] | None = None,
@@ -2084,6 +2090,8 @@ class LegacyService:
             signed: bool = None,
             loops: bool = False,
             entity_types: Collection[ENTITY_TYPES.__args__] | None = None,
+            evidences: bool = False,
+            extra_attrs: bool = False,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
