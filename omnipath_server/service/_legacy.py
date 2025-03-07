@@ -113,14 +113,14 @@ class LegacyService:
                 'fields',
             },
             'select': {
-                'genesymbol': {'source_genesymbol', 'target_genesymbol'},
+                'genesymbols': {'source_genesymbol', 'target_genesymbol'},
                 'organism': {'ncbi_tax_id_source', 'ncbi_tax_id_target'},
                 'entity_type': {'entity_type_source', 'entity_type_target'},
                 'extra_attrs': 'extra_attrs',
                 'evidences': 'evidences',
             },
             'select_args': {
-                'genesymbol',
+                'genesymbols',
                 'extra_attrs',
                 'evidences',
             },
@@ -1737,10 +1737,19 @@ class LegacyService:
         query_fields = set()
 
         fields_arg = set(self._parse_arg(args.get('fields', None)))
+        fields_arg |= {
+            f
+            for f in param.get('select_args', set())
+            if args.get(f, False)
+        }
+        print(args)
+        print(fields_arg)
 
         for query_field in fields_arg:
 
             query_fields |= _misc.to_set(synonyms.get(query_field, query_field))
+
+        print(query_fields)
 
         cols.update(_misc.to_set(query_fields))
         select = [
@@ -1898,7 +1907,9 @@ class LegacyService:
             Tuples with the result of the request after post-processing.
         """
 
+        print(args)
         args = self._clean_args(args)
+        print(args)
         args = self._array_args(args, query_type)
         query, bad_req = self._query(args, query_type, extra_where=extra_where)
         colnames = ['no_column_names']
