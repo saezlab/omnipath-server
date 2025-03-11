@@ -42,14 +42,18 @@ from .. import _log, _connection
 from ..schema import _legacy as _schema
 
 __all__ = [
+    'DOROTHEA_LEVELS',
+    'DOROTHEA_METHODS',
+    'ENTITY_TYPES',
     'FORMATS',
     'GEN_OF_STR',
     'GEN_OF_TUPLES',
+    'INTERACTION_DATASETS',
+    'INTERACTION_TYPES',
     'LICENSE_IGNORE',
     'LegacyService',
     'ORGANISMS',
     'QUERY_TYPES',
-    'ENTITY_TYPES',
     'ignore_pandas_copywarn',
     'with_last',
 ]
@@ -86,6 +90,34 @@ ENTITY_TYPES = Literal[
     'drug',
     'metabolite',
     'lipid',
+]
+INTERACTION_TYPES = Literal[
+    'post_translational',
+    'transcriptional',
+    'post_transcriptional',
+    'mirna_transcriptional',
+    'lncrna_post_transcriptional',
+    'small_molecule_protein',
+]
+INTERACTION_DATASETS = Literal[
+    'omnipath',
+    'kinaseextra',
+    'ligrecextra',
+    'pathwayextra',
+    'mirnatarget',
+    'dorothea',
+    'collectri',
+    'tf_target',
+    'lncrna_mrna',
+    'tf_mirna',
+    'small_molecule',
+]
+DOROTHEA_LEVELS = Literal['A', 'B', 'C', 'D']
+DOROTHEA_METHODS = Literal[
+    'curated',
+    'coexp',
+    'tfbs',
+    'chipseq',
 ]
 GEN_OF_TUPLES = Generator[tuple, None, None]
 GEN_OF_STR = Generator[str, None, None]
@@ -2089,15 +2121,15 @@ class LegacyService:
             limit: int | None = None,
             format: FORMATS | None = None,
             source_target: Literal['OR', 'AND'] = 'OR',
-            organisms: Collection[str | int] | None  = None,
-            datasets: Collection | None  = None,
-            dorothea_levels: Collection | None = None,
-            dorothea_methods: Collection | None = None,
-            types: Collection | None = None,
+            organisms: Collection[str | ORGANISMS] | None  = None,
+            datasets: Collection[INTERACTION_DATASETS] | None  = None,
+            dorothea_levels: Collection[DOROTHEA_LEVELS] | None = None,
+            dorothea_methods: Collection[DOROTHEA_METHODS] | None = None,
+            types: Collection[INTERACTION_TYPES] | None = None,
             directed: bool = True,
             signed: bool = None,
             loops: bool = False,
-            entity_types: Collection[ENTITY_TYPES.__args__] | None = None,
+            entity_types: Collection[ENTITY_TYPES] | None = None,
             evidences: bool = False,
             genesymbols: bool = False,
             extra_attrs: bool = False,
