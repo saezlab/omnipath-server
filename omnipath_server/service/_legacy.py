@@ -2294,7 +2294,9 @@ class LegacyService:
 
                     override_expr[arg] = expr
 
-                where.append(expr)
+                else:
+
+                    where.append(expr)
 
         return and_(*where)
 
