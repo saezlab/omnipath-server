@@ -15,17 +15,14 @@
 
 from typing import Any, Literal
 from collections.abc import Callable, Iterable, Generator, Collection
-import os
 import re
 import json
-import warnings
 import importlib as imp
 import itertools
-import contextlib
 import collections
 
 from sqlalchemy import or_, and_, any_, not_
-from pypath_common import _misc, _settings
+from pypath_common import _misc
 from pypath_common import _constants as _const
 from sqlalchemy.orm import Query
 from sqlalchemy.sql.base import ReadOnlyColumnCollection
@@ -33,9 +30,6 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.elements import BooleanClauseList
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.dialects.postgresql import array
-
-import numpy as np
-import pandas as pd
 
 from omnipath_server import session
 from .. import _log, _connection
