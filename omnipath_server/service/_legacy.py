@@ -2265,6 +2265,8 @@ class LegacyService:
 
 
         override = self.query_param[query_type].get('where_bool_override', {})
+        in_override = {arg for key in override.values() for arg in key.keys()}
+        override_expr = {}
 
         bool_args = self.query_param[query_type].get('where_bool', {})
         columns = self._columns(query_type)
@@ -2282,7 +2284,12 @@ class LegacyService:
 
             if (cols := arg_cols & cols):
 
-                where.append(or_(*(_override(col) for col in cols)))
+                expr = or_(*(_override(col) for col in cols))
+
+                if arg in in_override:
+                    override_expr[arg] = expr
+
+                where.append(expr)
 
         return and_(*where)
 
