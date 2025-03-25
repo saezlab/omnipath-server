@@ -209,7 +209,7 @@ class LegacyService:
             'where_bool_override': {
                 'dorothea': {
                     'dorothea_levels': 'dorothea_level',
-                    'dorothea_methods': 'dorothea_method',
+                    'dorothea_methods': DOROTHEA_METHODS.__args__,
                 },
             },
         },
