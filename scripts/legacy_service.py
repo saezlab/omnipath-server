@@ -25,7 +25,7 @@ req = service.interactions(limit=10, evidences=True, format='query')
 req = service.interactions(
     limit=10,
     datasets=['dorothea', 'collectri'],
-    dorothea_methods = 'dorothea_curated',
+    dorothea_methods = ['dorothea_curated', 'dorothea_tfbs'],
     format='query',
 )
 
