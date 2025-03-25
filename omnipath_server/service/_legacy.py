@@ -916,51 +916,12 @@ class LegacyService:
 
     def _preprocess_annotations(self):
 
-        if 'annotations' not in self.data:
-
-            return
-
         renum = re.compile(r'[-\d\.]+')
 
 
         _log('Preprocessing annotations.')
 
-        values_by_key = collections.defaultdict(set)
-
-        # we need to do it this way as we are memory limited on the server
-        # and pandas groupby is very memory intensive
-        for row in self.data['annotations'].itertuples():
-
-            value = (
-                '<numeric>'
-                if (
-                    (
-                        not isinstance(row.value, bool) and
-                        isinstance(row.value, (int, float))
-                    ) or
-                    renum.match(row.value)
-                ) else
-                str(row.value)
-            )
-
-            values_by_key[(row.source, row.label)].add(value)
-
-        for vals in values_by_key.values():
-
-            if len(vals) > 1:
-
-                vals.discard('<numeric>')
-
-            vals.discard('')
-            vals.discard('nan')
-
-        self.data['annotations_summary'] = pd.DataFrame(
-            list(
-                (source, label, '#'.join(sorted(values)))
-                for (source, label), values in values_by_key.items()
-            ),
-            columns = ['source', 'label', 'value'],
-        )
+        query = 'SELECT source, label, DISTINCT(value) AS value FROM annotations GROUP BY source, label;'
 
 
     def _preprocess_intercell(self):
