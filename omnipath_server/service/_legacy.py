@@ -182,6 +182,12 @@ class LegacyService:
                 'operator': 'source_target',
             },
             'where_bool': {
+                'dorothea_methods': {
+                    'curated': 'dorothea_curated',
+                    'chipseq': 'dorothea_chipseq',
+                    'tfbs': 'dorothea_tfbs',
+                    'coexp': 'dorothea_coexp',
+                },
                 'datasets': {
                     'omnipath',
                     'kinaseextra',
@@ -194,12 +200,6 @@ class LegacyService:
                     'lncrna_mrna',
                     'tf_mirna',
                     'small_molecule',
-                },
-                'dorothea_methods': {
-                    'curated': 'dorothea_curated',
-                    'chipseq': 'dorothea_chipseq',
-                    'tfbs': 'dorothea_tfbs',
-                    'coexp': 'dorothea_coexp',
                 },
                 'signed': {
                     'is_stimulation',
@@ -2249,7 +2249,11 @@ class LegacyService:
                 # We are here: make this work with dorothea_methods
                 for arg, _col in arg_col.items():
 
-                    if value := args.get(arg):
+                    if (expr_part := override_expr.get(arg)) is not None:
+
+                        expr.append(expr_part)
+
+                    elif value := args.get(arg):
 
                         _col = columns[_col]
                         op, value = self._where_op(_col, value)
@@ -2287,6 +2291,7 @@ class LegacyService:
                 expr = or_(*(_override(col) for col in cols))
 
                 if arg in in_override:
+
                     override_expr[arg] = expr
 
                 where.append(expr)
