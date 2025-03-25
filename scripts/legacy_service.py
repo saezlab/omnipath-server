@@ -22,7 +22,12 @@ req = service.interactions(limit=10, datasets='dorothea', format='query')
 req = service.interactions(limit=10, datasets=['dorothea', 'collectri'], format='query')
 req = service.interactions(limit=10, evidences=True, format='query')
 
-req = service.interactions(limit=10, datasets=['dorothea', 'collectri'], format='query')
+req = service.interactions(
+    limit=10,
+    datasets=['dorothea', 'collectri'],
+    dorothea_methods = 'dorothea_curated',
+    format='query',
+)
 
 str(next(req)[0])
 
