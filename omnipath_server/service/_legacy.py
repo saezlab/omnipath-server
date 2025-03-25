@@ -150,6 +150,10 @@ class LegacyService:
                 'entity_type': {'entity_type_source', 'entity_type_target'},
                 'extra_attrs': 'extra_attrs',
                 'evidences': 'evidences',
+                'datasets': INTERACTION_DATASETS.__args__,
+                'dorothea_methods': {
+                    f'dorothea_{m}' for m in DOROTHEA_METHODS.__args__
+                },
             },
             'select_args': {
                 'genesymbols',
@@ -389,10 +393,7 @@ class LegacyService:
                 'references',
                 'sources',
                 'dorothea_level',
-                'dorothea_curated',
-                'dorothea_chipseq',
-                'dorothea_tfbs',
-                'dorothea_coexp',
+                'dorothea_methods',
                 'type',
                 'ncbi_tax_id',
                 'databases',
