@@ -54,7 +54,6 @@ __all__ = [
     'LegacyService',
     'ORGANISMS',
     'QUERY_TYPES',
-    'ignore_pandas_copywarn',
     'with_last',
 ]
 
@@ -2808,12 +2807,10 @@ class LegacyService:
                 for ress in _set_res_col
             ]
 
-            with ignore_pandas_copywarn():
-
-                tbl[res_col] = [
-                    ';'.join(sorted(ress))
-                    for ress in _res_to_keep
-                ]
+            tbl[res_col] = [
+                ';'.join(sorted(ress))
+                for ress in _res_to_keep
+            ]
 
             if prefix_col:
 
@@ -2839,9 +2836,7 @@ class LegacyService:
                     for i, pref_ress in enumerate(_prefix_col)
                 ]
 
-                with ignore_pandas_copywarn():
-
-                    tbl[prefix_col] = _new_prefix_col
+                tbl[prefix_col] = _new_prefix_col
 
             bool_idx = [bool(res) for res in tbl[res_col]]
 
