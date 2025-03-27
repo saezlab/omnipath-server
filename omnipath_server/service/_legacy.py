@@ -2368,7 +2368,8 @@ class LegacyService:
 
     def annotations_summary(
             self, 
-            resources: list[str] | None = None
+            resources: list[str] | None = None,
+            cytoscape: bool = False,
         ):
         """
         Generates the summary of the annotations database (i.e. list of unique
@@ -2395,6 +2396,16 @@ class LegacyService:
             summary = {
                 row for row in summary
                 if row[0] in args['resources']
+            }
+        
+        if args['cytoscape'] == 'true': # TODO: Check if working and fix
+            
+            summary = {
+                row for row in summary
+                if (
+                    row[0] in self.cytoscape_attributes.keys()
+                    and row[1] in self.cytoscape_attributes.values()
+                )
             }
 
         return summary
