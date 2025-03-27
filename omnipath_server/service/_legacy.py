@@ -21,7 +21,7 @@ import importlib as imp
 import itertools
 import collections
 
-from sqlalchemy import or_, and_, any_, not_
+from sqlalchemy import or_, and_, any_, not_, text
 from pypath_common import _misc
 from pypath_common import _constants as _const
 from sqlalchemy.orm import Query
@@ -910,12 +910,11 @@ class LegacyService:
 
     def _preprocess_annotations(self):
 
-        renum = re.compile(r'[-\d\.]+')
-
-
         _log('Preprocessing annotations.')
 
-        query = 'SELECT source, label, DISTINCT(value) AS value FROM annotations GROUP BY source, label;'
+        query = "SELECT DISTINCT source, label, value FROM annotations;"
+        
+        return self.con.execute(text(query))
 
 
     def _preprocess_intercell(self):
@@ -1636,6 +1635,8 @@ class LegacyService:
             To be refined in the future: for now, either an SQL query, or an
             error message.
         """
+
+        print(args)
 
         query = None
         bad_req = self._check_args(args, query_type)
@@ -2367,8 +2368,24 @@ class LegacyService:
         )
 
 
-    # XXX: Deprecated?
-    def annotations_summary(self, req):
+    def annotations_summary(self, args: dict = {}):
+        """
+        Generates the summary of the annotations database (i.e. list of unique
+        source, label, value triplets).
+        """
+        
+        renum = re.compile(r'[-\d\.]+')
+        
+        summary = {
+            (row[:-1] + ('<numeric>', ) if re.match(renum, row[-1]) else row)
+            for row in self._preprocess_annotations()
+        }
+
+        #if 'resources' in args:
+
+
+
+    def old_annotations_summary(self, req):
 
         bad_req = self._check_args(req)
 
