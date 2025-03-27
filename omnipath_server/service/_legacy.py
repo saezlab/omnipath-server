@@ -912,7 +912,7 @@ class LegacyService:
 
         _log('Preprocessing annotations.')
 
-        query = "SELECT DISTINCT source, label, value FROM annotations;"
+        query = "SELECT source, label, ARRAY_AGG(DISTINCT value) FROM annotations GROUP BY source, label;"
         
         return self.con.execute(text(query))
 
@@ -1635,8 +1635,6 @@ class LegacyService:
             To be refined in the future: for now, either an SQL query, or an
             error message.
         """
-
-        print(args)
 
         query = None
         bad_req = self._check_args(args, query_type)
@@ -2384,7 +2382,11 @@ class LegacyService:
         renum = re.compile(r'[-\d\.]+')
         
         summary = {
-            (row[:-1] + ('<numeric>', ) if re.match(renum, row[-1]) else row)
+            (
+                row[:-1] + ('<numeric>', )
+                if all([re.match(renum, val) for val in row[-1]])
+                else row[:-1] + ('#'.join(row[-1]), )
+            )
             for row in self._preprocess_annotations()
         }
 
