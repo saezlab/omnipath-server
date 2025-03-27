@@ -2368,11 +2368,18 @@ class LegacyService:
         )
 
 
-    def annotations_summary(self, args: dict = {}):
+    def annotations_summary(
+            self, 
+            resources: list[str] | None = None
+        ):
         """
         Generates the summary of the annotations database (i.e. list of unique
         source, label, value triplets).
         """
+
+        args = locals()
+        args = self._clean_args(args)
+        args = self._array_args(args, 'annotations')
         
         renum = re.compile(r'[-\d\.]+')
         
@@ -2381,8 +2388,14 @@ class LegacyService:
             for row in self._preprocess_annotations()
         }
 
-        #if 'resources' in args:
+        if 'resources' in args:
 
+            summary = {
+                row for row in summary
+                if row[0] in args['resources']
+            }
+
+        return summary
 
 
     def old_annotations_summary(self, req):
