@@ -858,7 +858,7 @@ class LegacyService:
 
         self._preprocess()
 
-    
+
     def _preprocess(self):
 
         self._preprocess_annotations()
@@ -908,8 +908,10 @@ class LegacyService:
         _log('Preprocessing annotations.')
 
         query = "SELECT source, label, ARRAY_AGG(DISTINCT value) FROM annotations GROUP BY source, label;"
-        
-        self._cached_data["annotations_summary"] = self.con.execute(text(query))
+
+        self._cached_data["annotations_summary"] = list(
+            self.con.execute(text(query)),
+        )
 
 
     def _preprocess_intercell(self):
@@ -2362,10 +2364,10 @@ class LegacyService:
 
 
     def annotations_summary(
-            self, 
+            self,
             resources: list[str] | None = None,
             cytoscape: bool = False,
-        ):
+    ):
         """
         Generates the summary of the annotations database (i.e. list of unique
         source, label, value triplets).
@@ -2374,14 +2376,14 @@ class LegacyService:
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'annotations')
-        
+
         renum = re.compile(r'[-\d\.]+')
-        
+
         summary = {
             (
-                row[:-1] + ('<numeric>', )
+                row[:-1] + ('<numeric>',)
                 if all([re.match(renum, val) for val in row[-1]])
-                else row[:-1] + ('#'.join(row[-1]), )
+                else row[:-1] + ('#'.join(row[-1]),)
             )
             for row in self._cached_data["annotations_summary"]
         }
@@ -2392,9 +2394,9 @@ class LegacyService:
                 row for row in summary
                 if row[0] in args['resources']
             }
-        
+
         if args['cytoscape']:
-            
+
             summary = {
                 row for row in summary
                 if (
