@@ -2534,12 +2534,42 @@ class LegacyService:
         )
 
 
-    def intercell_summary(self, args):
+    def intercell_summary(
+            self,
+            aspect: str | Collection[str] | None = None,
+            source: str | Collection[str] | None = None,
+            scope: str | Collection[str] | None = None,
+            transmitter: str | Collection[str] | None = None,
+            receiver: str | Collection[str] | None = None,
+            parent: str | Collection[str] | None = None,
+            resources: str | Collection[str] | None = None,
+    ):
         """
+        Generates the summary of the intercell database (i.e. list of unique
+        category, parent, database triplets).
         """
 
-        pass
+        args = locals()
+        args = self._clean_args(args)
+        args = self._array_args(args, 'intercell')
 
+        result = self._cached_data["intercell_summary"]
+
+        for var in (
+            'aspect',
+            'source',
+            'scope',
+            'transmitter',
+            'receiver',
+            'parent',
+            'resources',
+        ):
+
+            if values := args.get(var):
+
+                result = [x for x in result if getattr(x, var) in values]
+
+        yield from result
 
     # XXX: Deprecated?
     def old_intercell_summary(self, req):
