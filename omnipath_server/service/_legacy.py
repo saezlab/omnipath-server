@@ -862,6 +862,7 @@ class LegacyService:
     def _preprocess(self):
 
         self._preprocess_annotations()
+        self._preprocess_intercell()
 
 
     def reload(self):
@@ -922,7 +923,9 @@ class LegacyService:
 
         _log('Preprocessing intercell.')
 
-        query = "SELECT DISTINCT category, parent, database FROM intercell;"
+        query = (
+            "SELECT category, parent, database, aspect, source, scope, transmitter," "receiver, parent FROM intercell GROUP BY category, parent, database;"
+        )
 
         self._cached_data["intercell_summary"] = list(
             self.con.execute(text(query)),
