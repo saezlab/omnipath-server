@@ -854,6 +854,15 @@ class LegacyService:
 
         self._connect(con)
 
+        self._cached_data = {}
+
+        self._preprocess()
+
+    
+    def _preprocess(self):
+
+        self._preprocess_annotations()
+
 
     def reload(self):
         """
@@ -900,7 +909,7 @@ class LegacyService:
 
         query = "SELECT source, label, ARRAY_AGG(DISTINCT value) FROM annotations GROUP BY source, label;"
         
-        return self.con.execute(text(query))
+        self._cached_data["annotations_summary"] = self.con.execute(text(query))
 
 
     def _preprocess_intercell(self):
@@ -2374,7 +2383,7 @@ class LegacyService:
                 if all([re.match(renum, val) for val in row[-1]])
                 else row[:-1] + ('#'.join(row[-1]), )
             )
-            for row in self._preprocess_annotations()
+            for row in self._cached_data["annotations_summary"]
         }
 
         if 'resources' in args:
@@ -2394,61 +2403,7 @@ class LegacyService:
                 )
             }
 
-        return summary
-
-
-    def old_annotations_summary(self, req):
-
-        bad_req = self._check_args(req)
-
-        if bad_req:
-
-            return bad_req
-
-        if b'databases' in req.args:
-
-            req.args['resources'] = req.args['databases']
-
-        # starting from the entire dataset
-        tbl = self.data['annotations_summary']
-
-        hdr = tbl.columns
-
-        # filtering for resources
-        if b'resources' in req.args:
-
-            resources = self._args_set(req, 'resources')
-
-            tbl = tbl.loc[tbl.source.isin(resources)]
-
-        if (
-            b'cytoscape' in req.args and
-            self._parse_bool_arg(req.args['cytoscape'])
-        ):
-
-            cytoscape = True
-
-        else:
-
-            cytoscape = False
-
-        tbl = tbl.loc[:,hdr]
-
-        if cytoscape:
-
-            tbl = tbl.set_index(['source', 'label'], drop = False)
-
-            cytoscape_keys = {
-                (source, label)
-                for source, labels in self.cytoscape_attributes
-                for label in (
-                    labels if isinstance(labels, tuple) else (labels,)
-                )
-            } & set(tbl.index)
-
-            tbl = tbl.loc[list(cytoscape_keys)]
-
-        return self._serve_dataframe(tbl, req)
+        yield from summary
 
 
     # TODO: Revisit handling of long/short synonym arguments
