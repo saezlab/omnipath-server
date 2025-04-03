@@ -923,16 +923,26 @@ class LegacyService:
 
         _log('Preprocessing intercell.')
 
+        record = collections.namedtuple('intercell_records', [
+            'category',
+            'parent',
+            'database',
+            'aspect',
+            'source',
+            'scope',
+            'transmitter',
+            'receiver'
+        ])
+
         query = (
             "SELECT DISTINCT ON (category, parent, database) "
-            "category, parent, database, aspect, source, scope, "
-            "transmitter, receiver "
+            f"{', '.join(record._fields)} "
             "FROM intercell;"
         )
 
-        self._cached_data["intercell_summary"] = list(
-            self.con.execute(text(query)),
-        )
+        self._cached_data["intercell_summary"] = [
+            record(*x) for x in self.con.execute(text(query))
+        ]
 
 
     def _update_resources(self):
