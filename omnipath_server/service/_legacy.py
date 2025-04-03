@@ -924,7 +924,10 @@ class LegacyService:
         _log('Preprocessing intercell.')
 
         query = (
-            "SELECT category, parent, database, aspect, source, scope, transmitter," "receiver, parent FROM intercell GROUP BY category, parent, database;"
+            "SELECT DISTINCT ON (category, parent, database) "
+            "category, parent, database, aspect, source, scope, "
+            "transmitter, receiver "
+            "FROM intercell;"
         )
 
         self._cached_data["intercell_summary"] = list(
