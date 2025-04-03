@@ -904,6 +904,8 @@ class LegacyService:
 
 
     def _preprocess_annotations(self):
+        """
+        """
 
         _log('Preprocessing annotations.')
 
@@ -915,17 +917,16 @@ class LegacyService:
 
 
     def _preprocess_intercell(self):
+        """
+        """
 
-        if 'intercell' not in self.data:
+        _log('Preprocessing intercell.')
 
-            return
+        query = "SELECT DISTINCT category, parent, database FROM intercell;"
 
-        _log('Preprocessing intercell data.')
-        tbl = self.data['intercell']
-        tbl.drop('full_name', axis = 1, inplace = True, errors = 'ignore')
-        self.data['intercell_summary'] = tbl.filter(
-            ['category', 'parent', 'database'],
-        ).drop_duplicates()
+        self._cached_data["intercell_summary"] = list(
+            self.con.execute(text(query)),
+        )
 
 
     def _update_resources(self):
@@ -2517,8 +2518,15 @@ class LegacyService:
         )
 
 
+    def intercell_summary(self, args):
+        """
+        """
+
+        pass
+
+
     # XXX: Deprecated?
-    def intercell_summary(self, req):
+    def old_intercell_summary(self, req):
 
         bad_req = self._check_args(req)
 
