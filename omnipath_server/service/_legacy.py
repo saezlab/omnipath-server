@@ -779,79 +779,65 @@ class LegacyService:
     )
     # the annotation attributes served for the cytoscape app
     cytoscape_attributes = {
-        ('Zhong2015', 'type'),
-        ('MatrixDB', 'mainclass'),
-        ('Matrisome', ('mainclass', 'subclass', 'subsubclass')),
-        # ('TFcensus', 'in TFcensus'),
-        ('Locate', ('location', 'cls')),
-        (
-            'Phosphatome',
-            (
-                'family',
-                'subfamily',
-                #'has_protein_substrates',
-            ),
+        'Zhong2015': 'type',
+        'MatrixDB': 'mainclass',
+        'Matrisome': ('mainclass', 'subclass', 'subsubclass'),
+        # 'TFcensus': 'in TFcensus',
+        'Locate': ('location', 'cls'),
+        'Phosphatome': (
+            'family',
+            'subfamily',
+            #'has_protein_substrates',
         ),
-        ('CancerSEA', 'state'),
-        ('GO_Intercell', 'mainclass'),
-        ('Adhesome', 'mainclass'),
-        ('SignaLink3', 'pathway'),
-        (
-            'HPA_secretome',
-            (
-                'mainclass',
-                #'secreted',
-            ),
+        'CancerSEA': 'state',
+        'GO_Intercell': 'mainclass',
+        'Adhesome': 'mainclass',
+        'SignaLink3': 'pathway',
+        'HPA_secretome': (
+            'mainclass',
+            #'secreted',
         ),
-        (
-            'OPM',
-            (
-                'membrane',
-                'family',
-                #'transmembrane',
-            ),
+        'OPM': (
+            'membrane',
+            'family',
+            #'transmembrane',
         ),
-        ('KEGG', 'pathway'),
-        #(
-            #'CellPhoneDB',
-            #(
-                ## 'receptor',
-                ## 'peripheral',
-                ## 'secreted',
-                ## 'transmembrane',
-                ## 'receptor_class',
-                ## 'secreted_class',
-            #)
+        'KEGG': 'pathway',
+        #'CellPhoneDB': (
+            # 'receptor',
+            # 'peripheral',
+            # 'secreted',
+            # 'transmembrane',
+            # 'receptor_class',
+            # 'secreted_class',
         #),
-        ('kinase.com', ('group', 'family', 'subfamily')),
-        ('Membranome', ('membrane',)),
-        #('CSPA', 'in CSPA'),
-        #('MSigDB', 'geneset'),
-        #('Integrins', 'in Integrins'),
-        ('HGNC', 'mainclass'),
-        ('CPAD', ('pathway', 'effect_on_cancer', 'cancer')),
-        ('Signor', 'pathway'),
-        ('Ramilowski2015', 'mainclass'),
-        ('HPA_subcellular', 'location'),
-        #('DisGeNet', 'disease'),
-        ('Surfaceome', ('mainclass', 'subclasses')),
-        ('IntOGen', 'role'),
-        ('HPMR', ('role', 'mainclass', 'subclass', 'subsubclass')),
-        #('CancerGeneCensus',
-            #(
-                ##'hallmark',
-                ##'somatic',
-                ##'germline',
-                #'tumour_types_somatic',
-                #'tumour_types_germline',
-            #)
-        #),
-        #('DGIdb', 'category'),
-        ('ComPPI', 'location'),
-        ('Exocarta', 'vesicle'),
-        ('Vesiclepedia', 'vesicle'),
-        ('Ramilowski_location', 'location'),
-        ('LRdb', ('role', 'cell_type')),
+        'kinase.com': ('group', 'family', 'subfamily'),
+        'Membranome': ('membrane',),
+        #'CSPA': 'in CSPA',
+        #'MSigDB': 'geneset',
+        #'Integrins': 'in Integrins',
+        'HGNC': 'mainclass',
+        'CPAD': ('pathway', 'effect_on_cancer', 'cancer'),
+        'Signor': 'pathway',
+        'Ramilowski2015': 'mainclass',
+        'HPA_subcellular': 'location',
+        #'DisGeNet': 'disease',
+        'Surfaceome': ('mainclass', 'subclasses'),
+        'IntOGen': 'role',
+        'HPMR': ('role', 'mainclass', 'subclass', 'subsubclass'),
+        #'CancerGeneCensus': (
+            ##'hallmark',
+            ##'somatic',
+            ##'germline',
+            #'tumour_types_somatic',
+            #'tumour_types_germline',
+        #)
+        #'DGIdb', 'category',
+        'ComPPI': 'location',
+        'Exocarta': 'vesicle',
+        'Vesiclepedia': 'vesicle',
+        'Ramilowski_location': 'location',
+        'LRdb': ('role', 'cell_type'),
     }
 
     def __init__(self, con: _connection.Connection | dict | None = None):
@@ -2398,7 +2384,7 @@ class LegacyService:
                 if row[0] in args['resources']
             }
         
-        if args['cytoscape'] == 'true': # TODO: Check if working and fix
+        if args['cytoscape']:
             
             summary = {
                 row for row in summary
