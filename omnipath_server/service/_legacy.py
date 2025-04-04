@@ -1286,26 +1286,19 @@ class LegacyService:
 
             result = {}
             result[query_type] = (
-                'No possible arguments defined for'
-                'query `%s` or no such query available.' % query_type
+                f'No possible arguments defined for'
+                f'query {query_type} or no such query available.'
             )
 
         result = self._dict_set_to_list(result)
 
-        if b'format' in req.args and req.args['format'][0] == b'json':
+        for k, v in result.items():
 
-            return json.dumps(result)
-
-        else:
-
-            return 'argument\tvalues\n%s' % '\n'.join(
-                '{}\t{}'.format(
-                    k,
-                    ';'.join(v)
-                        if isinstance(v, (list, set, tuple)) else
-                    str(v),
-                )
-                for k, v in result.items()
+            yield (
+                k,
+                ';'.join(str(x) for x in v)
+                    if isinstance(v, (list, set, tuple)) else
+                str(v)
             )
 
 
