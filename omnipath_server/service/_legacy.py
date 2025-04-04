@@ -1235,7 +1235,18 @@ class LegacyService:
             )
 
 
-    def queries(self, req):
+    def queries(
+        self,
+        path: list[str],
+        format: FORMATS | None = None,
+        **kwargs,
+    ):
+        """
+        Gives back the argument values of the query for the given database.
+
+        Args:
+            TODO.
+        """
 
         query_type = (
             req.postpath[1]
@@ -1709,6 +1720,7 @@ class LegacyService:
             postformat: Callable[[str], str] | None = None,
             precontent: Iterable[str] | None = None,
             postcontent: Iterable[str] | None = None,
+            path: str | None = None,
             **kwargs,
     ) -> Generator[tuple | str | dict, None, None]:
         """
@@ -2386,6 +2398,7 @@ class LegacyService:
             self,
             resources: list[str] | None = None,
             cytoscape: bool = False,
+            **kwargs,
     ):
         """
         Generates the summary of the annotations database (i.e. list of unique
@@ -2545,6 +2558,7 @@ class LegacyService:
             receiver: str | Collection[str] | None = None,
             parent: str | Collection[str] | None = None,
             resources: str | Collection[str] | None = None,
+            **kwargs,
     ):
         """
         Generates the summary of the intercell database (i.e. list of unique
