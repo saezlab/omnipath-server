@@ -1236,10 +1236,10 @@ class LegacyService:
 
 
     def queries(
-        self,
-        path: list[str],
-        format: FORMATS | None = None,
-        **kwargs,
+            self,
+            query_type: str | None = None,
+            format: FORMATS | None = None,
+            **kwargs,
     ):
         """
         Gives back the argument values of the query for the given database.
@@ -1248,11 +1248,14 @@ class LegacyService:
             TODO.
         """
 
-        query_type = (
-            req.postpath[1]
-                if len(req.postpath) > 1 else
-            'interactions'
-        )
+        query_type = query_type or kwargs.pop('path', [])
+        query_type = _misc.to_list(query_type)
+
+        if len(query_type) < 2:
+
+            raise ValueError('Query type not specified.')
+
+        query_type = path[1]
 
         query_type = self._query_type(query_type)
 
