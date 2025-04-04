@@ -2576,53 +2576,6 @@ class LegacyService:
             yield (x.category, x.parent, x.database)
 
 
-    # XXX: Deprecated?
-    def old_intercell_summary(self, req):
-
-        bad_req = self._check_args(req)
-
-        if bad_req:
-
-            return bad_req
-
-        if b'databases' in req.args:
-
-            req.args['resources'] = req.args['databases']
-
-        # starting from the entire dataset
-        tbl = self.data['intercell_summary']
-
-        hdr = tbl.columns
-
-        # filtering for category types
-        for var in (
-            'aspect',
-            'source',
-            'scope',
-            'transmitter',
-            'receiver',
-            'parent',
-            'resources',
-        ):
-
-            if var.encode('ascii') in req.args:
-
-                values = self._args_set(req, var)
-
-                tbl = tbl.loc[getattr(tbl, var).isin(values)]
-
-        # filtering for categories
-        if b'categories' in req.args:
-
-            categories = self._args_set(req, 'categories')
-
-            tbl = tbl.loc[tbl.category.isin(categories)]
-
-        tbl = tbl.loc[:,hdr]
-
-        return self._serve_dataframe(tbl, req)
-
-
     def complexes(
             self,
             resources: list[str] | None = None,
