@@ -923,16 +923,18 @@ class LegacyService:
 
         _log('Preprocessing intercell.')
 
-        record = collections.namedtuple('intercell_records', [
-            'category',
-            'parent',
-            'database',
-            'aspect',
-            'source',
-            'scope',
-            'transmitter',
-            'receiver'
-        ])
+        record = collections.namedtuple(
+            'intercell_records', [
+                'category',
+                'parent',
+                'database',
+                'aspect',
+                'source',
+                'scope',
+                'transmitter',
+                'receiver',
+            ],
+        )
 
         query = (
             "SELECT DISTINCT ON (category, parent, database) "
@@ -2569,7 +2571,10 @@ class LegacyService:
 
                 result = [x for x in result if getattr(x, var) in values]
 
-        yield from result
+        for x in result:
+
+            yield (x.category, x.parent, x.database)
+
 
     # XXX: Deprecated?
     def old_intercell_summary(self, req):
