@@ -946,8 +946,18 @@ class LegacyService:
             record(*x) for x in self.con.execute(text(query))
         ]
 
-
     def _update_resources(self):
+
+        _log('Updating resource information.')
+
+        self._resources_dict = collections.defaultdict(dict)
+
+        self._resources_dict = dict(self._resources_dict)
+
+        _log('Finished updating resource information.')
+
+
+    def _old_update_resources(self):
 
         _log('Updating resource information.')
 
@@ -1298,7 +1308,7 @@ class LegacyService:
                 k,
                 ';'.join(str(x) for x in v)
                     if isinstance(v, (list, set, tuple)) else
-                str(v)
+                str(v),
             )
 
 
