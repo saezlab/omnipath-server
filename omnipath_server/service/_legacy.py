@@ -1235,6 +1235,18 @@ class LegacyService:
             )
 
 
+    def _query_type(self, query_type):
+
+        return (
+            self.query_type_synonyms[query_type]
+                if (
+                    hasattr(self, 'query_type_synonyms') and
+                    query_type in self.query_type_synonyms
+                ) else
+            query_type
+        )
+
+
     def queries(
             self,
             query_type: str | None = None,
@@ -1248,22 +1260,15 @@ class LegacyService:
             TODO.
         """
 
-        query_type = query_type or kwargs.pop('path', [])
-        query_type = _misc.to_list(query_type)
+        query = query_type or kwargs.pop('path', [])[1:]
+        query = _misc.to_list(query)
 
-        if len(query_type) < 2:
+        if len(query) < 1:
 
             raise ValueError('Query type not specified.')
 
-        query_type = path[1]
-
-        query_type = self._query_type(query_type)
-
-        query_param = (
-            req.postpath[2]
-                if len(req.postpath) > 2 else
-            None
-        )
+        query_type = self._query_type(query[0])
+        query_param = query[1] if len(query) > 1 else None
 
         if query_type in self.args_reference:
 
