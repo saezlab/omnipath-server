@@ -947,10 +947,31 @@ class LegacyService:
         ]
 
     def _update_resources(self):
+        """
+        Compiles list of all the different resources across all databases.
+        TODO
+        """
 
         _log('Updating resource information.')
 
         self._resources_dict = collections.defaultdict(dict)
+
+        for query_type in self.data_query_types:
+
+            cols = [c.name for c in self._columns(query_type)]      
+
+            # finding out what is the name of the column with the resources
+            # as this is different across the tables
+            for colname, argname in (
+                ('database', 'databases'),
+                ('sources', 'databases'),
+                ('source', 'databases'),
+                ('category', 'categories'),
+            ):
+
+                if colname in cols:
+
+                    break
 
         self._resources_dict = dict(self._resources_dict)
 
