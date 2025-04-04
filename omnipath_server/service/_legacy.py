@@ -975,6 +975,9 @@ class LegacyService:
 
         self._resources_dict = dict(self._resources_dict)
 
+        query = f'SELECT DISTINCT unnest({colname}) FROM {query_type};'
+        # SELECT DISTINCT CASE WHEN pg_typeof(sources)::text LIKE '%[]' THEN unnest(sources) ELSE source END FROM interactions;
+
         _log('Finished updating resource information.')
 
 
