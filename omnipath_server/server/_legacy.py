@@ -89,11 +89,13 @@ def create_server(**kwargs) -> Sanic:
             Server response as text.
         '''
 
+        path = path.split('/')
+        
         if (
-            not path.startswith('_') and
+            not path[0].startswith('_') and
             # TODO: maintain a registry of endpoints,
             # don't rely on this getattr
-            (endpoint := getattr(legacy_server.ctx.service, path, None))
+            (endpoint := getattr(legacy_server.ctx.service, path[0], None))
         ):
 
             json_format = request.args.get('format', 'tsv') == 'json'
@@ -110,6 +112,7 @@ def create_server(**kwargs) -> Sanic:
                 postformat = postformat,
                 precontent = precontent,
                 postcontent = postcontent,
+                path = path,
                 **request.args,
             )
 
@@ -117,7 +120,7 @@ def create_server(**kwargs) -> Sanic:
 
         else:
 
-            return response.text(f'No such path: {path}', status = 404)
+            return response.text(f'No such path: {"/".join(path)}', status=404)
 
     _log('Legacy server ready.')
 
