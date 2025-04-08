@@ -861,6 +861,7 @@ class LegacyService:
 
     def _preprocess(self):
 
+        self._update_resources()
         self._preprocess_annotations()
         self._preprocess_intercell()
 
@@ -1384,6 +1385,14 @@ class LegacyService:
                     sorted(v) if isinstance(v, _const.LIST_LIKE) else v
                 for k, v in self.args_reference[query_type].items()
             }
+
+            resource_col = self._resource_col(query_type)
+            resources = {
+                res
+                for res, res_info in self._resources_dict.items()
+                if query_type in res_info['queries']
+            }
+            result[resource_col] = resources
 
             if query_param is not None and query_param in result:
 
