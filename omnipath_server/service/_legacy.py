@@ -1011,7 +1011,7 @@ class LegacyService:
 
                 for category, database in self.con.execute(text(query)):
 
-                    categories[category].add(database)
+                    categories[database].add(category)
 
             for db in resources:
 
