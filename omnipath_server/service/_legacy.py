@@ -959,6 +959,8 @@ class LegacyService:
 
         for query_type in self.data_query_types:
 
+            datasets = {}
+            categories = set()
             cols = {c.name: c for c in self._columns(query_type)}
 
             # finding out what is the name of the column with the resources
@@ -982,6 +984,32 @@ class LegacyService:
             query = f'SELECT DISTINCT {colname.join(unnest)} FROM {query_type};'
             result = {x[0] for x in self.con.execute(text(query))}
 
+            if query_type == 'interactions':
+
+                for dataset in self.datasets_:
+
+                    if dataset not in cols.keys():
+
+                        continue
+
+                    query = f'SELECT DISTINCT {colname.join(unnest)}'
+                    f'FROM {query_type} WHERE {dataset};'
+                    result = {x[0] for x in self.con.execute(text(query))}
+                    datasets[dataset] = result
+
+            elif query_type == 'intercell':
+
+                tbl_db = tbl[
+                    (tbl.database == db) &
+                    (tbl.scope == 'generic')
+                ]
+
+                self._resources_dict[db]['queries'][query_type] = {
+                    'generic_categories': sorted(
+                        set(tbl_db.category),
+                    ),
+                }
+
             for db in result:
 
                 # if 'license' not in self._resources_dict[db]:
@@ -1001,60 +1029,24 @@ class LegacyService:
 
                 if 'queries' not in self._resources_dict[db]:
 
-                    self._resources_dict[db]['queries'] = {}
+                    qt_data = {}
 
-                if query_type not in self._resources_dict[db]['queries']:
+                    if datasets:
 
-                    if query_type == 'interactions':
-
-                        datasets = set()
-
-                        for dataset in self.datasets_:
-
-                            if dataset not in cols.keys():
-
-                                continue
-
-                            query = f'SELECT DISTINCT {colname.join(unnest)}'
-                            f'FROM {query_type} WHERE {dataset};'
-                            result = {x[0] for x in self.con.execute(text(query))}
-
-                            self._resources_dict[db]['queries'][query_type] = {
-                                'datasets': sorted(result),
-                            }
-
-                            for in_dataset, resources in zip(
-                                getattr(tbl, dataset),
-                                tbl.set_sources,
-                            ):
-
-                                if in_dataset and db in resources:
-
-                                    datasets.add(dataset)
-                                    break
-
-                        self._resources_dict[db]['queries'][query_type] = {
-                            'datasets': sorted(datasets),
+                        qt_data['datasets'] = {
+                            k
+                            for k, v in datasets.items() if db in v
                         }
 
-                    elif query_type == 'intercell':
+                    if categories:
 
-                        tbl_db = tbl[
-                            (tbl.database == db) &
-                            (tbl.scope == 'generic')
-                        ]
+                        qt_data['categories'] = categories[db]
 
-                        self._resources_dict[db]['queries'][query_type] = {
-                            'generic_categories': sorted(
-                                set(tbl_db.category),
-                            ),
-                        }
+                    self._resources_dict[db]['queries'][query_type] = qt_data
 
-                    else:
 
-                        self._resources_dict[db]['queries'][query_type] = {}
 ####
-        
+
         self._resources_dict = dict(self._resources_dict)
 
         _log('Finished updating resource information.')
