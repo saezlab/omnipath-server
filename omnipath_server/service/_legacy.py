@@ -958,7 +958,7 @@ class LegacyService:
 
         for query_type in self.data_query_types:
 
-            cols = [c.name for c in self._columns(query_type)]      
+            cols = {c.name: c for c in self._columns(query_type)}
 
             # finding out what is the name of the column with the resources
             # as this is different across the tables
@@ -973,10 +973,14 @@ class LegacyService:
 
                     break
 
-        self._resources_dict = dict(self._resources_dict)
+            unnest = (
+                ('unnest(', ')')
+                    if self._isarray(cols[colname]) else
+                ('', '')
+            )
+            query = f'SELECT DISTINCT {colname.join(unnest)} FROM {query_type};'
 
-        query = f'SELECT DISTINCT unnest({colname}) FROM {query_type};'
-        # SELECT DISTINCT CASE WHEN pg_typeof(sources)::text LIKE '%[]' THEN unnest(sources) ELSE source END FROM interactions;
+        self._resources_dict = dict(self._resources_dict)
 
         _log('Finished updating resource information.')
 
