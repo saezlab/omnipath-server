@@ -982,7 +982,7 @@ class LegacyService:
                 ('', '')
             )
             query = f'SELECT DISTINCT {colname.join(unnest)} FROM {query_type};'
-            result = {x[0] for x in self.con.execute(text(query))}
+            resources = {x[0] for x in self.con.execute(text(query))}
 
             if query_type == 'interactions':
 
@@ -992,10 +992,14 @@ class LegacyService:
 
                         continue
 
-                    query = f'SELECT DISTINCT {colname.join(unnest)}'
-                    f'FROM {query_type} WHERE {dataset};'
-                    result = {x[0] for x in self.con.execute(text(query))}
-                    datasets[dataset] = result
+                    query = (
+                        f'SELECT DISTINCT {colname.join(unnest)} '
+                        f'FROM {query_type} WHERE {dataset};'
+                    )
+                    datasets[dataset] = {
+                        x[0]
+                        for x in self.con.execute(text(query))
+                    }
 
             elif query_type == 'intercell':
 
@@ -1004,13 +1008,12 @@ class LegacyService:
                     f"FROM {query_type} WHERE scope = 'generic' "
                     f'GROUP BY category, database;'
                 )
-                result = self.con.execute(text(query))
 
-                for category, database in result:
+                for category, database in self.con.execute(text(query)):
 
                     categories[category].add(database)
 
-            for db in result:
+            for db in resources:
 
                 # if 'license' not in self._resources_dict[db]:
 
@@ -1031,20 +1034,20 @@ class LegacyService:
 
                     self._resources_dict[db]['queries'] = {}
 
-                    qt_data = {}
+                qt_data = {}
 
-                    if datasets:
+                if datasets:
 
-                        qt_data['datasets'] = {
-                            k
-                            for k, v in datasets.items() if db in v
-                        }
+                    qt_data['datasets'] = {
+                        k
+                        for k, v in datasets.items() if db in v
+                    }
 
-                    if categories:
+                if categories:
 
-                        qt_data['categories'] = categories[db]
+                    qt_data['categories'] = categories[db]
 
-                    self._resources_dict[db]['queries'][query_type] = qt_data
+                self._resources_dict[db]['queries'][query_type] = qt_data
 
         self._resources_dict = dict(self._resources_dict)
 
