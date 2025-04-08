@@ -984,20 +984,20 @@ class LegacyService:
 
             for db in result:
 
-                if 'license' not in self._resources_dict[db]:
+                # if 'license' not in self._resources_dict[db]:
 
-                    license = res_ctrl.license(db)
+                #     license = res_ctrl.license(db)
 
-                    if license is None:
+                #     if license is None:
 
-                        msg = 'No license for resource `%s`.' % str(db)
-                        _log(msg)
-                        raise RuntimeError(msg)
+                #         msg = 'No license for resource `%s`.' % str(db)
+                #         _log(msg)
+                #         raise RuntimeError(msg)
 
-                    license_data = license.features
-                    license_data['name'] = license.name
-                    license_data['full_name'] = license.full_name
-                    self._resources_dict[db]['license'] = license_data
+                #     license_data = license.features
+                #     license_data['name'] = license.name
+                #     license_data['full_name'] = license.full_name
+                #     self._resources_dict[db]['license'] = license_data
 
                 if 'queries' not in self._resources_dict[db]:
 
@@ -1011,9 +1011,17 @@ class LegacyService:
 
                         for dataset in self.datasets_:
 
-                            if dataset not in tbl.columns:
+                            if dataset not in cols.keys():
 
                                 continue
+
+                            query = f'SELECT DISTINCT {colname.join(unnest)}'
+                            f'FROM {query_type} WHERE {dataset};'
+                            result = {x[0] for x in self.con.execute(text(query))}
+
+                            self._resources_dict[db]['queries'][query_type] = {
+                                'datasets': sorted(result),
+                            }
 
                             for in_dataset, resources in zip(
                                 getattr(tbl, dataset),
