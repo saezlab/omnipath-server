@@ -910,7 +910,8 @@ class LegacyService:
 
         _log('Preprocessing annotations.')
 
-        query = "SELECT source, label, ARRAY_AGG(DISTINCT value) FROM annotations GROUP BY source, label;"
+        query = "SELECT source, label, ARRAY_AGG(DISTINCT value) FROM " \
+        "annotations GROUP BY source, label;"
 
         self._cached_data["annotations_summary"] = list(
             self.con.execute(text(query)),
@@ -979,7 +980,73 @@ class LegacyService:
                 ('', '')
             )
             query = f'SELECT DISTINCT {colname.join(unnest)} FROM {query_type};'
+            result = {x[0] for x in self.con.execute(text(query))}
 
+            for db in result:
+
+                if 'license' not in self._resources_dict[db]:
+
+                    license = res_ctrl.license(db)
+
+                    if license is None:
+
+                        msg = 'No license for resource `%s`.' % str(db)
+                        _log(msg)
+                        raise RuntimeError(msg)
+
+                    license_data = license.features
+                    license_data['name'] = license.name
+                    license_data['full_name'] = license.full_name
+                    self._resources_dict[db]['license'] = license_data
+
+                if 'queries' not in self._resources_dict[db]:
+
+                    self._resources_dict[db]['queries'] = {}
+
+                if query_type not in self._resources_dict[db]['queries']:
+
+                    if query_type == 'interactions':
+
+                        datasets = set()
+
+                        for dataset in self.datasets_:
+
+                            if dataset not in tbl.columns:
+
+                                continue
+
+                            for in_dataset, resources in zip(
+                                getattr(tbl, dataset),
+                                tbl.set_sources,
+                            ):
+
+                                if in_dataset and db in resources:
+
+                                    datasets.add(dataset)
+                                    break
+
+                        self._resources_dict[db]['queries'][query_type] = {
+                            'datasets': sorted(datasets),
+                        }
+
+                    elif query_type == 'intercell':
+
+                        tbl_db = tbl[
+                            (tbl.database == db) &
+                            (tbl.scope == 'generic')
+                        ]
+
+                        self._resources_dict[db]['queries'][query_type] = {
+                            'generic_categories': sorted(
+                                set(tbl_db.category),
+                            ),
+                        }
+
+                    else:
+
+                        self._resources_dict[db]['queries'][query_type] = {}
+####
+        
         self._resources_dict = dict(self._resources_dict)
 
         _log('Finished updating resource information.')
