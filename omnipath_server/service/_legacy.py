@@ -948,6 +948,28 @@ class LegacyService:
             record(*x) for x in self.con.execute(text(query))
         ]
 
+
+    def _resource_col(self, query_type: QUERY_TYPES) -> str:
+        """
+        Name of the column with resource names for each query_type.
+        """
+
+        cols = {c.name: c for c in self._columns(query_type)}
+
+        # finding out what is the name of the column with the resources
+        # as this is different across the tables
+        for colname, argname in (
+            ('database', 'databases'),
+            ('sources', 'databases'),
+            ('source', 'databases'),
+            ('category', 'categories'),
+        ):
+
+            if colname in cols:
+
+                return colname
+
+
     def _update_resources(self):
         """
         Compiles list of all the different resources across all databases.
@@ -963,19 +985,7 @@ class LegacyService:
             datasets = {}
             categories = collections.defaultdict(set)
             cols = {c.name: c for c in self._columns(query_type)}
-
-            # finding out what is the name of the column with the resources
-            # as this is different across the tables
-            for colname, argname in (
-                ('database', 'databases'),
-                ('sources', 'databases'),
-                ('source', 'databases'),
-                ('category', 'categories'),
-            ):
-
-                if colname in cols:
-
-                    break
+            colname = self._resource_col(query_type)
 
             unnest = (
                 ('unnest(', ')')
