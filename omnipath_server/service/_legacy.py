@@ -960,7 +960,7 @@ class LegacyService:
         for query_type in self.data_query_types:
 
             datasets = {}
-            categories = set()
+            categories = collections.defaultdict(set)
             cols = {c.name: c for c in self._columns(query_type)}
 
             # finding out what is the name of the column with the resources
@@ -999,16 +999,16 @@ class LegacyService:
 
             elif query_type == 'intercell':
 
-                tbl_db = tbl[
-                    (tbl.database == db) &
-                    (tbl.scope == 'generic')
-                ]
+                query = (
+                    f'SELECT category, database '
+                    f"FROM {query_type} WHERE scope = 'generic' "
+                    f'GROUP BY category, database;'
+                )
+                result = self.con.execute(text(query))
 
-                self._resources_dict[db]['queries'][query_type] = {
-                    'generic_categories': sorted(
-                        set(tbl_db.category),
-                    ),
-                }
+                for category, database in result:
+
+                    categories[category].add(database)
 
             for db in result:
 
@@ -1029,6 +1029,8 @@ class LegacyService:
 
                 if 'queries' not in self._resources_dict[db]:
 
+                    self._resources_dict[db]['queries'] = {}
+
                     qt_data = {}
 
                     if datasets:
@@ -1043,9 +1045,6 @@ class LegacyService:
                         qt_data['categories'] = categories[db]
 
                     self._resources_dict[db]['queries'][query_type] = qt_data
-
-
-####
 
         self._resources_dict = dict(self._resources_dict)
 
