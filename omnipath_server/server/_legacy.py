@@ -38,7 +38,7 @@ def create_server(**kwargs) -> Sanic:
 
     _log('Creating new legacy server...')
     legacy_server = Sanic('LegacyServer')
-    legacy_server.ctx.service = LegacyService(kwargs)
+    legacy_server.ctx.service = LegacyService(**kwargs)
 
     async def stream(
             request: Request,
