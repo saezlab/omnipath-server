@@ -16,6 +16,7 @@
 from collections.abc import Generator
 
 from sanic import Sanic, Request, response
+from sanic.worker.manager import WorkerManager
 
 from omnipath_server import _log
 from omnipath_server.service import LegacyService
@@ -24,6 +25,7 @@ __all__ = [
     'create_server',
 ]
 
+WorkerManager.THRESHOLD = 1200
 
 def create_server(**kwargs) -> Sanic:
     '''
