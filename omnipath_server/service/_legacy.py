@@ -1781,8 +1781,8 @@ class LegacyService:
         args = self._clean_args(args)
         args = self._array_args(args, query_type)
         query, bad_req = self._query(args, query_type, extra_where=extra_where)
-        colnames = ['no_column_names']
         format = format or args.pop('format', None) or 'tsv'
+        colnames = ['no_column_names']
 
         if format == 'query':
             result = ((query,),)
@@ -1802,9 +1802,33 @@ class LegacyService:
 
         header = args.get('header', True) if header is None else header
         names = colnames if header or format in {'raw', 'json'} else None
+
+        yield from self._output(
+            result,
+            names,
+            postformat=postformat if query else None,
+            precontent=precontent,
+            postcontent=postcontent,
+            **kwargs,
+        )
+
+
+    def _output(
+        self,
+        result,
+        names,
+        postformat: Callable[[str], str] | None = None,
+        precontent: Iterable[str] | None = None,
+        postcontent: Iterable[str] | None = None,
+        **kwargs
+    ):
+        """
+        TODO
+        """
+
         result = self._format(result, format = format, names = names)
 
-        if query and callable(postformat):
+        if callable(postformat):
 
             result = (postformat(*rec, **kwargs) for rec in with_last(result))
 
