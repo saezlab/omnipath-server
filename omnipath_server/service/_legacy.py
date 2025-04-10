@@ -1307,17 +1307,19 @@ class LegacyService:
 
         result = self._dict_set_to_list(result)
 
+        fmt_value = lambda v: (
+            ';'.join(str(x) for x in v)
+                if isinstance(v, (list, set, tuple)) else
+            str(v)
+        )
+
         yield from self._output(
             (
-                (
-                    k,
-                    ';'.join(str(x) for x in v)
-                        if isinstance(v, (list, set, tuple)) else
-                    str(v)
-                )
+                (k, fmt_value(v))
                 for k, v in result.items()
             ),
-            names=['argument', 'values']
+            names = ['argument', 'values'],
+            format = format,
         )
 
 
@@ -1810,6 +1812,7 @@ class LegacyService:
         yield from self._output(
             result,
             names,
+            format = format,
             postformat=postformat if query else None,
             precontent=precontent,
             postcontent=postcontent,
@@ -1821,10 +1824,11 @@ class LegacyService:
         self,
         result,
         names,
+        format: FORMATS | None = None,
         postformat: Callable[[str], str] | None = None,
         precontent: Iterable[str] | None = None,
         postcontent: Iterable[str] | None = None,
-        **kwargs
+        **kwargs,
     ):
         """
         TODO
@@ -2442,6 +2446,7 @@ class LegacyService:
             self,
             resources: list[str] | None = None,
             cytoscape: bool = False,
+            format: FORMATS | None = None,
             **kwargs,
     ):
         """
@@ -2481,7 +2486,12 @@ class LegacyService:
                 )
             }
 
-        yield from self._output(summary, names=["source", "label", "value"])
+        yield from self._output(
+            summary,
+            names = ["source", "label", "value"],
+            format = format,
+            **kwargs,
+        )
 
 
     # TODO: Revisit handling of long/short synonym arguments
@@ -2602,6 +2612,7 @@ class LegacyService:
             receiver: str | Collection[str] | None = None,
             parent: str | Collection[str] | None = None,
             resources: str | Collection[str] | None = None,
+            format: FORMATS | None = None,
             **kwargs,
     ):
         """
@@ -2631,7 +2642,9 @@ class LegacyService:
 
         yield from self._output(
             ((x.category, x.parent, x.database) for x in result),
-            names=['category', 'parent', 'database']
+            names = ['category', 'parent', 'database'],
+            format = format,
+            **kwargs,
         )
 
 
