@@ -1834,6 +1834,8 @@ class LegacyService:
         TODO
         """
 
+        _ = kwargs.pop('path', None)
+
         result = self._format(result, format = format, names = names)
 
         if callable(postformat):
