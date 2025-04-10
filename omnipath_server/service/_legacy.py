@@ -2462,7 +2462,7 @@ class LegacyService:
         args = self._array_args(args, 'annotations')
         format = self._ensure_str(format)
 
-        renum = re.compile(r'[-\d\.]+')
+        renum = re.compile(r'(?:[-\d\.]+|nan|-?inf)')
 
         summary = {
             (
