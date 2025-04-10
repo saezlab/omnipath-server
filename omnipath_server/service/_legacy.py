@@ -1267,6 +1267,7 @@ class LegacyService:
             TODO.
         """
 
+        format = self._ensure_str(format)
         query = query_type or kwargs.pop('path', [])[1:]
         query = _misc.to_list(query)
 
@@ -2459,6 +2460,7 @@ class LegacyService:
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'annotations')
+        format = self._ensure_str(format)
 
         renum = re.compile(r'[-\d\.]+')
 
@@ -2625,6 +2627,7 @@ class LegacyService:
         args = locals()
         args = self._clean_args(args)
         args = self._array_args(args, 'intercell')
+        format = self._ensure_str(format)
 
         result = self._cached_data["intercell_summary"]
 
