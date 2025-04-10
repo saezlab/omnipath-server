@@ -1307,14 +1307,18 @@ class LegacyService:
 
         result = self._dict_set_to_list(result)
 
-        for k, v in result.items():
-
-            yield (
-                k,
-                ';'.join(str(x) for x in v)
-                    if isinstance(v, (list, set, tuple)) else
-                str(v),
-            )
+        yield from self._output(
+            (
+                (
+                    k,
+                    ';'.join(str(x) for x in v)
+                        if isinstance(v, (list, set, tuple)) else
+                    str(v)
+                )
+                for k, v in result.items()
+            ),
+            names=['argument', 'values']
+        )
 
 
     @classmethod
@@ -2477,7 +2481,7 @@ class LegacyService:
                 )
             }
 
-        yield from summary
+        yield from self._output(summary, names=["source", "label", "value"])
 
 
     # TODO: Revisit handling of long/short synonym arguments
@@ -2625,9 +2629,10 @@ class LegacyService:
 
                 result = [x for x in result if getattr(x, var) in values]
 
-        for x in result:
-
-            yield (x.category, x.parent, x.database)
+        yield from self._output(
+            ((x.category, x.parent, x.database) for x in result),
+            names=['category', 'parent', 'database']
+        )
 
 
     def complexes(
