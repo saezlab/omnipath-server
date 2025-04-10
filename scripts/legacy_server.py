@@ -11,4 +11,4 @@ con_param = {
 app = _legacy.create_server(con = con_param)
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=8000, dev=True)
