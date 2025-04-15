@@ -1269,6 +1269,7 @@ class LegacyService:
 
         format = self._ensure_str(format)
         query = query_type or kwargs.pop('path', [])[1:]
+
         query = _misc.to_list(query)
 
         if len(query) < 1:
@@ -1321,6 +1322,7 @@ class LegacyService:
             ),
             names = ['argument', 'values'],
             format = format,
+            **kwargs
         )
 
 
