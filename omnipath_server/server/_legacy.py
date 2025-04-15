@@ -63,7 +63,7 @@ def create_server(**kwargs) -> Sanic:
         content_type = (
             'application/json'
                 if json_format else
-            'text/tab-separated-values'
+            'text/plain'
         )
 
         _response = await request.respond(content_type = content_type)
