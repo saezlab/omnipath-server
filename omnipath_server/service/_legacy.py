@@ -992,7 +992,7 @@ class LegacyService:
                     if self._isarray(cols[colname]) else
                 ('', '')
             )
-            # XXX: Potential for SQL injection
+
             query = f'SELECT DISTINCT {colname.join(unnest)} FROM {query_type};'
             resources = {x[0] for x in self.con.execute(text(query))}
 
@@ -1003,7 +1003,7 @@ class LegacyService:
                     if dataset not in cols.keys():
 
                         continue
-                    # XXX: Potential for SQL injection
+
                     query = (
                         f'SELECT DISTINCT {colname.join(unnest)} '
                         f'FROM {query_type} WHERE {dataset};'
@@ -1014,7 +1014,7 @@ class LegacyService:
                     }
 
             elif query_type == 'intercell':
-                # XXX: Potential for SQL injection
+
                 query = (
                     f'SELECT category, database '
                     f"FROM {query_type} WHERE scope = 'generic' "
@@ -1702,7 +1702,11 @@ class LegacyService:
             query = self._select(args, query_type)
             query = self._where(query, args, query_type)
 
-            if extra_where := [w for w in _misc.to_list(extra_where) if w is not None]:
+            if extra_where := [
+                w
+                for w in _misc.to_list(extra_where)
+                if w is not None
+            ]:
 
                 extra_where = and_(*extra_where)
                 query = query.filter(extra_where)
