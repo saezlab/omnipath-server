@@ -43,6 +43,7 @@ class Loader:
         'complexes',
         'intercell',
         'annotations',
+        'licenses',
     ]
     # Compressed file methods
     _compr = {
