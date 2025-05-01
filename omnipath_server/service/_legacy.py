@@ -47,6 +47,7 @@ __all__ = [
     'INTERACTION_TYPES',
     'LICENSE_IGNORE',
     'LICENSE_LEVELS',
+    'LICENSE_RANKS',
     'LegacyService',
     'ORGANISMS',
     'QUERY_TYPES',
@@ -124,6 +125,15 @@ LICENSE_LEVELS = Literal[
     'forprofit',
     'commercial',
 ]
+LICENSE_RANKS = {
+    'ignore': 0,
+    'academic': 20,
+    'non_profit': 20,
+    'nonprofit': 20,
+    'for_profit': 10,
+    'forprofit': 10,
+    'commercial': 10,
+}
 GEN_OF_TUPLES = Generator[tuple, None, None]
 GEN_OF_STR = Generator[str, None, None]
 
@@ -2757,8 +2767,15 @@ class LegacyService:
         )
 
 
-    def _resources_with_license(license: LICENSE_LEVELS | None = None):
-        pass
+    def _resources_with_license(self, license: LICENSE_LEVELS):
+
+        query_level = LICENSE_RANKS[license]
+
+        return {
+            res
+            for res, info in self._resources_dict.items()
+            if LICENSE_RANKS[info['license']['purpose']] >= query_level
+        }
 
 
     def _license_match():
