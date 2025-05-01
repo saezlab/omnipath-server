@@ -1033,20 +1033,13 @@ class LegacyService:
 
             for db in resources:
 
-                # if 'license' not in self._resources_dict[db]:
+                if db not in licenses:
+                    msg = 'No license for resource `%s`.' % str(db)
+                    _log(msg)
+                    #TODO: check later if it is necessary or not
+                    # raise RuntimeError(msg)
 
-                #     license = res_ctrl.license(db)
-
-                #     if license is None:
-
-                #         msg = 'No license for resource `%s`.' % str(db)
-                #         _log(msg)
-                #         raise RuntimeError(msg)
-
-                #     license_data = license.features
-                #     license_data['name'] = license.name
-                #     license_data['full_name'] = license.full_name
-                #     self._resources_dict[db]['license'] = license_data
+                self._resources_dict[db]['license'] = licenses[db]
 
                 if 'queries' not in self._resources_dict[db]:
 
