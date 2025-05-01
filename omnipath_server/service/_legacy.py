@@ -982,9 +982,12 @@ class LegacyService:
 
         _log('Loading license information.')
 
-        licenses = dict(
-            self.con.execute(text("SELECT resource, purpose FROM licenses;")),
-        )
+        license_query = "SELECT * FROM licenses;"
+        license_cols = [c.name for c in self._columns('licenses')]
+        licenses = {
+            l[1]: dict(zip(license_cols[2:], l[2:]))
+            for l in self.con.execute(text(license_query))
+        }
 
         for query_type in self.data_query_types:
 
@@ -1039,7 +1042,9 @@ class LegacyService:
                     #TODO: check later if it is necessary or not
                     # raise RuntimeError(msg)
 
-                self._resources_dict[db]['license'] = licenses[db]
+                else:
+
+                    self._resources_dict[db]['license'] = licenses[db]
 
                 if 'queries' not in self._resources_dict[db]:
 
