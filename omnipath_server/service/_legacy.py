@@ -2761,6 +2761,23 @@ class LegacyService:
             for dataset in _misc.to_list(datasets)
         }
 
+        license = self._query_license_level(license)
+        resources_enabled = self._resources_with_license(license)
+
+        return json.dumps(
+            {
+                k: v
+                for k, v in self._resources_dict.items()
+                if (
+                    k in resources_enabled and
+                    (
+                        not datasets or
+                        datasets & set(v['datasets'].keys())
+                    )
+                )
+            },
+        )
+
 
     @staticmethod
     def _query_license_level(license: LICENSE_LEVELS | None = None):
@@ -2770,6 +2787,14 @@ class LegacyService:
                 if license in LICENSE_LEVELS.__args__ else
             DEFAULT_LICENSE
         )
+    
+
+    def _resources_with_license(license: LICENSE_LEVELS | None = None):
+        pass
+
+
+    def _license_match():
+        pass
 
 
     # XXX: Deprecated?
