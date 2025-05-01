@@ -112,6 +112,15 @@ DOROTHEA_METHODS = Literal[
     'tfbs',
     'chipseq',
 ]
+LICENSE_LEVELS = Literal[
+    'ignore',
+    'academic',
+    'non_profit',
+    'nonprofit',
+    'for_profit',
+    'forprofit',
+    'commercial',
+]
 GEN_OF_TUPLES = Generator[tuple, None, None]
 GEN_OF_STR = Generator[str, None, None]
 
@@ -2706,7 +2715,7 @@ class LegacyService:
         yield from self._request(args, 'complexes', **kwargs)
 
 
-    def resources(self, req):
+    def resources_old(self, req):
 
         datasets = (
 
@@ -2737,7 +2746,19 @@ class LegacyService:
                 )
             },
         )
+    
 
+    def resources(
+        self,
+        datasets: Collection[INTERACTION_DATASETS] | None = None,
+        license: LICENSE_LEVELS | None = None,
+    ):
+        
+        datasets = {
+            self._query_type(dataset.decode('ascii'))
+            for dataset in _misc.to_list(datasets)
+        }
+        
 
     # XXX: Deprecated?
     @classmethod
