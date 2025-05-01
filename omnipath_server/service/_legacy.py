@@ -2718,38 +2718,6 @@ class LegacyService:
         yield from self._request(args, 'complexes', **kwargs)
 
 
-    def resources_old(self, req):
-
-        datasets = (
-
-            {
-                self._query_type(dataset.decode('ascii'))
-                for dataset in req.args['datasets']
-            }
-
-            if b'datasets' in req.args else
-
-            None
-
-        )
-
-        license = self._query_license_level(license)
-
-        return json.dumps(
-            {
-                k: v
-                for k, v in self._resources_dict.items()
-                if (
-                    res_ctrl.license(k).enables(license) and
-                    (
-                        not datasets or
-                        datasets & set(v['datasets'].keys())
-                    )
-                )
-            },
-        )
-
-
     def resources(
         self,
         datasets: Collection[INTERACTION_DATASETS] | None = None,
@@ -2787,7 +2755,7 @@ class LegacyService:
                 if license in LICENSE_LEVELS.__args__ else
             DEFAULT_LICENSE
         )
-    
+
 
     def _resources_with_license(license: LICENSE_LEVELS | None = None):
         pass
