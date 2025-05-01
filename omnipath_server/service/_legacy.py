@@ -980,8 +980,11 @@ class LegacyService:
 
         self._resources_dict = collections.defaultdict(dict)
 
-        _log('Loading resources table.')
-        res_licenses = "SELECT * FROM licenses;"
+        _log('Loading license information.')
+
+        licenses = dict(
+            self.con.execute(text("SELECT resource, purpose FROM licenses;")),
+        )
 
         for query_type in self.data_query_types:
 
@@ -1326,7 +1329,7 @@ class LegacyService:
             ),
             names = ['argument', 'values'],
             format = format,
-            **kwargs
+            **kwargs,
         )
 
 
