@@ -36,6 +36,7 @@ from .. import _log, _connection
 from ..schema import _legacy as _schema
 
 __all__ = [
+    'DEFAULT_LICENSE',
     'DOROTHEA_LEVELS',
     'DOROTHEA_METHODS',
     'ENTITY_TYPES',
@@ -45,6 +46,7 @@ __all__ = [
     'INTERACTION_DATASETS',
     'INTERACTION_TYPES',
     'LICENSE_IGNORE',
+    'LICENSE_LEVELS',
     'LegacyService',
     'ORGANISMS',
     'QUERY_TYPES',
@@ -53,6 +55,7 @@ __all__ = [
 
 
 LICENSE_IGNORE = 'ignore'
+DEFAULT_LICENSE = 'academic'
 FORMATS = Literal[
     'raw',
     'json',
@@ -2730,8 +2733,7 @@ class LegacyService:
 
         )
 
-        res_ctrl = resources_mod.get_controller()
-        license = self._get_license(req)
+        license = self._query_license_level(license)
 
         return json.dumps(
             {
@@ -2746,19 +2748,29 @@ class LegacyService:
                 )
             },
         )
-    
+
 
     def resources(
         self,
         datasets: Collection[INTERACTION_DATASETS] | None = None,
         license: LICENSE_LEVELS | None = None,
     ):
-        
+
         datasets = {
             self._query_type(dataset.decode('ascii'))
             for dataset in _misc.to_list(datasets)
         }
-        
+
+
+    @staticmethod
+    def _query_license_level(license: LICENSE_LEVELS | None = None):
+
+        return (
+            license
+                if license in LICENSE_LEVELS.__args__ else
+            DEFAULT_LICENSE
+        )
+
 
     # XXX: Deprecated?
     @classmethod
