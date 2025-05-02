@@ -1004,7 +1004,6 @@ class LegacyService:
     def _update_resources(self):
         """
         Compiles list of all the different resources across all databases.
-        TODO
         """
 
         _log('Updating resource information.')
@@ -1067,8 +1066,6 @@ class LegacyService:
 
             for db in resources:
 
-                labels = {db}
-
                 if db not in licenses:
 
                     licenses[db] = NO_LICENSE.copy()
@@ -1079,27 +1076,19 @@ class LegacyService:
                     (component_db := db.split('_')[0]) in licenses
                 ):
 
-                        labels.add(component_db)
+                    licenses[db] = licenses[component_db].copy()
 
-                if all(
-                    licenses[_db]['purpose'] in LICENSE_INVALID
-                    for _db in labels
-                ):
+
+                if licenses[db]['purpose'] == LICENSE_IGNORE:
 
                     msg = (
-                        'No license for resource (and its suspected component): '
-                        f'{", ".join(labels)}. Data from this resource will be '
+                        f'No license for resource `{db}`.'
+                        'Data from this resource will be '
                         'served only with permission to ignore licensing.'
                     )
                     _log(msg)
 
-                for _db in labels:
-
-                    self._resources_meta[_db]['license'] = licenses[_db]
-
-                    if 'queries' not in self._resources_meta[_db]:
-
-                        self._resources_meta[_db]['queries'] = {}
+                self._resources_meta[db]['license'] = licenses[db]
 
                 qt_data = {}
 
@@ -1115,11 +1104,11 @@ class LegacyService:
 
                     qt_data['categories'] = categories[db]
 
-                for _db in labels:
+                if 'queries' not in self._resources_meta[db]:
 
-                    self._resources_meta[_db]['queries'][query_type] = (
-                        qt_data.copy()
-                    )
+                    self._resources_meta[db]['queries'] = {}
+
+                self._resources_meta[db]['queries'][query_type] = qt_data
 
         self._resources_meta = dict(self._resources_meta)
 
