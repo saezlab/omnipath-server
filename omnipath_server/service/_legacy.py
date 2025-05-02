@@ -1009,7 +1009,7 @@ class LegacyService:
 
         _log('Updating resource information.')
 
-        self._resources_dict = collections.defaultdict(dict)
+        self._resources_meta = collections.defaultdict(dict)
 
         _log('Loading license information.')
 
@@ -1095,11 +1095,11 @@ class LegacyService:
 
                 for _db in labels:
 
-                    self._resources_dict[_db]['license'] = licenses[_db]
+                    self._resources_meta[_db]['license'] = licenses[_db]
 
-                    if 'queries' not in self._resources_dict[_db]:
+                    if 'queries' not in self._resources_meta[_db]:
 
-                        self._resources_dict[_db]['queries'] = {}
+                        self._resources_meta[_db]['queries'] = {}
 
                 qt_data = {}
 
@@ -1117,11 +1117,11 @@ class LegacyService:
 
                 for _db in labels:
 
-                    self._resources_dict[_db]['queries'][query_type] = (
+                    self._resources_meta[_db]['queries'][query_type] = (
                         qt_data.copy()
                     )
 
-        self._resources_dict = dict(self._resources_dict)
+        self._resources_meta = dict(self._resources_meta)
 
         _log('Finished updating resource information.')
 
@@ -1351,7 +1351,7 @@ class LegacyService:
             resource_col = self._resource_col(query_type)
             resources = {
                 res
-                for res, res_info in self._resources_dict.items()
+                for res, res_info in self._resources_meta.items()
                 if query_type in res_info['queries']
             }
             result[resource_col] = resources
@@ -2779,7 +2779,7 @@ class LegacyService:
         return json.dumps(
             {
                 k: v
-                for k, v in self._resources_dict.items()
+                for k, v in self._resources_meta.items()
                 if (
                     k in resources_enabled and
                     (
@@ -2807,7 +2807,7 @@ class LegacyService:
 
         return {
             res
-            for res, info in self._resources_dict.items()
+            for res, info in self._resources_meta.items()
             if LICENSE_RANKS[info['license']['purpose']] >= query_level
         }
 
