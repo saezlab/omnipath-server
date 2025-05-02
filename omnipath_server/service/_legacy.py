@@ -46,9 +46,11 @@ __all__ = [
     'INTERACTION_DATASETS',
     'INTERACTION_TYPES',
     'LICENSE_IGNORE',
+    'LICENSE_INVALID',
     'LICENSE_LEVELS',
     'LICENSE_RANKS',
     'LegacyService',
+    'NO_LICENSE',
     'ORGANISMS',
     'QUERY_TYPES',
     'with_last',
@@ -56,7 +58,14 @@ __all__ = [
 
 
 LICENSE_IGNORE = 'ignore'
+LICENSE_INVALID = {'composite', 'ignore'}
 DEFAULT_LICENSE = 'academic'
+NO_LICENSE = {
+    'name': 'No license',
+    'full_name': 'No license',
+    'purpose': 'ignore',
+
+}
 FORMATS = Literal[
     'raw',
     'json',
@@ -1058,19 +1067,39 @@ class LegacyService:
 
             for db in resources:
 
+                labels = {db}
+
                 if db not in licenses:
-                    msg = 'No license for resource `%s`.' % str(db)
+
+                    licenses[db] = NO_LICENSE.copy()
+
+                if (
+                    licenses[db]['purpose'] in LICENSE_INVALID and
+                    '_' in db and
+                    (component_db := db.split('_')[0]) in licenses
+                ):
+
+                        labels.add(component_db)
+
+                if all(
+                    licenses[_db]['purpose'] in LICENSE_INVALID
+                    for _db in labels
+                ):
+
+                    msg = (
+                        'No license for resource (and its suspected component): '
+                        f'{", ".join(labels)}. Data from this resource will be '
+                        'served only with permission to ignore licensing.'
+                    )
                     _log(msg)
-                    #TODO: check later if it is necessary or not
-                    # raise RuntimeError(msg)
 
-                else:
+                for _db in labels:
 
-                    self._resources_dict[db]['license'] = licenses[db]
+                    self._resources_dict[_db]['license'] = licenses[_db]
 
-                if 'queries' not in self._resources_dict[db]:
+                    if 'queries' not in self._resources_dict[_db]:
 
-                    self._resources_dict[db]['queries'] = {}
+                        self._resources_dict[_db]['queries'] = {}
 
                 qt_data = {}
 
@@ -1078,14 +1107,19 @@ class LegacyService:
 
                     qt_data['datasets'] = {
                         k
-                        for k, v in datasets.items() if db in v
+                        for k, v in datasets.items()
+                        if labels & v
                     }
 
                 if categories:
 
                     qt_data['categories'] = categories[db]
 
-                self._resources_dict[db]['queries'][query_type] = qt_data
+                for _db in labels:
+
+                    self._resources_dict[_db]['queries'][query_type] = (
+                        qt_data.copy()
+                    )
 
         self._resources_dict = dict(self._resources_dict)
 
