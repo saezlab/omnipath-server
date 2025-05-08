@@ -135,6 +135,7 @@ LICENSE_LEVELS = Literal[
 ]
 LICENSE_RANKS = {
     'ignore': 30,
+    'composite': 30,
     'academic': 20,
     'non_profit': 20,
     'nonprofit': 20,
@@ -2860,7 +2861,7 @@ class LegacyService:
 
         resource = resource.split(":", maxsplit = 1)[0] if prefix else resource
 
-        purpose = self._resource_meta[resource]['license']['purpose']
+        purpose = self._resources_meta[resource]['license']['purpose']
         rank = LICENSE_RANKS[purpose]
 
         return rank <= LICENSE_RANKS[license]
@@ -2926,16 +2927,21 @@ class LegacyService:
 
         def filter_resources(res, prefix = False):
 
-            res = [
+            enabled_res = {
                 r
                 for r in res if self._license_match(
                     resource = r,
                     license = license,
                     prefix = prefix,
                 )
-            ]
+            }
 
-            return res
+            enabled_res |= {
+                r for r in res
+                if self._resources_meta[r]['components'] & enabled_res
+            }
+
+            return enabled_res
 
         license = self._query_license_level(license)
 
