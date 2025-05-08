@@ -1885,7 +1885,7 @@ class LegacyService:
 
             result = self._execute(query, args)
             colnames = [c.name for c in query.statement.selected_columns]
-            self._license_filter(
+            result = self._license_filter(
                 records = result,
                 query_type = query_type,
                 cols = colnames,
@@ -2948,10 +2948,12 @@ class LegacyService:
             pref = self._prefix if prefix else lambda x: x
             _enabled_res = {pref(r) for r in enabled_res}
 
-            enabled_res |= {
-                r for r in res
-                if self._resources_meta[pref(r)]['components'] & _enabled_res
-            }
+            comps = lambda r: self._resources_meta[pref(r)].get(
+                'components',
+                set()
+            )
+            
+            enabled_res |= {r for r in res if comps(r) & _enabled_res}
 
             return enabled_res
 
@@ -2963,14 +2965,15 @@ class LegacyService:
             yield from records
 
         else:
-
+            # TODO: Columns not added by default (e.g. sources, references...)
+            print(cols, self._resource_col(query_type))
             res_col = cols.index(self._resource_col(query_type))
             prefix_cols_idx = [
                 cols.index(i) for i in self._resource_prefix_cols(query_type)
             ]
 
             for rec in records:
-
+                # TODO: tuple does not support item assignment
                 rec[res_col] = filter_resources(rec[res_col])
 
                 if not rec[res_col]:
