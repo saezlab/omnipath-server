@@ -1123,6 +1123,23 @@ class LegacyService:
 
                 self._resources_meta[db]['queries'][query_type] = qt_data
 
+        composite_resources = {
+            res
+            for res, info in self._resources_meta.items()
+            if info['license']['purpose'] == 'composite'
+        }
+        components = {
+            cres: {
+                res for res in self._resources_meta.keys()
+                if res.endswith(cres)
+            }
+            for cres in composite_resources
+        }
+
+        for res, comp in components.items():
+
+            self._resources_meta[res]['components'] = comp
+
         self._resources_meta = dict(self._resources_meta)
 
         _log('Finished updating resource information.')
@@ -2827,7 +2844,7 @@ class LegacyService:
             resource: str,
             license: LICENSE_LEVELS,
             prefix = False,
-        ) -> bool:
+    ) -> bool:
         """
         Checks whether a resource is enabled based on the license level
 
@@ -2845,7 +2862,7 @@ class LegacyService:
 
         purpose = self._resource_meta[resource]['license']['purpose']
         rank = LICENSE_RANKS[purpose]
-        
+
         return rank <= LICENSE_RANKS[license]
 
 
