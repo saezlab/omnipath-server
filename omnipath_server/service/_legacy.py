@@ -2822,7 +2822,12 @@ class LegacyService:
         }
 
 
-    def _license_match(self, resource: str, license: LICENSE_LEVELS) -> bool:
+    def _license_match(
+            self,
+            resource: str,
+            license: LICENSE_LEVELS,
+            prefix = False,
+        ) -> bool:
         """
         Checks whether a resource is enabled based on the license level
 
@@ -2836,11 +2841,12 @@ class LegacyService:
             Whether the resource is enabled by the license level or not
         """
 
+        resource = resource.split(":", maxsplit = 1)[0] if prefix else resource
+
         purpose = self._resource_meta[resource]['license']['purpose']
         rank = LICENSE_RANKS[purpose]
         
         return rank <= LICENSE_RANKS[license]
-
 
 
     # XXX: Deprecated?
@@ -2901,9 +2907,16 @@ class LegacyService:
             license: LICENSE_LEVELS | None = None,
     ):
 
-        def filter_resources(res):
+        def filter_resources(res, prefix = False):
 
-            res = [r for r in res if self._license_match(r, license)]
+            res = [
+                r
+                for r in res if self._license_match(
+                    resource = r,
+                    license = license,
+                    prefix = prefix,
+                )
+            ]
 
             return res
 
@@ -2928,7 +2941,7 @@ class LegacyService:
 
             for i in prefix_cols_idx:
 
-                rec[i] = filter_resources(rec[i])
+                rec[i] = filter_resources(rec[i], prefix = True)
 
             yield rec
 
