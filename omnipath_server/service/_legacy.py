@@ -1868,6 +1868,12 @@ class LegacyService:
 
             result = self._execute(query, args)
             colnames = [c.name for c in query.statement.selected_columns]
+            self._license_filter(
+                records = result,
+                query_type = query_type,
+                cols = colnames,
+                license = license
+            )
 
             if callable(postprocess):
 
