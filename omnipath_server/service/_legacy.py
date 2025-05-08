@@ -1001,6 +1001,20 @@ class LegacyService:
                 return colname
 
 
+    def _resource_prefix_cols(self, query_type: QUERY_TYPES) -> list[str]:
+        """
+        Columns with resource name prefixes.
+        """
+
+        _prefix_cols = {
+            'interactions': 'references',
+            'enzsub': 'references',
+            'complexes': 'identifiers',
+        }
+
+        return _misc.to_list(_prefix_cols.get(query_type))
+
+
     def _update_resources(self):
         """
         Compiles list of all the different resources across all databases.
@@ -1082,7 +1096,7 @@ class LegacyService:
                 if licenses[db]['purpose'] == LICENSE_IGNORE:
 
                     msg = (
-                        f'No license for resource `{db}`.'
+                        f'No license for resource `{db}`. '
                         'Data from this resource will be '
                         'served only with permission to ignore licensing.'
                     )
@@ -1097,7 +1111,7 @@ class LegacyService:
                     qt_data['datasets'] = {
                         k
                         for k, v in datasets.items()
-                        if labels & v
+                        if db in v
                     }
 
                 if categories:
@@ -2765,7 +2779,7 @@ class LegacyService:
         license = self._query_license_level(license)
         resources_enabled = self._resources_with_license(license)
 
-        return json.dumps(
+        return \
             {
                 k: v
                 for k, v in self._resources_meta.items()
@@ -2776,8 +2790,7 @@ class LegacyService:
                         datasets & set(v['datasets'].keys())
                     )
                 )
-            },
-        )
+            }
 
 
     @staticmethod
@@ -2797,7 +2810,10 @@ class LegacyService:
         return {
             res
             for res, info in self._resources_meta.items()
-            if LICENSE_RANKS[info['license']['purpose']] >= query_level
+            if (
+                info['license']['purpose'] == 'composite' or
+                LICENSE_RANKS[info['license']['purpose']] >= query_level
+            )
         }
 
 
@@ -2855,14 +2871,11 @@ class LegacyService:
         )
 
 
-    # XXX: Deprecated?
-    @staticmethod
-    def _filter_by_license(
-            tbl,
-            license,
-            res_col,
-            simple = False,
-            prefix_col = None,
+    def _license_filter(
+            self,
+            records: Iterable[tuple],
+            query_type: QUERY_TYPES,
+            license: LICENSE_LEVELS | None = None,
     ):
 
         def filter_resources(res):
@@ -2889,14 +2902,18 @@ class LegacyService:
 
             return res
 
+        license = self._query_license_level(license)
 
-        if license == LICENSE_IGNORE or tbl.shape[0] == 0:
+        if license == LICENSE_IGNORE:
 
-            return tbl
+            yield from records
 
-        res_ctrl = resources_mod.get_controller()
+        res_col = self._resource_col(query_type)
+        prefix_cols = self._resource_prefix_cols(query_type)
 
-        _res_col = getattr(tbl, res_col)
+        for rec in records:
+
+            pass
 
         if simple:
 
