@@ -36,6 +36,7 @@ from .. import _log, _connection
 from ..schema import _legacy as _schema
 
 __all__ = [
+    'DEFAULT_LICENSE',
     'DOROTHEA_LEVELS',
     'DOROTHEA_METHODS',
     'ENTITY_TYPES',
@@ -45,7 +46,11 @@ __all__ = [
     'INTERACTION_DATASETS',
     'INTERACTION_TYPES',
     'LICENSE_IGNORE',
+    'LICENSE_INVALID',
+    'LICENSE_LEVELS',
+    'LICENSE_RANKS',
     'LegacyService',
+    'NO_LICENSE',
     'ORGANISMS',
     'QUERY_TYPES',
     'with_last',
@@ -53,6 +58,14 @@ __all__ = [
 
 
 LICENSE_IGNORE = 'ignore'
+LICENSE_INVALID = {'composite', 'ignore'}
+DEFAULT_LICENSE = 'academic'
+NO_LICENSE = {
+    'name': 'No license',
+    'full_name': 'No license',
+    'purpose': 'ignore',
+
+}
 FORMATS = Literal[
     'raw',
     'json',
@@ -112,6 +125,24 @@ DOROTHEA_METHODS = Literal[
     'tfbs',
     'chipseq',
 ]
+LICENSE_LEVELS = Literal[
+    'ignore',
+    'academic',
+    'non_profit',
+    'nonprofit',
+    'for_profit',
+    'forprofit',
+    'commercial',
+]
+LICENSE_RANKS = {
+    'ignore': 0,
+    'academic': 20,
+    'non_profit': 20,
+    'nonprofit': 20,
+    'for_profit': 10,
+    'forprofit': 10,
+    'commercial': 10,
+}
 GEN_OF_TUPLES = Generator[tuple, None, None]
 GEN_OF_STR = Generator[str, None, None]
 
@@ -970,15 +1001,37 @@ class LegacyService:
                 return colname
 
 
+    def _resource_prefix_cols(self, query_type: QUERY_TYPES) -> list[str]:
+        """
+        Columns with resource name prefixes.
+        """
+
+        _prefix_cols = {
+            'interactions': 'references',
+            'enzsub': 'references',
+            'complexes': 'identifiers',
+        }
+
+        return _misc.to_list(_prefix_cols.get(query_type))
+
+
     def _update_resources(self):
         """
         Compiles list of all the different resources across all databases.
-        TODO
         """
 
         _log('Updating resource information.')
 
-        self._resources_dict = collections.defaultdict(dict)
+        self._resources_meta = collections.defaultdict(dict)
+
+        _log('Loading license information.')
+
+        license_query = "SELECT * FROM licenses;"
+        license_cols = [c.name for c in self._columns('licenses')]
+        licenses = {
+            l[1]: dict(zip(license_cols[2:], l[2:]))
+            for l in self.con.execute(text(license_query))
+        }
 
         for query_type in self.data_query_types:
 
@@ -1027,24 +1080,29 @@ class LegacyService:
 
             for db in resources:
 
-                # if 'license' not in self._resources_dict[db]:
+                if db not in licenses:
 
-                #     license = res_ctrl.license(db)
+                    licenses[db] = NO_LICENSE.copy()
 
-                #     if license is None:
+                if (
+                    licenses[db]['purpose'] in LICENSE_INVALID and
+                    '_' in db and
+                    (component_db := db.split('_')[0]) in licenses
+                ):
 
-                #         msg = 'No license for resource `%s`.' % str(db)
-                #         _log(msg)
-                #         raise RuntimeError(msg)
+                    licenses[db] = licenses[component_db].copy()
 
-                #     license_data = license.features
-                #     license_data['name'] = license.name
-                #     license_data['full_name'] = license.full_name
-                #     self._resources_dict[db]['license'] = license_data
 
-                if 'queries' not in self._resources_dict[db]:
+                if licenses[db]['purpose'] == LICENSE_IGNORE:
 
-                    self._resources_dict[db]['queries'] = {}
+                    msg = (
+                        f'No license for resource `{db}`. '
+                        'Data from this resource will be '
+                        'served only with permission to ignore licensing.'
+                    )
+                    _log(msg)
+
+                self._resources_meta[db]['license'] = licenses[db]
 
                 qt_data = {}
 
@@ -1052,16 +1110,21 @@ class LegacyService:
 
                     qt_data['datasets'] = {
                         k
-                        for k, v in datasets.items() if db in v
+                        for k, v in datasets.items()
+                        if db in v
                     }
 
                 if categories:
 
                     qt_data['categories'] = categories[db]
 
-                self._resources_dict[db]['queries'][query_type] = qt_data
+                if 'queries' not in self._resources_meta[db]:
 
-        self._resources_dict = dict(self._resources_dict)
+                    self._resources_meta[db]['queries'] = {}
+
+                self._resources_meta[db]['queries'][query_type] = qt_data
+
+        self._resources_meta = dict(self._resources_meta)
 
         _log('Finished updating resource information.')
 
@@ -1291,7 +1354,7 @@ class LegacyService:
             resource_col = self._resource_col(query_type)
             resources = {
                 res
-                for res, res_info in self._resources_dict.items()
+                for res, res_info in self._resources_meta.items()
                 if query_type in res_info['queries']
             }
             result[resource_col] = resources
@@ -1323,7 +1386,7 @@ class LegacyService:
             ),
             names = ['argument', 'values'],
             format = format,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -2702,37 +2765,60 @@ class LegacyService:
         yield from self._request(args, 'complexes', **kwargs)
 
 
-    def resources(self, req):
+    def resources(
+        self,
+        datasets: Collection[INTERACTION_DATASETS] | None = None,
+        license: LICENSE_LEVELS | None = None,
+    ):
 
-        datasets = (
+        datasets = {
+            self._query_type(dataset.decode('ascii'))
+            for dataset in _misc.to_list(datasets)
+        }
 
-            {
-                self._query_type(dataset.decode('ascii'))
-                for dataset in req.args['datasets']
-            }
+        license = self._query_license_level(license)
+        resources_enabled = self._resources_with_license(license)
 
-            if b'datasets' in req.args else
-
-            None
-
-        )
-
-        res_ctrl = resources_mod.get_controller()
-        license = self._get_license(req)
-
-        return json.dumps(
+        return \
             {
                 k: v
-                for k, v in self._resources_dict.items()
+                for k, v in self._resources_meta.items()
                 if (
-                    res_ctrl.license(k).enables(license) and
+                    k in resources_enabled and
                     (
                         not datasets or
                         datasets & set(v['datasets'].keys())
                     )
                 )
-            },
+            }
+
+
+    @staticmethod
+    def _query_license_level(license: LICENSE_LEVELS | None = None):
+
+        return (
+            license
+                if license in LICENSE_LEVELS.__args__ else
+            DEFAULT_LICENSE
         )
+
+
+    def _resources_with_license(self, license: LICENSE_LEVELS):
+
+        query_level = LICENSE_RANKS[license]
+
+        return {
+            res
+            for res, info in self._resources_meta.items()
+            if (
+                info['license']['purpose'] == 'composite' or
+                LICENSE_RANKS[info['license']['purpose']] >= query_level
+            )
+        }
+
+
+    def _license_match():
+        pass
 
 
     # XXX: Deprecated?
@@ -2785,14 +2871,11 @@ class LegacyService:
         )
 
 
-    # XXX: Deprecated?
-    @staticmethod
-    def _filter_by_license(
-            tbl,
-            license,
-            res_col,
-            simple = False,
-            prefix_col = None,
+    def _license_filter(
+            self,
+            records: Iterable[tuple],
+            query_type: QUERY_TYPES,
+            license: LICENSE_LEVELS | None = None,
     ):
 
         def filter_resources(res):
@@ -2819,14 +2902,18 @@ class LegacyService:
 
             return res
 
+        license = self._query_license_level(license)
 
-        if license == LICENSE_IGNORE or tbl.shape[0] == 0:
+        if license == LICENSE_IGNORE:
 
-            return tbl
+            yield from records
 
-        res_ctrl = resources_mod.get_controller()
+        res_col = self._resource_col(query_type)
+        prefix_cols = self._resource_prefix_cols(query_type)
 
-        _res_col = getattr(tbl, res_col)
+        for rec in records:
+
+            pass
 
         if simple:
 
