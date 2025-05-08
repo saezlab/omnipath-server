@@ -2875,6 +2875,7 @@ class LegacyService:
             self,
             records: Iterable[tuple],
             query_type: QUERY_TYPES,
+            cols: list[str],
             license: LICENSE_LEVELS | None = None,
     ):
 
@@ -2908,8 +2909,12 @@ class LegacyService:
 
             yield from records
 
-        res_col = self._resource_col(query_type)
-        prefix_cols = self._resource_prefix_cols(query_type)
+        cols = [c.name for c in self._columns()]
+        res_col = cols.index(self._resource_col(query_type))
+
+        prefix_cols_idx = [
+            cols.index(i) for i in self._resource_prefix_cols(query_type)
+        ]
 
         for rec in records:
 
