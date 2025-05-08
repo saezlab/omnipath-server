@@ -2838,7 +2838,7 @@ class LegacyService:
                 LICENSE_RANKS[info['license']['purpose']] >= query_level
             )
         }
-    
+
 
     @staticmethod
     def _prefix(name):
@@ -2955,83 +2955,33 @@ class LegacyService:
 
             return enabled_res
 
+
         license = self._query_license_level(license)
 
         if license == LICENSE_IGNORE:
 
             yield from records
 
-        res_col = cols.index(self._resource_col(query_type))
-        prefix_cols_idx = [
-            cols.index(i) for i in self._resource_prefix_cols(query_type)
-        ]
-
-        for rec in records:
-
-            rec[res_col] = filter_resources(rec[res_col])
-
-            if not rec[res_col]:
-
-                continue
-
-            for i in prefix_cols_idx:
-
-                rec[i] = filter_resources(rec[i], prefix = True)
-
-            yield rec
-
-        if simple:
-
-            bool_idx = [
-                res_ctrl.license(res).enables(license)
-                for res in _res_col
-            ]
-
         else:
 
-            _set_res_col = tbl.set_sources
-
-            _res_to_keep = [
-                filter_resources(ress)
-                for ress in _set_res_col
+            res_col = cols.index(self._resource_col(query_type))
+            prefix_cols_idx = [
+                cols.index(i) for i in self._resource_prefix_cols(query_type)
             ]
 
-            tbl[res_col] = [
-                ';'.join(sorted(ress))
-                for ress in _res_to_keep
-            ]
+            for rec in records:
 
-            if prefix_col:
+                rec[res_col] = filter_resources(rec[res_col])
 
-                _prefix_col = getattr(tbl, prefix_col)
+                if not rec[res_col]:
 
-                _new_prefix_col = [
+                    continue
 
-                    ';'.join(
-                        sorted(
-                            pref_res
-                            for pref_res in pref_ress.split(';')
-                            if (
-                                pref_res.split(':', maxsplit = 1)[0] in
-                                _res_to_keep[i]
-                            )
-                        ),
-                    )
+                for i in prefix_cols_idx:
 
-                        if isinstance(pref_ress, str) else
+                    rec[i] = filter_resources(rec[i], prefix = True)
 
-                    pref_ress
-
-                    for i, pref_ress in enumerate(_prefix_col)
-                ]
-
-                tbl[prefix_col] = _new_prefix_col
-
-            bool_idx = [bool(res) for res in tbl[res_col]]
-
-        tbl = tbl.loc[bool_idx]
-
-        return tbl
+                yield rec
 
 
     def _parse_arg(self, arg: Any, typ: type = None) -> Any:
