@@ -64,7 +64,6 @@ NO_LICENSE = {
     'name': 'No license',
     'full_name': 'No license',
     'purpose': 'ignore',
-
 }
 FORMATS = Literal[
     'raw',
@@ -135,7 +134,7 @@ LICENSE_LEVELS = Literal[
     'commercial',
 ]
 LICENSE_RANKS = {
-    'ignore': 0,
+    'ignore': 30,
     'academic': 20,
     'non_profit': 20,
     'nonprofit': 20,
@@ -2823,8 +2822,25 @@ class LegacyService:
         }
 
 
-    def _license_match():
-        pass
+    def _license_match(self, resource: str, license: LICENSE_LEVELS) -> bool:
+        """
+        Checks whether a resource is enabled based on the license level
+
+        Args:
+            resource:
+                Name of the resource
+            license:
+                License level (e.g. academic, for_profit, etc.)
+
+        Returns:
+            Whether the resource is enabled by the license level or not
+        """
+
+        purpose = self._resource_meta[resource]['license']['purpose']
+        rank = LICENSE_RANKS[purpose]
+        
+        return rank <= LICENSE_RANKS[license]
+
 
 
     # XXX: Deprecated?
@@ -2887,25 +2903,7 @@ class LegacyService:
 
         def filter_resources(res):
 
-            res = {
-                r for r in res
-                if res_ctrl.license(r).enables(license)
-            }
-
-            composite = [
-                r for r in res
-                if res_ctrl.license(r).name == 'Composite'
-            ]
-
-            if composite:
-
-                composite_to_remove = {
-                    comp_res
-                    for comp_res in composite
-                    if not res_ctrl.secondary_resources(comp_res, True) & res
-                }
-
-                res = res - composite_to_remove
+            res = [r for r in res if self._license_match(r, license)]
 
             return res
 
