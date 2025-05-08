@@ -1872,7 +1872,7 @@ class LegacyService:
                 records = result,
                 query_type = query_type,
                 cols = colnames,
-                license = license
+                license = license,
             )
 
             if callable(postprocess):
@@ -2915,16 +2915,24 @@ class LegacyService:
 
             yield from records
 
-        cols = [c.name for c in self._columns()]
         res_col = cols.index(self._resource_col(query_type))
-
         prefix_cols_idx = [
             cols.index(i) for i in self._resource_prefix_cols(query_type)
         ]
 
         for rec in records:
 
-            pass
+            rec[res_col] = filter_resources(rec[res_col])
+
+            if not rec[res_col]:
+
+                continue
+
+            for i in prefix_cols_idx:
+
+                rec[i] = filter_resources(rec[i])
+
+            yield rec
 
         if simple:
 
