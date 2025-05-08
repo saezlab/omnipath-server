@@ -2838,6 +2838,15 @@ class LegacyService:
                 LICENSE_RANKS[info['license']['purpose']] >= query_level
             )
         }
+    
+
+    @staticmethod
+    def _prefix(name):
+        """
+        Checks the prefix
+        """
+
+        return name.split(":", maxsplit = 1)[0]
 
 
     def _license_match(
@@ -2936,9 +2945,12 @@ class LegacyService:
                 )
             }
 
+            pref = self._prefix if prefix else lambda x: x
+            _enabled_res = {pref(r) for r in enabled_res}
+
             enabled_res |= {
                 r for r in res
-                if self._resources_meta[r]['components'] & enabled_res
+                if self._resources_meta[pref(r)]['components'] & _enabled_res
             }
 
             return enabled_res
