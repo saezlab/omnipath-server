@@ -2198,10 +2198,7 @@ class LegacyService:
         where_loops = self._where_loops('interactions', args)
         where_bool = self._where_bool('interactions', args)
 
-        req_fields = _misc.to_set(args.pop('fields', None))
-        use_fields = req_fields | {'sources', 'references'}
-        args['fields'] = use_fields
-        args['fields_to_remove'] = use_fields - req_fields
+        args = self._inject_fields(args)
 
         _log(f'Args: {_misc.dict_str(args)}')
         _log(f'Interactions where: {extra_where}, {where_bool}, {where_loops}')
@@ -2212,6 +2209,16 @@ class LegacyService:
             extra_where = [extra_where, where_bool, where_loops],
             **kwargs,
         )
+
+    @staticmethod
+    def _inject_fields(args):
+
+        req_fields = _misc.to_set(args.pop('fields', None))
+        use_fields = req_fields | {'sources', 'references'}
+        args['fields'] = use_fields
+        args['fields_to_remove'] = use_fields - req_fields
+
+        return args
 
 
     def _where_bool(
@@ -2362,6 +2369,8 @@ class LegacyService:
         args = self._array_args(args, 'enzsub')
         where_loops = self._where_loops('enzsub', args)
         extra_where = self._where_partners('enzsub', args)
+
+        args = self._inject_fields(args)
 
         _log(f'Args: {_misc.dict_str(args)}')
         _log(f'Enzsub where: {extra_where}, {where_loops}')
@@ -2958,6 +2967,8 @@ class LegacyService:
     ):
 
         def filter_resources(res, prefix = False):
+
+            print(res, prefix)
 
             enabled_res = {
                 r
