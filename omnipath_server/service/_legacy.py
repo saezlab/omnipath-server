@@ -2867,7 +2867,6 @@ class LegacyService:
         Returns:
             Whether the resource is enabled by the license level or not
         """
-
         resource = resource.split(":", maxsplit = 1)[0] if prefix else resource
 
         purpose = self._resources_meta[resource]['license']['purpose']
@@ -2950,9 +2949,9 @@ class LegacyService:
 
             comps = lambda r: self._resources_meta[pref(r)].get(
                 'components',
-                set()
+                set(),
             )
-            
+
             enabled_res |= {r for r in res if comps(r) & _enabled_res}
 
             return enabled_res
@@ -2966,7 +2965,6 @@ class LegacyService:
 
         else:
             # TODO: Columns not added by default (e.g. sources, references...)
-            print(cols, self._resource_col(query_type))
             res_col = cols.index(self._resource_col(query_type))
             prefix_cols_idx = [
                 cols.index(i) for i in self._resource_prefix_cols(query_type)
@@ -2974,6 +2972,8 @@ class LegacyService:
 
             for rec in records:
                 # TODO: tuple does not support item assignment
+
+                rec = list(rec)
                 rec[res_col] = filter_resources(rec[res_col])
 
                 if not rec[res_col]:
@@ -2982,9 +2982,11 @@ class LegacyService:
 
                 for i in prefix_cols_idx:
 
+                    rec[i] = rec[i].split(';')
                     rec[i] = filter_resources(rec[i], prefix = True)
+                    rec[i] = ';'.join(rec[i])
 
-                yield rec
+                yield tuple(rec)
 
 
     def _parse_arg(self, arg: Any, typ: type = None) -> Any:
