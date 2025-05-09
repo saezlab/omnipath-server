@@ -1831,6 +1831,7 @@ class LegacyService:
             precontent: Iterable[str] | None = None,
             postcontent: Iterable[str] | None = None,
             path: str | None = None,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str | dict, None, None]:
         """
@@ -1885,6 +1886,10 @@ class LegacyService:
 
             result = self._execute(query, args)
             colnames = [c.name for c in query.statement.selected_columns]
+            _log(
+                'Finished executing query, columns in result: %s'
+                % ', '.join(colnames)
+            )
             result = self._license_filter(
                 records = result,
                 query_type = query_type,
@@ -2956,6 +2961,7 @@ class LegacyService:
 
             return enabled_res
 
+        _log('Applying license filtering level: %s' % license)
 
         license = self._query_license_level(license)
 
@@ -2964,14 +2970,15 @@ class LegacyService:
             yield from records
 
         else:
-            # TODO: Columns not added by default (e.g. sources, references...)
+
             res_col = cols.index(self._resource_col(query_type))
             prefix_cols_idx = [
                 cols.index(i) for i in self._resource_prefix_cols(query_type)
             ]
 
-            for rec in records:
-                # TODO: tuple does not support item assignment
+            j = 0
+
+            for i, rec in enumerate(records):
 
                 rec = list(rec)
                 rec[res_col] = filter_resources(rec[res_col])
@@ -2980,14 +2987,17 @@ class LegacyService:
 
                     continue
 
-                for i in prefix_cols_idx:
+                for c in prefix_cols_idx:
 
-                    rec[i] = rec[i].split(';')
-                    rec[i] = filter_resources(rec[i], prefix = True)
-                    rec[i] = ';'.join(rec[i])
+                    rec[c] = rec[c].split(';')
+                    rec[c] = filter_resources(rec[c], prefix = True)
+                    rec[c] = ';'.join(rec[c])
+
+                j += 1
 
                 yield tuple(rec)
 
+            _log(f'Parsed {i + 1} records, {j} records passed the filtering')
 
     def _parse_arg(self, arg: Any, typ: type = None) -> Any:
         """
