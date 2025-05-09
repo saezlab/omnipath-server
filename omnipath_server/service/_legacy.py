@@ -1873,6 +1873,7 @@ class LegacyService:
             Tuples with the result of the request after post-processing.
         """
 
+        fields_to_remove = args.pop('fields_to_remove', set())
         args = self._clean_args(args)
         args = self._array_args(args, query_type)
         query, bad_req = self._query(
@@ -1892,7 +1893,7 @@ class LegacyService:
             colnames = [c.name for c in query.statement.selected_columns]
             _log(
                 'Finished executing query, columns in result: %s'
-                % ', '.join(colnames)
+                % ', '.join(colnames),
             )
             result = self._license_filter(
                 records = result,
@@ -1900,6 +1901,15 @@ class LegacyService:
                 cols = colnames,
                 license = license,
             )
+
+            if fields_to_remove:
+
+                idx = [i for i, c in enumerate(colnames) if c in fields_to_remove]
+                colnames = [c for i, c in enumerate(colnames) if i not in idx]
+                result = (
+                    tuple(r[i] for i in range(len(r)) if i not in idx)
+                    for r in result
+                )
 
             if callable(postprocess):
 
