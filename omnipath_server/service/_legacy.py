@@ -2968,8 +2968,6 @@ class LegacyService:
 
         def filter_resources(res, prefix = False):
 
-            print(res, prefix)
-
             enabled_res = {
                 r
                 for r in res if self._license_match(
@@ -3019,7 +3017,7 @@ class LegacyService:
 
                 for c in prefix_cols_idx:
 
-                    rec[c] = rec[c].split(';')
+                    rec[c] = rec[c].split(';') if rec[c] else ()
                     rec[c] = filter_resources(rec[c], prefix = True)
                     rec[c] = ';'.join(rec[c])
 
