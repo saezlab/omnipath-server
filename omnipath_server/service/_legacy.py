@@ -1875,7 +1875,11 @@ class LegacyService:
 
         args = self._clean_args(args)
         args = self._array_args(args, query_type)
-        query, bad_req = self._query(args, query_type, extra_where=extra_where)
+        query, bad_req = self._query(
+            args,
+            query_type,
+            extra_where=extra_where,
+        )
         format = format or args.pop('format', None) or 'tsv'
         colnames = ['no_column_names']
 
@@ -2183,6 +2187,11 @@ class LegacyService:
         extra_where = self._where_partners('interactions', args)
         where_loops = self._where_loops('interactions', args)
         where_bool = self._where_bool('interactions', args)
+
+        req_fields = _misc.to_set(args.pop('fields', None))
+        use_fields = req_fields | {'sources', 'references'}
+        args['fields'] = use_fields
+        args['fields_to_remove'] = use_fields - req_fields
 
         _log(f'Args: {_misc.dict_str(args)}')
         _log(f'Interactions where: {extra_where}, {where_bool}, {where_loops}')
