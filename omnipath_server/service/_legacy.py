@@ -2900,7 +2900,14 @@ class LegacyService:
         Returns:
             Whether the resource is enabled by the license level or not
         """
+
         resource = resource.split(":", maxsplit = 1)[0] if prefix else resource
+
+        # Getting resource meta key case insensitive
+        resource = [
+            k for k in self._resources_meta.keys()
+            if resource.lower() == k.lower()
+        ][0]
 
         purpose = self._resources_meta[resource]['license']['purpose']
         rank = LICENSE_RANKS[purpose]
