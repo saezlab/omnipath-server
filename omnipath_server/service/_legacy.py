@@ -2883,39 +2883,6 @@ class LegacyService:
         return name.split(":", maxsplit = 1)[0]
 
 
-    def _license_match(
-            self,
-            resource: str,
-            license: LICENSE_LEVELS,
-            prefix = False,
-    ) -> bool:
-        """
-        Checks whether a resource is enabled based on the license level
-
-        Args:
-            resource:
-                Name of the resource
-            license:
-                License level (e.g. academic, for_profit, etc.)
-
-        Returns:
-            Whether the resource is enabled by the license level or not
-        """
-
-        resource = resource.split(":", maxsplit = 1)[0] if prefix else resource
-
-        # Getting resource meta key case insensitive
-        resource = [
-            k for k in self._resources_meta.keys()
-            if resource.lower() == k.lower()
-        ][0]
-
-        purpose = self._resources_meta[resource]['license']['purpose']
-        rank = LICENSE_RANKS[purpose]
-
-        return rank <= LICENSE_RANKS[license]
-
-
     # XXX: Deprecated?
     @classmethod
     def _filter_by_license_complexes(cls, tbl, license):
@@ -3005,35 +2972,14 @@ class LegacyService:
 
         def filter_resources(res, prefix = False):
 
-            return_str = isinstance(res, str)
-            res = _misc.to_list(res)
-
-            enabled_res = {
-                r
-                for r in res
-                if self._license_match(
-                    resource = r,
-                    license = license,
-                    prefix = prefix,
-                )
-            }
-
             pref = self._prefix if prefix else lambda x: x
-            _enabled_res = {pref(r) for r in enabled_res}
 
-            comps = lambda r: self._resources_meta[pref(r)].get(
-                'components',
-                set(),
-            )
+            if isinstance(res, str):
+                if pref(res) in enabled_resources:
+                    return res
 
-            enabled_res |= {r for r in res if comps(r) & _enabled_res}
-            enabled_res = (
-                _misc.first(enabled_res)
-                    if return_str else
-                enabled_res
-            )
-
-            return enabled_res
+            else:
+                return {r for r in res if pref(r) in enabled_resources}
 
         _log('Applying license filtering level: %s' % license)
 
@@ -3046,6 +2992,8 @@ class LegacyService:
             yield from records
 
         else:
+
+            enabled_resources = self._license_enables(license)
 
             res_col = cols.index(self._resource_col(query_type))
             prefix_cols_idx = [
