@@ -12,6 +12,7 @@ con_param = {
 loader = legacy_loader.Loader(
     path = sample_dir,
     con = con_param,
+    wipe = True,
 )
 loader.create()
 loader.load()
