@@ -17,6 +17,7 @@ from typing import Any, Literal
 from collections.abc import Callable, Iterable, Generator, Collection
 import re
 import json
+import functools
 import importlib as imp
 import itertools
 import collections
@@ -2963,8 +2964,9 @@ class LegacyService:
             res_col = 'database',
             simple = True,
         )
-    
 
+
+    @functools.cache
     def _license_enables(self, license: LICENSE_LEVELS) -> set[str]:
         """
         TODO
@@ -2978,6 +2980,17 @@ class LegacyService:
             for resource, info in self._resources_meta.items()
             if LICENSE_RANKS[info['license']['purpose']] <= rank
         }
+
+        enabled |= {
+            resource
+            for resource, info in self._resources_meta.items()
+            if (
+                info['license']['purpose'] == 'composite' and
+                any(comp in enabled for comp in info['components'])
+            )
+        }
+
+        enabled |= {res.lower() for res in enabled}
 
         return enabled
 
