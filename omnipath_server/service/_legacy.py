@@ -2963,6 +2963,23 @@ class LegacyService:
             res_col = 'database',
             simple = True,
         )
+    
+
+    def _license_enables(self, license: LICENSE_LEVELS) -> set[str]:
+        """
+        TODO
+        """
+
+        license = self._query_license_level(license)
+        rank = LICENSE_RANKS[license]
+
+        enabled = {
+            resource
+            for resource, info in self._resources_meta.items()
+            if LICENSE_RANKS[info['license']['purpose']] <= rank
+        }
+
+        return enabled
 
 
     def _license_filter(
