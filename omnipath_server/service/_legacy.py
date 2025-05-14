@@ -2968,9 +2968,13 @@ class LegacyService:
 
         def filter_resources(res, prefix = False):
 
+            return_str = isinstance(res, str)
+            res = _misc.to_list(res)
+
             enabled_res = {
                 r
-                for r in res if self._license_match(
+                for r in res
+                if self._license_match(
                     resource = r,
                     license = license,
                     prefix = prefix,
@@ -2986,6 +2990,11 @@ class LegacyService:
             )
 
             enabled_res |= {r for r in res if comps(r) & _enabled_res}
+            enabled_res = (
+                _misc.first(enabled_res)
+                    if return_str else
+                enabled_res
+            )
 
             return enabled_res
 
@@ -2994,6 +3003,8 @@ class LegacyService:
         license = self._query_license_level(license)
 
         if license == LICENSE_IGNORE:
+
+            _log('Skipping license filtering')
 
             yield from records
 
