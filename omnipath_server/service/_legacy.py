@@ -2836,17 +2836,19 @@ class LegacyService:
         license = self._query_license_level(license)
         resources_enabled = self._license_enables(license)
 
-        aux = {
-                k: v
-                for k, v in self._resources_meta.items()
-                if (
-                    k in resources_enabled and
-                    (
-                        not datasets or
-                        datasets & set(v['datasets'].keys())
-                    )
+        result = {
+            k: v
+            for k, v in self._resources_meta.items()
+            if (
+                k in resources_enabled and
+                (
+                    not datasets or
+                    datasets & set(v['datasets'].keys())
                 )
-            }
+            )
+        }
+
+        yield from (json.dumps(result), )
 
 
     @staticmethod
