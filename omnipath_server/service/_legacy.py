@@ -2851,7 +2851,8 @@ class LegacyService:
                 k in resources_enabled and
                 (
                     not datasets or
-                    datasets & set(v['datasets'].keys())
+                    datasets & v['datasets'] or
+                    datasets & set(v['queries'].keys())
                 )
             )
         }
