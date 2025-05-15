@@ -2823,10 +2823,11 @@ class LegacyService:
 
 
     def resources(
-        self,
-        datasets: Collection[INTERACTION_DATASETS] | None = None,
-        license: LICENSE_LEVELS | None = None,
-    ):
+            self,
+            datasets: Collection[INTERACTION_DATASETS] | None = None,
+            license: LICENSE_LEVELS | None = None,
+            format: FORMATS | None = None,
+    ) -> Generator[tuple | str, None, None]:
 
         datasets = {
             self._query_type(dataset.decode('ascii'))
@@ -2848,7 +2849,15 @@ class LegacyService:
             )
         }
 
-        yield from (json.dumps(result), )
+        if format == 'raw':
+
+            result = (result,)
+
+        else:
+
+            result = (json.dumps(result),)
+
+        yield from result
 
 
     @staticmethod
