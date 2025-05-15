@@ -1488,35 +1488,31 @@ class LegacyService:
                 '{}\t{}'.format(k, ';'.join(v)) for k, v in result.items()
             )
 
-
+    @functools.cache
     def _get_datasets(self):
 
-        return list(self.data['interactions'].type.unique())
+        query = 'SELECT DISTINCT type FROM interactions'
+
+        return [x[0] for x in self.con.execute(text(query))]
 
 
-    def datasets(self, req):
+    def datasets(
+            self,
+            path: list[str] | None = None,
+            format: FORMATS | None = None,
+            **kwargs,
+    ) -> Generator[tuple | str | dict, None, None]:
 
-        query_type = (
-            req.postpath[1]
-                if len(req.postpath) > 1 else
-            'interactions'
-        )
+        path = _misc.to_list(path)
+        query_type = path[1] if len(path) > 1 else 'interactions'
 
-        if query_type == 'interactions':
+        result = self._get_datasets() if query_type == 'interactions' else []
 
-            result = self._get_datasets()
+        if format not in ('json', 'raw'):
 
-        else:
+            result = ((';'.join(f'{dataset}' for dataset in result),),)
 
-            result = []
-
-        if b'format' in req.args and req.args['format'][0] == b'json':
-
-            return json.dumps(result)
-
-        else:
-
-            return ';'.join(result)
+        yield from self._output(result, names = None, format = format, **kwargs)
 
 
     def _schema(self, query_type: str) -> ReadOnlyColumnCollection:
