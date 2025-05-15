@@ -2385,7 +2385,7 @@ class LegacyService:
     enz_sub = enzsub
 
 
-    def _query(self, query_type: QUERY_TYPES, **kwargs) -> Query:
+    def _query_sqla(self, query_type: QUERY_TYPES, **kwargs) -> Query:
         """
         Returns the query instance of a search instead of the actual results.
 
