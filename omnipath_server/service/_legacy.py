@@ -2426,7 +2426,7 @@ class LegacyService:
             The SQL query string.
         """
 
-        q_str = str(self._query(query_type, **kwargs))
+        q_str = str(self._query_sqla(query_type, **kwargs))
 
         return re.sub(r'\s+', ' ', q_str)
 
