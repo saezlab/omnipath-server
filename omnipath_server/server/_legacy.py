@@ -28,7 +28,7 @@ __all__ = [
 WorkerManager.THRESHOLD = 1200
 
 def create_server(**kwargs) -> Sanic:
-    '''
+    """
     Creates and sets up the legacy database server (implemented in Sanic).
 
     Args:
@@ -36,7 +36,7 @@ def create_server(**kwargs) -> Sanic:
 
     Returns:
         Instance of the server.
-    '''
+    """
 
     _log('Creating new legacy server...')
     legacy_server = Sanic('LegacyServer')
@@ -47,7 +47,7 @@ def create_server(**kwargs) -> Sanic:
             lines: Generator,
             json_format: bool,
     ) -> None:
-        '''
+        """
         Streams the response from the server from a given request.
 
         Args:
@@ -58,7 +58,7 @@ def create_server(**kwargs) -> Sanic:
             json_format:
                 Whether to respond in JSON format or not (if not JSON, defaults
                 to TSV).
-        '''
+        """
 
         content_type = (
             'application/json'
@@ -77,7 +77,7 @@ def create_server(**kwargs) -> Sanic:
 
     @legacy_server.route('/<path:path>')
     async def legacy_handler(request: Request, path: str):
-        '''
+        """
         Request handler
 
         Args:
@@ -89,10 +89,10 @@ def create_server(**kwargs) -> Sanic:
 
         Returns:
             Server response as text.
-        '''
+        """
 
         path = path.split('/')
-        
+
         if (
             not path[0].startswith('_') and
             # TODO: maintain a registry of endpoints,
@@ -100,14 +100,18 @@ def create_server(**kwargs) -> Sanic:
             (endpoint := getattr(legacy_server.ctx.service, path[0], None))
         ):
 
-            json_format = request.args.get('format', 'tsv') == 'json'
+            resources = endpoint == 'resources'
+            json_format = (
+                not resources or
+                request.args.get('format', 'tsv') == 'json'
+            )
 
             precontent = ('[\n',) if json_format else ()
             postcontent = (']',) if json_format else ()
             postformat = (
                 (lambda x, last: f'{x}\n' if last else f'{x},\n')
                     if json_format else
-                (lambda x, last: x[:-1] if last else x)
+                (lambda x, last: x.rstrip('\n') if last else x)
             )
 
             lines = endpoint(
@@ -118,11 +122,11 @@ def create_server(**kwargs) -> Sanic:
                 **request.args,
             )
 
-            await stream(request, lines, json_format)
+            await stream(request, lines, json_format or resources)
 
         else:
 
-            return response.text(f'No such path: {"/".join(path)}', status=404)
+            return response.text(f'No such path: {"/".join(path)}', status = 404)
 
     _log('Legacy server ready.')
 
