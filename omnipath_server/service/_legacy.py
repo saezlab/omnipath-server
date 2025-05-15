@@ -2827,6 +2827,7 @@ class LegacyService:
             datasets: Collection[INTERACTION_DATASETS] | None = None,
             license: LICENSE_LEVELS | None = None,
             format: FORMATS | None = None,
+            **kwargs,
     ) -> Generator[tuple | str, None, None]:
 
         datasets = {
