@@ -2857,7 +2857,7 @@ class LegacyService:
 
         else:
 
-            result = (json.dumps(result, encoder=SetEncoder),)
+            result = (json.dumps(result, cls=SetEncoder),)
 
         yield from result
 
