@@ -12,7 +12,8 @@ con_param = {
 loader = legacy_loader.Loader(
     path = sample_dir,
     con = con_param,
-    wipe = True,
+    wipe = False,
+    exclude = {'interactions', 'enzsub', 'complexes', 'intercell', 'annotations'},
 )
 loader.create()
 loader.load()

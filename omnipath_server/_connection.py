@@ -97,7 +97,7 @@ class Connection:
 
         use_socket = self._param['host'].startswith('/')
         socket = '?host={host}'.format(**self._param) if use_socket else ''
-        tcp_addr = '{host}:{port}'.format(**self._param) if use_socket else ''
+        tcp_addr = '' if use_socket else '{host}:{port}'.format(**self._param)
         self._param['tcp_addr'] = tcp_addr
         self._param['socket'] = socket
 
