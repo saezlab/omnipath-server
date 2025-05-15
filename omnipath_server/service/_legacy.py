@@ -2882,56 +2882,6 @@ class LegacyService:
         return name.split(":", maxsplit = 1)[0]
 
 
-    # XXX: Deprecated?
-    @classmethod
-    def _filter_by_license_complexes(cls, tbl, license):
-
-        return cls._filter_by_license(
-            tbl = tbl,
-            license = license,
-            res_col = 'sources',
-            simple = False,
-            prefix_col = 'identifiers',
-        )
-
-
-    # XXX: Deprecated?
-    @classmethod
-    def _filter_by_license_interactions(cls, tbl, license):
-
-        return cls._filter_by_license(
-            tbl = tbl,
-            license = license,
-            res_col = 'sources',
-            simple = False,
-            prefix_col = 'references',
-        )
-
-
-    # XXX: Deprecated?
-    @classmethod
-    def _filter_by_license_annotations(cls, tbl, license):
-
-        return cls._filter_by_license(
-            tbl = tbl,
-            license = license,
-            res_col = 'source',
-            simple = True,
-        )
-
-
-    # XXX: Deprecated?
-    @classmethod
-    def _filter_by_license_intercell(cls, tbl, license):
-
-        return cls._filter_by_license(
-            tbl = tbl,
-            license = license,
-            res_col = 'database',
-            simple = True,
-        )
-
-
     @functools.cache
     def _license_enables(self, license: LICENSE_LEVELS) -> set[str]:
         """
