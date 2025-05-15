@@ -2394,7 +2394,7 @@ class LegacyService:
     enz_sub = enzsub
 
 
-    def query(self, query_type: QUERY_TYPES, **kwargs) -> Query:
+    def _query(self, query_type: QUERY_TYPES, **kwargs) -> Query:
         """
         Returns the query instance of a search instead of the actual results.
 
@@ -2415,7 +2415,7 @@ class LegacyService:
         return next(getattr(self, query_type)(**kwargs))[0]
 
 
-    def query_str(self, query_type: QUERY_TYPES, **kwargs) -> str:
+    def _query_str(self, query_type: QUERY_TYPES, **kwargs) -> str:
         """
         Returns the query string instead of the actual results.
 
@@ -2431,7 +2431,7 @@ class LegacyService:
             The SQL query string.
         """
 
-        q_str = str(self.query(query_type, **kwargs))
+        q_str = str(self._query(query_type, **kwargs))
 
         return re.sub(r'\s+', ' ', q_str)
 
