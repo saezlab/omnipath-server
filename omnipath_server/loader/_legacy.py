@@ -245,7 +245,7 @@ class TableLoader:
 
         if self.wipe:
 
-            self.table.__table__.drop(bind=self.con.engine)
+            self.table.__table__.drop(bind=self.con.engine, checkfirst = True)
             self.table.__table__.create(bind=self.con.engine)
 
         cols = [f'"{col.name}"' for col in self.columns if col.name != 'id']
