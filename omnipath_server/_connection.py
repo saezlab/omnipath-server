@@ -101,7 +101,7 @@ class Connection:
         self._param['tcp_addr'] = tcp_addr
         self._param['socket'] = socket
 
-        uri = (
+        return (
             'postgresql://{user}:{password}@'
             '{tcp_addr}/{database}{socket}'.format(**self._param)
         )
