@@ -12,4 +12,4 @@ cp -p tests/data/legacy/omnipath_server_licenses.tsv ~/
 
 >> "$OUTFILE"
 poetry install >> "$OUTFILE"
-nohup poetry run scripts/run-in-production.py &>> "$OUTFILE" &
+nohup poetry run python scripts/run-in-production.py &>> "$OUTFILE" &
