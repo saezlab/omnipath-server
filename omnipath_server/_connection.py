@@ -95,15 +95,23 @@ class Connection:
         Connection URI string as used in SQLAlchemy.
         """
 
-        return (
+        use_socket = self._param['host'].startswith('/')
+        socket = '?host={host}'.format(**self._param) if use_socket else ''
+        tcp_addr = '{host}:{port}'.format(**self._param) if use_socket else ''
+        self._param['tcp_addr'] = tcp_addr
+        self._param['socket'] = socket
+
+        uri = (
             'postgresql://{user}:{password}@'
-            '{host}:{port}/{database}'.format(**self._param)
+            '{tcp_addr}/{database}{socket}'.format(**self._param)
         )
+
 
     @property
     def tables(self) -> set[str]:
 
         return set(inspect(self.engine).get_table_names())
+
 
     def init(self):
         """
