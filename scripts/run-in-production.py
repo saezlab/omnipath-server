@@ -20,7 +20,7 @@ POSTGRES_ADDRESS = {
     'database': 'omnipath',
 }
 
-PW_PATH = os.expanduser('~/OMNIPATH_PSQL_PASSWD')
+PW_PATH = os.path.expanduser('~/OMNIPATH_PSQL_PASSWD')
 
 def load_db() -> bool:
 
@@ -54,7 +54,7 @@ with open(PW_PATH) as fp:
 if load_db():
 
     _loader.Loader(
-        path = os.expanduser('~'),
+        path = os.path.expanduser('~'),
         con = POSTGRES_ADDRESS,
         wipe = True,
     ).load()
