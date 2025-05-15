@@ -2949,10 +2949,12 @@ class LegacyService:
                 cols.index(i) for i in self._resource_prefix_cols(query_type)
             ]
 
-            j = 0
+            before = 0
+            after = 0
 
-            for i, rec in enumerate(records):
+            for rec in records:
 
+                before += 1
                 rec = list(rec)
                 rec[res_col] = filter_resources(rec[res_col])
 
@@ -2966,11 +2968,14 @@ class LegacyService:
                     rec[c] = filter_resources(rec[c], prefix = True)
                     rec[c] = ';'.join(rec[c])
 
-                j += 1
+                after += 1
 
                 yield tuple(rec)
 
-            _log(f'Parsed {i + 1} records, {j} records passed the filtering')
+            _log(
+                f'Parsed {before} records, '
+                f'{after} records passed the filtering.',
+            )
 
 
     def _parse_arg(self, arg: Any, typ: type = None) -> Any:
