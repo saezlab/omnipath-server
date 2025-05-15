@@ -35,6 +35,7 @@ from sqlalchemy.dialects.postgresql import array
 from omnipath_server import session
 from .. import _log, _connection
 from ..schema import _legacy as _schema
+from .._misc import SetEncoder
 
 __all__ = [
     'DEFAULT_LICENSE',
@@ -2856,7 +2857,7 @@ class LegacyService:
 
         else:
 
-            result = (json.dumps(result),)
+            result = (json.dumps(result, encoder=SetEncoder),)
 
         yield from result
 
