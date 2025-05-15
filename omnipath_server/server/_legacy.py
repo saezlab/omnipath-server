@@ -16,6 +16,7 @@
 from collections.abc import Generator
 
 from sanic import Sanic, Request, response
+from pypath_common import _misc
 from sanic.worker.manager import WorkerManager
 
 from omnipath_server import _log
@@ -60,11 +61,7 @@ def create_server(**kwargs) -> Sanic:
                 to TSV).
         """
 
-        content_type = (
-            'application/json'
-                if json_format else
-            'text/plain'
-        )
+        content_type = 'application/json' if json_format else 'text/plain'
 
         _response = await request.respond(content_type = content_type)
 
@@ -101,10 +98,8 @@ def create_server(**kwargs) -> Sanic:
         ):
 
             resources = endpoint == 'resources'
-            json_format = (
-                not resources or
-                request.args.get('format', 'tsv') == 'json'
-            )
+            format = _misc.first(request.args.pop('format', ('tsv',)))
+            json_format = not resources and format == 'json'
 
             precontent = ('[\n',) if json_format else ()
             postcontent = (']',) if json_format else ()
@@ -119,6 +114,7 @@ def create_server(**kwargs) -> Sanic:
                 precontent = precontent,
                 postcontent = postcontent,
                 path = path,
+                format = format,
                 **request.args,
             )
 
