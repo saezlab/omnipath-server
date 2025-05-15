@@ -2834,10 +2834,9 @@ class LegacyService:
         }
 
         license = self._query_license_level(license)
-        resources_enabled = self._resources_with_license(license)
+        resources_enabled = self._license_enables(license)
 
-        return \
-            {
+        aux = {
                 k: v
                 for k, v in self._resources_meta.items()
                 if (
@@ -2858,20 +2857,6 @@ class LegacyService:
                 if license in LICENSE_LEVELS.__args__ else
             DEFAULT_LICENSE
         )
-
-
-    def _resources_with_license(self, license: LICENSE_LEVELS):
-
-        query_level = LICENSE_RANKS[license]
-
-        return {
-            res
-            for res, info in self._resources_meta.items()
-            if (
-                info['license']['purpose'] == 'composite' or
-                LICENSE_RANKS[info['license']['purpose']] >= query_level
-            )
-        }
 
 
     @staticmethod
