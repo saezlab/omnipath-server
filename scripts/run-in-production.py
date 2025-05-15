@@ -15,8 +15,7 @@ __all__ = [
 POSTGRES_ADDRESS = {
     'user': 'omnipath',
     'password': None,
-    'host': 'localhost',
-    'port': '5432',
+    'host': '/var/run/postgresql',
     'database': 'omnipath',
 }
 
