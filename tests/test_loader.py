@@ -17,6 +17,7 @@ def test_create_table(legacy_loader):
         'enzsub',
         'interactions',
         'intercell',
+        'licenses',
     }
 
     assert set(tables) == tables_expected
