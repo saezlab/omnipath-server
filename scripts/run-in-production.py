@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
 import os
+import argparse
 
-from omnipath_server.server import _legacy
+from omnipath_server.loader import _legacy as _loader
+from omnipath_server.server import _legacy as _server
 
 __all__ = [
     'POSTGRES_ADDRESS',
     'PW_PATH',
+    'load_db',
 ]
 
 POSTGRES_ADDRESS = {
@@ -17,7 +20,25 @@ POSTGRES_ADDRESS = {
     'database': 'omnipath',
 }
 
-PW_PATH = '~/OMNIPATH_PSQL_PASSWD'
+PW_PATH = os.expanduser('~/OMNIPATH_PSQL_PASSWD')
+
+def load_db() -> bool:
+
+    parser = argparse.ArgumentParser(
+        description = 'Run the OmniPath server in production mode.',
+    )
+
+    parser.add_argument(
+        '--load-db',
+        action = 'store_true',
+        default = False,
+        help = 'Populate the database (default: False)',
+    )
+
+    args = parser.parse_args()
+
+    return args.load_db
+
 
 if not os.path.exists(PW_PATH):
 
@@ -30,7 +51,15 @@ with open(PW_PATH) as fp:
 
     POSTGRES_ADDRESS['password'] = fp.read().strip()
 
-app = _legacy.create_server(con = POSTGRES_ADDRESS)
+if load_db():
+
+    _loader.Loader(
+        path = os.expanduser('~'),
+        con = POSTGRES_ADDRESS,
+        wipe = True,
+    ).load()
+
+app = _server.create_server(con = POSTGRES_ADDRESS)
 
 if __name__ == '__main__':
 
