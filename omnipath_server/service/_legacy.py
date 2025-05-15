@@ -1806,8 +1806,7 @@ class LegacyService:
         return query, bad_req
 
 
-    # XXX: args not used, remove?
-    def _execute(self, query: Query, args: dict) -> GEN_OF_TUPLES:
+    def _execute(self, query: Query) -> GEN_OF_TUPLES:
         """
         Executes a query and returns a generator of the response.
 
@@ -1896,7 +1895,7 @@ class LegacyService:
 
         elif query:
 
-            result = self._execute(query, args)
+            result = self._execute(query)
             colnames = [c.name for c in query.statement.selected_columns]
             _log(
                 'Finished executing query, columns in result: %s'
