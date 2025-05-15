@@ -899,7 +899,7 @@ class LegacyService:
         self._preprocess_intercell()
 
 
-    def reload(self):
+    def _reload(self):
         """
         Reloads the object from the module level.
         """
