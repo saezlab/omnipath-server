@@ -2833,7 +2833,7 @@ class LegacyService:
     ) -> Generator[tuple | str, None, None]:
 
         datasets = {
-            self._query_type(dataset.decode('ascii'))
+            self._query_type(dataset)
             for dataset in _misc.to_list(datasets)
         }
 
