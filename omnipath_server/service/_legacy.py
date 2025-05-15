@@ -1124,8 +1124,12 @@ class LegacyService:
                 if 'queries' not in self._resources_meta[db]:
 
                     self._resources_meta[db]['queries'] = {}
+                    self._resources_meta[db]['datasets'] = set()
 
                 self._resources_meta[db]['queries'][query_type] = qt_data
+                self._resources_meta[db]['datasets'] |= (
+                    qt_data.get('datasets', set())
+                )
 
         composite_resources = {
             res
