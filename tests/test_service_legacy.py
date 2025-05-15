@@ -210,7 +210,7 @@ SELECT_CASES = {
 )
 def test_statements_where(legacy_service, query_type, args, expected):
 
-    stm = legacy_service.query_str(query_type, **args)
+    stm = legacy_service._query_str(query_type, **args)
 
     assert stm.split('WHERE')[-1].strip() == expected
 
@@ -222,6 +222,6 @@ def test_statements_where(legacy_service, query_type, args, expected):
 )
 def test_statements_select(legacy_service, query_type, args, expected):
 
-    stm = legacy_service.query_str(query_type, **args)
+    stm = legacy_service._query_str(query_type, **args)
 
     assert stm.split('WHERE')[0].strip() == expected
