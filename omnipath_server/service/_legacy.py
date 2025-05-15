@@ -34,8 +34,8 @@ from sqlalchemy.dialects.postgresql import array
 
 from omnipath_server import session
 from .. import _log, _connection
-from ..schema import _legacy as _schema
 from .._misc import SetEncoder
+from ..schema import _legacy as _schema
 
 __all__ = [
     'DEFAULT_LICENSE',
@@ -1104,7 +1104,12 @@ class LegacyService:
                     )
                     _log(msg)
 
+
                 self._resources_meta[db]['license'] = licenses[db]
+
+                if db.startswith('DoRothEA'):
+
+                    print(self._resouces_meta[db])
 
                 qt_data = {}
 
@@ -1125,6 +1130,10 @@ class LegacyService:
                     self._resources_meta[db]['queries'] = {}
 
                 self._resources_meta[db]['queries'][query_type] = qt_data
+
+                if db.startswith('DoRothEA'):
+
+                    print(self._resouces_meta[db])
 
         composite_resources = {
             res
