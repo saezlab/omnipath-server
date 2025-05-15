@@ -1878,7 +1878,11 @@ class LegacyService:
         fields_to_remove = args.pop('fields_to_remove', set())
         args = self._clean_args(args)
         args = self._array_args(args, query_type)
-        query, bad_req = self._query(query_type, extra_where = extra_where)
+        query, bad_req = self._query(
+            args,
+            query_type,
+            extra_where=extra_where,
+        )
         format = format or args.pop('format', None) or 'tsv'
         colnames = ['no_column_names']
 
