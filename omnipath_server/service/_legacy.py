@@ -1107,10 +1107,6 @@ class LegacyService:
 
                 self._resources_meta[db]['license'] = licenses[db]
 
-                if db.startswith('DoRothEA'):
-
-                    print(self._resouces_meta[db])
-
                 qt_data = {}
 
                 if datasets:
@@ -1130,10 +1126,6 @@ class LegacyService:
                     self._resources_meta[db]['queries'] = {}
 
                 self._resources_meta[db]['queries'][query_type] = qt_data
-
-                if db.startswith('DoRothEA'):
-
-                    print(self._resouces_meta[db])
 
         composite_resources = {
             res
@@ -3029,6 +3021,7 @@ class LegacyService:
                 yield tuple(rec)
 
             _log(f'Parsed {i + 1} records, {j} records passed the filtering')
+
 
     def _parse_arg(self, arg: Any, typ: type = None) -> Any:
         """
