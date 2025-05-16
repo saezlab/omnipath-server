@@ -64,7 +64,7 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
             _log('Loading legacy database...')
             from omnipath_server.loader import _legacy as _loader
             load_db = load_db if dct else {}
-            loader = _loader.LegacyLoader(con = con, **load_db).load()
+            loader = _loader.Loader(con = con, **load_db).load()
 
 
     @legacy_server.before_server_start
