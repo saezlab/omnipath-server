@@ -28,12 +28,18 @@ __all__ = [
 
 WorkerManager.THRESHOLD = 1200
 
-def create_server(**kwargs) -> Sanic:
+def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
     """
     Creates and sets up the legacy database server (implemented in Sanic).
 
     Args:
-        **kwargs: Arguments passed to the `LegacyService`.
+        con:
+            Database connection parameters.
+        load_db:
+            Populate the database if True, if a dict, it will be passed to the
+            loader as arguments.
+        **kwargs:
+            Arguments passed to the `LegacyService`.
 
     Returns:
         Instance of the server.
@@ -41,89 +47,108 @@ def create_server(**kwargs) -> Sanic:
 
     _log('Creating new legacy server...')
     legacy_server = Sanic('LegacyServer')
-    legacy_server.ctx.service = LegacyService(**kwargs)
-
-    async def stream(
-            request: Request,
-            lines: Generator,
-            json_format: bool,
-    ) -> None:
-        """
-        Streams the response from the server from a given request.
-
-        Args:
-            request:
-                Instance of `Sanic.Request` containing the user request.
-            lines:
-                Response as a generator of tuples.
-            json_format:
-                Whether to respond in JSON format or not (if not JSON, defaults
-                to TSV).
-        """
-
-        content_type = 'application/json' if json_format else 'text/plain'
-
-        _response = await request.respond(content_type = content_type)
-
-        for line in lines:
-
-            await _response.send(line)
-
-        await _response.eof()
 
 
-    @legacy_server.route('/<path:path>')
-    async def legacy_handler(request: Request, path: str):
-        """
-        Request handler
+    @legacy_server.main_process_start
+    async def maybe_load(app, _):
 
-        Args:
-            request:
-                Instance of `Sanic.Request` containing the user request.
-            path:
-                Path for the database that has to process the request (e.g.
-                interactions, annotations, etc.).
+        if load_db or (dct := isinstance(load_db, dict)):
 
-        Returns:
-            Server response as text.
-        """
+            _log('Loading legacy database...')
+            from omnipath_server.loader import _legacy as _loader
+            load_db = load_db if dct else {}
+            loader = _loader.LegacyLoader(con = con, **load_db).load()
 
-        path = path.split('/')
 
-        if (
-            not path[0].startswith('_') and
-            # TODO: maintain a registry of endpoints,
-            # don't rely on this getattr
-            (endpoint := getattr(legacy_server.ctx.service, path[0], None))
-        ):
+    @legacy_server.before_server_start
+    async def worker_startup(app, _):
 
-            resources = endpoint == 'resources'
-            format = _misc.first(request.args.pop('format', ('tsv',)))
-            json_format = not resources and format == 'json'
+        legacy_server.ctx.service = LegacyService(con = con, **kwargs)
 
-            precontent = ('[\n',) if json_format else ()
-            postcontent = (']',) if json_format else ()
-            postformat = (
-                (lambda x, last: f'{x}\n' if last else f'{x},\n')
-                    if json_format else
-                (lambda x, last: x.rstrip('\n') if last else x)
-            )
+        async def stream(
+                request: Request,
+                lines: Generator,
+                json_format: bool,
+        ) -> None:
+            """
+            Streams the response from the server from a given request.
 
-            lines = endpoint(
-                postformat = postformat,
-                precontent = precontent,
-                postcontent = postcontent,
-                path = path,
-                format = format,
-                **request.args,
-            )
+            Args:
+                request:
+                    Instance of `Sanic.Request` containing the user request.
+                lines:
+                    Response as a generator of tuples.
+                json_format:
+                    Whether to respond in JSON format or not (if not JSON, defaults
+                    to TSV).
+            """
 
-            await stream(request, lines, json_format or resources)
+            content_type = 'application/json' if json_format else 'text/plain'
 
-        else:
+            _response = await request.respond(content_type = content_type)
 
-            return response.text(f'No such path: {"/".join(path)}', status = 404)
+            for line in lines:
 
-    _log('Legacy server ready.')
+                await _response.send(line)
+
+            await _response.eof()
+
+
+        @legacy_server.route('/<path:path>')
+        async def legacy_handler(request: Request, path: str):
+            """
+            Request handler
+
+            Args:
+                request:
+                    Instance of `Sanic.Request` containing the user request.
+                path:
+                    Path for the database that has to process the request (e.g.
+                    interactions, annotations, etc.).
+
+            Returns:
+                Server response as text.
+            """
+
+            path = path.split('/')
+
+            if (
+                not path[0].startswith('_') and
+                # TODO: maintain a registry of endpoints,
+                # don't rely on this getattr
+                (endpoint := getattr(legacy_server.ctx.service, path[0], None))
+            ):
+
+                resources = endpoint == 'resources'
+                format = _misc.first(request.args.pop('format', ('tsv',)))
+                json_format = not resources and format == 'json'
+
+                precontent = ('[\n',) if json_format else ()
+                postcontent = (']',) if json_format else ()
+                postformat = (
+                    (lambda x, last: f'{x}\n' if last else f'{x},\n')
+                        if json_format else
+                    (lambda x, last: x.rstrip('\n') if last else x)
+                )
+
+                lines = endpoint(
+                    postformat = postformat,
+                    precontent = precontent,
+                    postcontent = postcontent,
+                    path = path,
+                    format = format,
+                    **request.args,
+                )
+
+                await stream(request, lines, json_format or resources)
+
+            else:
+
+                return response.text(
+                    f'No such path: {"/".join(path)}',
+                    status = 404,
+                )
+
+        _log('Legacy server ready.')
 
     return legacy_server
