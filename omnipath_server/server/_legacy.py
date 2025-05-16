@@ -59,7 +59,7 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
 
         load_db = app.state.args['load_db']
 
-        if load_db or (dct := isinstance(load_db, dict)):
+        if (dct := isinstance(load_db, dict)) or load_db:
 
             _log('Loading legacy database...')
             from omnipath_server.loader import _legacy as _loader
