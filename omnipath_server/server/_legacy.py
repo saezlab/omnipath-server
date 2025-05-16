@@ -74,89 +74,90 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
         kwargs = app.state.args['service_args']
         app.ctx.service = LegacyService(con = con, **kwargs)
 
-        async def stream(
-                request: Request,
-                lines: Generator,
-                json_format: bool,
-        ) -> None:
-            """
-            Streams the response from the server from a given request.
 
-            Args:
-                request:
-                    Instance of `Sanic.Request` containing the user request.
-                lines:
-                    Response as a generator of tuples.
-                json_format:
-                    Whether to respond in JSON format or not (if not JSON, defaults
-                    to TSV).
-            """
+    async def stream(
+            request: Request,
+            lines: Generator,
+            json_format: bool,
+    ) -> None:
+        """
+        Streams the response from the server from a given request.
 
-            content_type = 'application/json' if json_format else 'text/plain'
+        Args:
+            request:
+                Instance of `Sanic.Request` containing the user request.
+            lines:
+                Response as a generator of tuples.
+            json_format:
+                Whether to respond in JSON format or not (if not JSON, defaults
+                to TSV).
+        """
 
-            _response = await request.respond(content_type = content_type)
+        content_type = 'application/json' if json_format else 'text/plain'
 
-            for line in lines:
+        _response = await request.respond(content_type = content_type)
 
-                await _response.send(line)
+        for line in lines:
 
-            await _response.eof()
+            await _response.send(line)
+
+        await _response.eof()
 
 
-        @legacy_server.route('/<path:path>')
-        async def legacy_handler(request: Request, path: str):
-            """
-            Request handler
+    @legacy_server.route('/<path:path>')
+    async def legacy_handler(request: Request, path: str):
+        """
+        Request handler
 
-            Args:
-                request:
-                    Instance of `Sanic.Request` containing the user request.
-                path:
-                    Path for the database that has to process the request (e.g.
-                    interactions, annotations, etc.).
+        Args:
+            request:
+                Instance of `Sanic.Request` containing the user request.
+            path:
+                Path for the database that has to process the request (e.g.
+                interactions, annotations, etc.).
 
-            Returns:
-                Server response as text.
-            """
+        Returns:
+            Server response as text.
+        """
 
-            path = path.split('/')
+        path = path.split('/')
 
-            if (
-                not path[0].startswith('_') and
-                # TODO: maintain a registry of endpoints,
-                # don't rely on this getattr
-                (endpoint := getattr(legacy_server.ctx.service, path[0], None))
-            ):
+        if (
+            not path[0].startswith('_') and
+            # TODO: maintain a registry of endpoints,
+            # don't rely on this getattr
+            (endpoint := getattr(legacy_server.ctx.service, path[0], None))
+        ):
 
-                resources = endpoint == 'resources'
-                format = _misc.first(request.args.pop('format', ('tsv',)))
-                json_format = not resources and format == 'json'
+            resources = endpoint == 'resources'
+            format = _misc.first(request.args.pop('format', ('tsv',)))
+            json_format = not resources and format == 'json'
 
-                precontent = ('[\n',) if json_format else ()
-                postcontent = (']',) if json_format else ()
-                postformat = (
-                    (lambda x, last: f'{x}\n' if last else f'{x},\n')
-                        if json_format else
-                    (lambda x, last: x.rstrip('\n') if last else x)
-                )
+            precontent = ('[\n',) if json_format else ()
+            postcontent = (']',) if json_format else ()
+            postformat = (
+                (lambda x, last: f'{x}\n' if last else f'{x},\n')
+                    if json_format else
+                (lambda x, last: x.rstrip('\n') if last else x)
+            )
 
-                lines = endpoint(
-                    postformat = postformat,
-                    precontent = precontent,
-                    postcontent = postcontent,
-                    path = path,
-                    format = format,
-                    **request.args,
-                )
+            lines = endpoint(
+                postformat = postformat,
+                precontent = precontent,
+                postcontent = postcontent,
+                path = path,
+                format = format,
+                **request.args,
+            )
 
-                await stream(request, lines, json_format or resources)
+            await stream(request, lines, json_format or resources)
 
-            else:
+        else:
 
-                return response.text(
-                    f'No such path: {"/".join(path)}',
-                    status = 404,
-                )
+            return response.text(
+                f'No such path: {"/".join(path)}',
+                status = 404,
+            )
 
         _log('Legacy server ready.')
 
