@@ -47,10 +47,17 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
 
     _log('Creating new legacy server...')
     legacy_server = Sanic('LegacyServer')
+    legacy_server.state.args = {
+        'con': con,
+        'load_db': load_db,
+        'service_args': kwargs,
+    }
 
 
     @legacy_server.main_process_start
     async def maybe_load(app, _):
+
+        load_db = app.state.args.load_db
 
         if load_db or (dct := isinstance(load_db, dict)):
 
@@ -63,7 +70,9 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
     @legacy_server.before_server_start
     async def worker_startup(app, _):
 
-        legacy_server.ctx.service = LegacyService(con = con, **kwargs)
+        con = app.state.args.con
+        kwargs = app.state.args.service_args
+        app.ctx.service = LegacyService(con = con, **kwargs)
 
         async def stream(
                 request: Request,
