@@ -3,12 +3,12 @@
 import os
 import argparse
 
-from omnipath_server.loader import _legacy as _loader
 from omnipath_server.server import _legacy as _server
 
 __all__ = [
     'POSTGRES_ADDRESS',
     'PW_PATH',
+    'SERVER_PARAM',
     'load_db',
 ]
 
@@ -20,6 +20,12 @@ POSTGRES_ADDRESS = {
 }
 
 PW_PATH = os.path.expanduser('~/OMNIPATH_PSQL_PASSWD')
+
+SERVER_PARAM = {
+    'host': '127.0.0.1',
+    'port': 44444,
+    'dev': False,
+}
 
 def load_db() -> bool:
 
@@ -50,16 +56,17 @@ with open(PW_PATH) as fp:
 
     POSTGRES_ADDRESS['password'] = fp.read().strip()
 
+loader_args = False
+
 if load_db():
 
-    _loader.Loader(
-        path = os.path.expanduser('~'),
-        con = POSTGRES_ADDRESS,
-        wipe = True,
-    ).load()
+    loader_args = {
+        'path': os.path.expanduser('~'),
+        'wipe': True,
+    }
 
-app = _server.create_server(con = POSTGRES_ADDRESS)
+app = _server.create_server(con = POSTGRES_ADDRESS, load_db = loader_args)
 
 if __name__ == '__main__':
 
-    app.run(host = '127.0.0.1', port = 44444, dev = False)
+    app.run(**SERVER_PARAM)
