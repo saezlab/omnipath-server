@@ -18,6 +18,14 @@ WHERE_CASES = {
             "(interactions.omnipath OR interactions.collectri) AND "
             "(interactions.source != interactions.target) LIMIT %(param_2)s",
         ),
+        (
+            {'directed': True},
+            "((interactions.ncbi_tax_id_source = ANY (ARRAY[%(param_1)s])) OR "
+            "(interactions.ncbi_tax_id_target = ANY (ARRAY[%(param_1)s]))) AND "
+            "(interactions.is_directed IS %(is_directed_1)s) AND "
+            "interactions.omnipath AND "
+            "(interactions.source != interactions.target)",
+        ),
     ],
     'annotations': [
         (
