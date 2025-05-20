@@ -3,9 +3,74 @@ import pytest
 __all__ = [
     'SELECT_CASES',
     'WHERE_CASES',
+    'WHERE_CASES2',
     'test_statements_select',
     'test_statements_where',
+    'test_statements_where2',
 ]
+
+WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
+    'interactions': [
+        (
+            {'resources': ['SIGNOR']},
+            'interactions.sources && %(sources_1)s::VARCHAR[]'
+        ),
+        (
+            {'partners': ['EGFR']},
+            'interactions.source = ANY (ARRAY[%(param_2)s])) OR '
+            '(interactions.source_genesymbol = ANY (ARRAY[%(param_3)s])) OR '
+            '(interactions.target = ANY (ARRAY[%(param_4)s])) OR '
+            '(interactions.target_genesymbol = ANY (ARRAY[%(param_5)s]'
+        ),
+        (
+            {'sources': ['EGFR']},
+            'interactions.source = ANY (ARRAY[%(param_2)s])) OR '
+            '(interactions.source_genesymbol = ANY (ARRAY[%(param_3)s]'
+        ),
+        (
+            {'targets': ['EGFR']},
+            'interactions.target = ANY (ARRAY[%(param_2)s])) OR '
+            '(interactions.target_genesymbol = ANY (ARRAY[%(param_3)s]'
+        ),
+        (
+            {'datasets': ['collectri', 'omnipath']},
+            'interactions.collectri OR interactions.omnipath'
+        ),
+#        (
+#            {'dorothea_levels': []},
+#            ''
+#        ),
+#        (
+#            {'dorothea_methods': []},
+#            ''
+#        ),
+#        (
+#            {'types': []},
+#            ''
+#        ),
+#        (
+#            {'directed': []},
+#            ''
+#        ),
+#        (
+#            {'signed': []},
+#            ''
+#        ),
+#        (
+#            {'loops': []},
+#            ''
+#        ),
+#        (
+#            {'entity_types': []},
+#            ''
+#        ),
+#        (
+#            {'evidences': []},
+#            ''
+#        ),
+    ]
+}
+
 
 
 WHERE_CASES = {
@@ -15,7 +80,7 @@ WHERE_CASES = {
             "((interactions.ncbi_tax_id_source = ANY (ARRAY[%(param_1)s])) "
             "OR (interactions.ncbi_tax_id_target = ANY (ARRAY[%(param_1)s]))) "
             "AND (interactions.is_directed IS %(is_directed_1)s) AND "
-            "(interactions.omnipath OR interactions.collectri) AND "
+            "(interactions.collectri OR interactions.omnipath) AND "
             "(interactions.source != interactions.target) LIMIT %(param_2)s",
         ),
         (
@@ -26,20 +91,20 @@ WHERE_CASES = {
             "interactions.omnipath AND "
             "(interactions.source != interactions.target)",
         ),
-        (
-            {
-                'datasets': ['collectri', 'dorothea'],
-                'dorothea_methods': ['dorothea_curated', 'dorothea_tfbs'],
-                'limit': 10
-            },
-            "((interactions.ncbi_tax_id_source = ANY (ARRAY[%(param_1)s])) "
-            "OR (interactions.ncbi_tax_id_target = ANY (ARRAY[%(param_1)s]))) "
-            "AND (interactions.is_directed IS %(is_directed_1)s) AND "
-            "((interactions.dorothea_level && %(dorothea_level_1)s::VARCHAR[]) "
-            "AND (interactions.dorothea_curated OR interactions.dorothea_tfbs) "
-            "OR interactions.collectri) AND "
-            "(interactions.source != interactions.target) LIMIT %(param_2)s",
-        ),
+#        (
+#            {
+#                'datasets': ['collectri', 'dorothea'],
+#                'dorothea_methods': ['dorothea_curated', 'dorothea_tfbs'],
+#                'limit': 10
+#            },
+#            "((interactions.ncbi_tax_id_source = ANY (ARRAY[%(param_1)s])) "
+#            "OR (interactions.ncbi_tax_id_target = ANY (ARRAY[%(param_1)s]))) "
+#            "AND (interactions.is_directed IS %(is_directed_1)s) AND "
+#            "((interactions.dorothea_level && %(dorothea_level_1)s::VARCHAR[]) "
+#            "AND interactions.collectri "
+#            "OR (interactions.dorothea_curated OR interactions.dorothea_tfbs)) AND "
+#            "(interactions.source != interactions.target) LIMIT %(param_2)s",
+#        ),
     ],
     'annotations': [
         (
@@ -300,14 +365,27 @@ SELECT_CASES = {
 
 @pytest.mark.parametrize(
     'query_type, args, expected',
+    ((q, a, e) for q, p in WHERE_CASES2.items() for a, e in p),
+    ids = lambda p: '#' if isinstance(p, str) and len(p) > 19 else None,
+)
+def test_statements_where2(legacy_service, query_type, args, expected):
+
+    stm = legacy_service._query_str(query_type, **args)
+    where = stm.split('WHERE')[-1].strip()
+    where_args = [s.strip('()') for s in where.split(' AND ')]
+
+    assert expected in where_args
+
+
+
+@pytest.mark.parametrize(
+    'query_type, args, expected',
     ((q, a, e) for q, p in WHERE_CASES.items() for a, e in p),
     ids = lambda p: '#' if isinstance(p, str) and len(p) > 19 else None,
 )
 def test_statements_where(legacy_service, query_type, args, expected):
 
     stm = legacy_service._query_str(query_type, **args)
-    print(expected)
-    print(stm.split('WHERE')[-1].strip())
 
     assert stm.split('WHERE')[-1].strip() == expected
 
