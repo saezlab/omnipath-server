@@ -1690,7 +1690,7 @@ class LegacyService:
                 A dictionary containing the different arguments for the query
                 selection (argument name/value pairs).
              query_type:
-                The target database name for the query (e.g. `'intercell`).
+                The target database name for the query (e.g. `'intercell'`).
 
         Returns:
             The newly created query instance with the `SELECT` clause based on

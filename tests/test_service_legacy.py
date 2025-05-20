@@ -197,7 +197,10 @@ SELECT_CASES = {
             "SELECT enzsub.enzyme AS enzsub_enzyme, enzsub.substrate AS "
             "enzsub_substrate, enzsub.residue_type AS enzsub_residue_type, "
             "enzsub.residue_offset AS enzsub_residue_offset, "
-            "enzsub.modification AS enzsub_modification FROM enzsub",
+            "enzsub.modification AS enzsub_modification, enzsub.sources AS "
+            "enzsub_sources, enzsub.\"references\" AS enzsub_references "
+            # XXX: Not sure where the double quotes come from
+            "FROM enzsub",
         ),
     ],
 }
