@@ -2289,7 +2289,7 @@ class LegacyService:
 
             if (cols := arg_cols & cols):
 
-                expr = or_(*(_override(col) for col in cols))
+                expr = or_(*(_override(col) for col in sorted(cols)))
 
                 if arg in in_override:
 
