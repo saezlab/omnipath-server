@@ -206,34 +206,39 @@ SELECT_CASES = {
     'interactions': [
         (
             {},
-            "SELECT interactions.source AS interactions_source, interactions.target AS "
-            "interactions_target, interactions.is_directed AS "
-            "interactions_is_directed, interactions.is_stimulation AS "
-            "interactions_is_stimulation, interactions.is_inhibition AS "
-            "interactions_is_inhibition, interactions.consensus_direction AS "
-            "interactions_consensus_direction, interactions.consensus_stimulation AS "
-            "interactions_consensus_stimulation, interactions.consensus_inhibition AS "
+            "SELECT interactions.source AS interactions_source, "
+            "interactions.target AS interactions_target, "
+            "interactions.is_directed AS interactions_is_directed, "
+            "interactions.is_stimulation AS interactions_is_stimulation, "
+            "interactions.is_inhibition AS interactions_is_inhibition, "
+            "interactions.consensus_direction AS "
+            "interactions_consensus_direction, "
+            "interactions.consensus_stimulation AS "
+            "interactions_consensus_stimulation, "
+            "interactions.consensus_inhibition AS "
             "interactions_consensus_inhibition, interactions.sources AS "
-            "interactions_sources, interactions.\"references\" AS interactions_references, "
-            "interactions.type AS interactions_type "
+            "interactions_sources, interactions.\"references\" AS "
+            "interactions_references, interactions.type AS interactions_type "
             "FROM interactions",
         ),
     ],
     'intercell': [
         (
             {},
-            "SELECT intercell.category AS intercell_category, intercell.parent AS "
-            "intercell_parent, intercell.database AS intercell_database, "
-            "intercell.scope AS intercell_scope, intercell.aspect AS intercell_aspect, "
-            "intercell.source AS intercell_source, intercell.uniprot AS "
-            "intercell_uniprot, intercell.genesymbol AS intercell_genesymbol, "
-            "intercell.entity_type AS intercell_entity_type, intercell.consensus_score AS "
-            "intercell_consensus_score, intercell.transmitter AS intercell_transmitter, "
+            "SELECT intercell.category AS intercell_category, "
+            "intercell.parent AS intercell_parent, intercell.database "
+            "AS intercell_database, intercell.scope AS intercell_scope, "
+            "intercell.aspect AS intercell_aspect, intercell.source "
+            "AS intercell_source, intercell.uniprot AS intercell_uniprot, "
+            "intercell.genesymbol AS intercell_genesymbol, "
+            "intercell.entity_type AS intercell_entity_type, "
+            "intercell.consensus_score AS intercell_consensus_score, "
+            "intercell.transmitter AS intercell_transmitter, "
             "intercell.receiver AS intercell_receiver, intercell.secreted AS "
             "intercell_secreted, intercell.plasma_membrane_transmembrane AS "
-            "intercell_plasma_membrane_transmembrane, intercell.plasma_membrane_peripheral AS "
-            "intercell_plasma_membrane_peripheral "
-            "FROM intercell",
+            "intercell_plasma_membrane_transmembrane, "
+            "intercell.plasma_membrane_peripheral AS "
+            "intercell_plasma_membrane_peripheral FROM intercell",
         )
     ],
     'complexes': [
@@ -243,9 +248,19 @@ SELECT_CASES = {
             "complexes_components, complexes.components_genesymbols AS "
             "complexes_components_genesymbols, complexes.stoichiometry AS "
             "complexes_stoichiometry, complexes.sources AS complexes_sources, "
-            "complexes.\"references\" AS complexes_references, complexes.identifiers AS "
-            "complexes_identifiers "
-            "FROM complexes",
+            "complexes.\"references\" AS complexes_references, "
+            "complexes.identifiers AS complexes_identifiers FROM complexes",
+        )
+    ],
+    'annotations': [
+        (
+            {},
+            "SELECT annotations.uniprot AS annotations_uniprot, "
+            "annotations.genesymbol AS annotations_genesymbol, "
+            "annotations.entity_type AS annotations_entity_type, "
+            "annotations.source AS annotations_source, annotations.label "
+            "AS annotations_label, annotations.value AS annotations_value, "
+            "annotations.record_id AS annotations_record_id FROM annotations",
         )
     ]
 }
