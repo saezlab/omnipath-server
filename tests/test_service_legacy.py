@@ -9,6 +9,16 @@ __all__ = [
 
 
 WHERE_CASES = {
+    'interactions': [
+        (
+            {'datasets': ["collectri", "omnipath"], 'limit': 10},
+            "((interactions.ncbi_tax_id_source = ANY (ARRAY[%(param_1)s])) "
+            "OR (interactions.ncbi_tax_id_target = ANY (ARRAY[%(param_1)s]))) "
+            "AND (interactions.is_directed IS %(is_directed_1)s) AND "
+            "(interactions.omnipath OR interactions.collectri) AND "
+            "(interactions.source != interactions.target) LIMIT %(param_2)s",
+        ),
+    ],
     'annotations': [
         (
             {'proteins': 'FST', 'limit': 10},
@@ -274,6 +284,8 @@ SELECT_CASES = {
 def test_statements_where(legacy_service, query_type, args, expected):
 
     stm = legacy_service._query_str(query_type, **args)
+    print(expected)
+    print(stm.split('WHERE')[-1].strip())
 
     assert stm.split('WHERE')[-1].strip() == expected
 
