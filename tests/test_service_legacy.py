@@ -26,6 +26,20 @@ WHERE_CASES = {
             "interactions.omnipath AND "
             "(interactions.source != interactions.target)",
         ),
+        (
+            {
+                'datasets': ['collectri', 'dorothea'],
+                'dorothea_methods': ['dorothea_curated', 'dorothea_tfbs'],
+                'limit': 10
+            },
+            "((interactions.ncbi_tax_id_source = ANY (ARRAY[%(param_1)s])) "
+            "OR (interactions.ncbi_tax_id_target = ANY (ARRAY[%(param_1)s]))) "
+            "AND (interactions.is_directed IS %(is_directed_1)s) AND "
+            "((interactions.dorothea_level && %(dorothea_level_1)s::VARCHAR[]) "
+            "AND (interactions.dorothea_curated OR interactions.dorothea_tfbs) "
+            "OR interactions.collectri) AND "
+            "(interactions.source != interactions.target) LIMIT %(param_2)s",
+        ),
     ],
     'annotations': [
         (
