@@ -55,10 +55,10 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
             {'signed': True},
             'interactions.is_inhibition OR interactions.is_stimulation'
         ),
-#        (
-#            {'loops': []},
-#            ''
-#        ),
+        (# XXX: Test the reverse, when it something shouldn't be in the query
+            {'loops': False},
+            '(interactions.source != interactions.target)'
+        ),
 #        (
 #            {'entity_types': []},
 #            ''
