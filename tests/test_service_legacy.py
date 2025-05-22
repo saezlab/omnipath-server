@@ -57,7 +57,7 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
         ),
         (# XXX: Test the reverse, when it something shouldn't be in the query
             {'loops': False},
-            '(interactions.source != interactions.target)'
+            'interactions.source != interactions.target'
         ),
 #        (
 #            {'entity_types': []},
