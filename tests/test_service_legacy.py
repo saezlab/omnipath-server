@@ -51,14 +51,10 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
             {'types': 'post_translational'},
             'interactions.type = ANY (ARRAY[%(param_2)s]'
         ),
-#        (
-#            {'directed': []},
-#            ''
-#        ),
-#        (
-#            {'signed': []},
-#            ''
-#        ),
+        (
+            {'signed': True},
+            'interactions.is_inhibition OR interactions.is_stimulation'
+        ),
 #        (
 #            {'loops': []},
 #            ''
