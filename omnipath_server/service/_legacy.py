@@ -2290,6 +2290,10 @@ class LegacyService:
                 arg_cols = {cols.get(x, x) for x in arg_cols}
                 cols = set(cols.values())
 
+            if arg == 'signed' and True in arg_cols:
+                
+                arg_cols = {'is_stimulation', 'is_inhibition'}
+
             if (cols := arg_cols & cols):
 
                 expr = or_(*(_override(col) for col in sorted(cols)))
