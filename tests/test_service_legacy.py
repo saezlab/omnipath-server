@@ -40,10 +40,13 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
             {'dorothea_levels': ['A', 'B', 'C'], 'datasets': 'dorothea'},
             'interactions.dorothea_level && %(dorothea_level_1)s::VARCHAR[]'
         ),
-#        (
-#            {'dorothea_methods': []},
-#            ''
-#        ),
+        (# XXX: Requires datasets='dorothea' to work
+           {
+                'dorothea_methods': ['dorothea_curated', 'dorothea_tfbs'],
+                'datasets': ['dorothea']
+            },
+           'interactions.dorothea_curated OR interactions.dorothea_tfbs'
+        ),
 #        (
 #            {'types': []},
 #            ''
