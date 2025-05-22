@@ -47,10 +47,10 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
             },
            'interactions.dorothea_curated OR interactions.dorothea_tfbs'
         ),
-#        (
-#            {'types': []},
-#            ''
-#        ),
+        (
+            {'types': 'post_translational'},
+            'interactions.type = ANY (ARRAY[%(param_2)s]'
+        ),
 #        (
 #            {'directed': []},
 #            ''
