@@ -2097,6 +2097,9 @@ class LegacyService:
 
             args['dorothea_levels'] = {'A', 'B'}
 
+        # XXX: If dorothea in datasets and dorothea levels are specified, query
+        #      does not have where clause for datasets
+
         return args
 
 
@@ -2299,7 +2302,7 @@ class LegacyService:
 
                     where.append(expr)
 
-        return and_(*where)
+        return and_(True, *where)
 
 
     def enzsub(
