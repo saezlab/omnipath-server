@@ -36,10 +36,10 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
             {'datasets': ['collectri', 'omnipath']},
             'interactions.collectri OR interactions.omnipath'
         ),
-#        (
-#            {'dorothea_levels': []},
-#            ''
-#        ),
+        (# XXX: Requires datasets='dorothea' to work
+            {'dorothea_levels': ['A', 'B', 'C'], 'datasets': 'dorothea'},
+            'interactions.dorothea_level && %(dorothea_level_1)s::VARCHAR[]'
+        ),
 #        (
 #            {'dorothea_methods': []},
 #            ''
@@ -372,6 +372,7 @@ def test_statements_where2(legacy_service, query_type, args, expected):
 
     stm = legacy_service._query_str(query_type, **args)
     where = stm.split('WHERE')[-1].strip()
+
     where_args = [s.strip('()') for s in where.split(' AND ')]
 
     assert expected in where_args
