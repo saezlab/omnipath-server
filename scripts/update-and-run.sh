@@ -7,7 +7,7 @@ mkdir "$PKG_DIR"
 cd "$PKG_DIR"
 rm -rf "$PKG_DIR/*"
 
-git clone --depth 1 https://github.com/saezlab/omnipath-server.git "$PKG_DIR"
+git clone --branch deploy --depth 1 https://github.com/saezlab/omnipath-server.git "$PKG_DIR"
 cp -p tests/data/legacy/omnipath_server_licenses.tsv ~/
 
 >> "$OUTFILE"
