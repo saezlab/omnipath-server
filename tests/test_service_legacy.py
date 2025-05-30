@@ -44,7 +44,7 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
         (
             {
                 'dorothea_methods': ['dorothea_curated', 'dorothea_tfbs'],
-           },
+            },
            'interactions.dorothea_curated OR interactions.dorothea_tfbs',
         ),
         (
@@ -55,14 +55,19 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
             {'signed': True},
             'interactions.is_inhibition OR interactions.is_stimulation',
         ),
-        (# XXX: Test the reverse, when it something shouldn't be in the query
-            {'loops': False},
+        (
+            {},
             'interactions.source != interactions.target',
+        ),
+        (
+             {'loops': True},
+            'interactions.source != interactions.target',
+            True,
         ),
         (
             {'entity_types': ['protein']},
             'interactions.entity_type_source = ANY (ARRAY[%(param_2)s])) OR '
-            '(interactions.entity_type_target = ANY (ARRAY[%(param_2)s]'
+            '(interactions.entity_type_target = ANY (ARRAY[%(param_2)s]',
         ),
     ],
 }
@@ -361,7 +366,7 @@ SELECT_CASES = {
 
 @pytest.mark.parametrize(
     'query_type, args, expected, test_neg',
-    (((q, ) + args + (False, ))[:4] for q, p in WHERE_CASES2.items() for args in p),
+    (((q,) + args + (False,))[:4] for q, p in WHERE_CASES2.items() for args in p),
     ids = lambda p: '#' if isinstance(p, str) and len(p) > 19 else None,
 )
 def test_statements_where2(
@@ -369,7 +374,7 @@ def test_statements_where2(
     query_type,
     args,
     expected,
-    test_neg
+    test_neg,
 ):
 
     stm = legacy_service._query_str(query_type, **args)
@@ -377,7 +382,13 @@ def test_statements_where2(
 
     where_args = [s.strip('()') for s in where.split(' AND ')]
 
-    assert expected in where_args
+    if test_neg:
+
+        assert expected not in where_args
+
+    else:
+
+        assert expected in where_args
 
 
 @pytest.mark.parametrize(
