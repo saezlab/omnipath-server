@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-    build:
+    deploy:
 
         runs-on: ubuntu-latest
 
@@ -19,3 +19,9 @@ jobs:
 
         env:
             ssh_key: ${{ secrets.SSH_KEY_SERVER }}
+
+        steps:
+        -   name: Push to server
+
+            run: |
+                ssh -o StrictHostKeyChecking=no -i $ssh_key opsrv@omnipathdb.org 'update-and-run.sh'
