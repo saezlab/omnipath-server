@@ -10,19 +10,13 @@ jobs:
 
         runs-on: ubuntu-latest
 
-        defaults:
-            run:
-                shell: bash -e {0}
-
-        with: # Set the secret as an input
-            ssh_key: ${{ secrets.SSH_KEY_SERVER }}
-
-        env:
-            ssh_key: ${{ secrets.SSH_KEY_SERVER }}
-
         steps:
-        -   name: Check out deploy
+        -   name: Check out the repo
             uses: actions/checkout@v4
+        -   name: Install SSH key
+            uses: webfactory/ssh-agent@v0.9.1
+            with:
+                ssh-private-key: ${{ secrets.SSH_KEY_SERVER }}
         -   name: Push to server
             run: |
-                ssh -o StrictHostKeyChecking=no -i $ssh_key opsrv@omnipathdb.org 'bash -s' < scripts/update-and-run.sh
+                ssh -o StrictHostKeyChecking=no opsrv@omnipathdb.org 'bash -s' < 'scripts/update-and-run.sh'
