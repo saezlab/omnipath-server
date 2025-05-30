@@ -12,6 +12,7 @@ __all__ = [
 WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
     'interactions': [
         (
+            # XXX: Adds "AND true" clause in the query for some reason
             {'resources': ['SIGNOR']},
             'interactions.sources && %(sources_1)s::VARCHAR[]'
         ),
@@ -41,7 +42,7 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
             'interactions.dorothea_level && %(dorothea_level_1)s::VARCHAR[]'
         ),
         (# XXX: Requires datasets='dorothea' to work
-           {
+            {
                 'dorothea_methods': ['dorothea_curated', 'dorothea_tfbs'],
                 'datasets': ['dorothea']
             },
