@@ -7,6 +7,7 @@ __all__ = [
 ]
 
 
+# [TEST AND FULL DATABASE]
 def test_create_table(legacy_loader):
 
     tables = inspect(legacy_loader.con.engine).get_table_names()
@@ -23,6 +24,7 @@ def test_create_table(legacy_loader):
     assert set(tables) == tables_expected
 
 
+# [TEST DATABASE ONLY]
 def test_load_tables(legacy_db_loaded):
 
     loader = legacy_db_loaded
@@ -33,4 +35,9 @@ def test_load_tables(legacy_db_loaded):
 
         result = loader.con.session.execute(text(query % table))
 
-        assert next(result)[0] == 99
+        if table == 'licenses':
+
+            assert next(result)[0] == 244
+
+        else:
+            assert next(result)[0] == 99

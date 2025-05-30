@@ -3,12 +3,108 @@ import pytest
 __all__ = [
     'SELECT_CASES',
     'WHERE_CASES',
+    'WHERE_CASES2',
     'test_statements_select',
     'test_statements_where',
+    'test_statements_where2',
 ]
+
+WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
+    'interactions': [
+        (
+            {'resources': ['SIGNOR']},
+            'interactions.sources && %(sources_1)s::VARCHAR[]'
+        ),
+        (
+            {'partners': ['EGFR']},
+            'interactions.source = ANY (ARRAY[%(param_2)s])) OR '
+            '(interactions.source_genesymbol = ANY (ARRAY[%(param_3)s])) OR '
+            '(interactions.target = ANY (ARRAY[%(param_4)s])) OR '
+            '(interactions.target_genesymbol = ANY (ARRAY[%(param_5)s]'
+        ),
+        (
+            {'sources': ['EGFR']},
+            'interactions.source = ANY (ARRAY[%(param_2)s])) OR '
+            '(interactions.source_genesymbol = ANY (ARRAY[%(param_3)s]'
+        ),
+        (
+            {'targets': ['EGFR']},
+            'interactions.target = ANY (ARRAY[%(param_2)s])) OR '
+            '(interactions.target_genesymbol = ANY (ARRAY[%(param_3)s]'
+        ),
+        (
+            {'datasets': ['collectri', 'omnipath']},
+            'interactions.collectri OR interactions.omnipath'
+        ),
+        (# XXX: Requires datasets='dorothea' to work
+            {'dorothea_levels': ['A', 'B', 'C'], 'datasets': 'dorothea'},
+            'interactions.dorothea_level && %(dorothea_level_1)s::VARCHAR[]'
+        ),
+        (# XXX: Requires datasets='dorothea' to work
+           {
+                'dorothea_methods': ['dorothea_curated', 'dorothea_tfbs'],
+                'datasets': ['dorothea']
+            },
+           'interactions.dorothea_curated OR interactions.dorothea_tfbs'
+        ),
+        (
+            {'types': 'post_translational'},
+            'interactions.type = ANY (ARRAY[%(param_2)s]'
+        ),
+        (
+            {'signed': True},
+            'interactions.is_inhibition OR interactions.is_stimulation'
+        ),
+        (# XXX: Test the reverse, when it something shouldn't be in the query
+            {'loops': False},
+            '(interactions.source != interactions.target)'
+        ),
+#        (
+#            {'entity_types': []},
+#            ''
+#        ),
+#        (
+#            {'evidences': []},
+#            ''
+#        ),
+    ]
+}
+
 
 
 WHERE_CASES = {
+    'interactions': [
+        (
+            {'datasets': ["collectri", "omnipath"], 'limit': 10},
+            "((interactions.ncbi_tax_id_source = ANY (ARRAY[%(param_1)s])) "
+            "OR (interactions.ncbi_tax_id_target = ANY (ARRAY[%(param_1)s]))) "
+            "AND (interactions.is_directed IS %(is_directed_1)s) AND "
+            "(interactions.collectri OR interactions.omnipath) AND "
+            "(interactions.source != interactions.target) LIMIT %(param_2)s",
+        ),
+        (
+            {'directed': True},
+            "((interactions.ncbi_tax_id_source = ANY (ARRAY[%(param_1)s])) OR "
+            "(interactions.ncbi_tax_id_target = ANY (ARRAY[%(param_1)s]))) AND "
+            "(interactions.is_directed IS %(is_directed_1)s) AND "
+            "interactions.omnipath AND "
+            "(interactions.source != interactions.target)",
+        ),
+#        (
+#            {
+#                'datasets': ['collectri', 'dorothea'],
+#                'dorothea_methods': ['dorothea_curated', 'dorothea_tfbs'],
+#                'limit': 10
+#            },
+#            "((interactions.ncbi_tax_id_source = ANY (ARRAY[%(param_1)s])) "
+#            "OR (interactions.ncbi_tax_id_target = ANY (ARRAY[%(param_1)s]))) "
+#            "AND (interactions.is_directed IS %(is_directed_1)s) AND "
+#            "((interactions.dorothea_level && %(dorothea_level_1)s::VARCHAR[]) "
+#            "AND interactions.collectri "
+#            "OR (interactions.dorothea_curated OR interactions.dorothea_tfbs)) AND "
+#            "(interactions.source != interactions.target) LIMIT %(param_2)s",
+#        ),
+    ],
     'annotations': [
         (
             {'proteins': 'FST', 'limit': 10},
@@ -197,10 +293,89 @@ SELECT_CASES = {
             "SELECT enzsub.enzyme AS enzsub_enzyme, enzsub.substrate AS "
             "enzsub_substrate, enzsub.residue_type AS enzsub_residue_type, "
             "enzsub.residue_offset AS enzsub_residue_offset, "
-            "enzsub.modification AS enzsub_modification FROM enzsub",
+            "enzsub.modification AS enzsub_modification, enzsub.sources AS "
+            "enzsub_sources, enzsub.\"references\" AS enzsub_references "
+            # XXX: Not sure where the double quotes come from
+            "FROM enzsub",
         ),
     ],
+    'interactions': [
+        (
+            {},
+            "SELECT interactions.source AS interactions_source, "
+            "interactions.target AS interactions_target, "
+            "interactions.is_directed AS interactions_is_directed, "
+            "interactions.is_stimulation AS interactions_is_stimulation, "
+            "interactions.is_inhibition AS interactions_is_inhibition, "
+            "interactions.consensus_direction AS "
+            "interactions_consensus_direction, "
+            "interactions.consensus_stimulation AS "
+            "interactions_consensus_stimulation, "
+            "interactions.consensus_inhibition AS "
+            "interactions_consensus_inhibition, interactions.sources AS "
+            "interactions_sources, interactions.\"references\" AS "
+            "interactions_references, interactions.type AS interactions_type "
+            "FROM interactions",
+        ),
+    ],
+    'intercell': [
+        (
+            {},
+            "SELECT intercell.category AS intercell_category, "
+            "intercell.parent AS intercell_parent, intercell.database "
+            "AS intercell_database, intercell.scope AS intercell_scope, "
+            "intercell.aspect AS intercell_aspect, intercell.source "
+            "AS intercell_source, intercell.uniprot AS intercell_uniprot, "
+            "intercell.genesymbol AS intercell_genesymbol, "
+            "intercell.entity_type AS intercell_entity_type, "
+            "intercell.consensus_score AS intercell_consensus_score, "
+            "intercell.transmitter AS intercell_transmitter, "
+            "intercell.receiver AS intercell_receiver, intercell.secreted AS "
+            "intercell_secreted, intercell.plasma_membrane_transmembrane AS "
+            "intercell_plasma_membrane_transmembrane, "
+            "intercell.plasma_membrane_peripheral AS "
+            "intercell_plasma_membrane_peripheral FROM intercell",
+        )
+    ],
+    'complexes': [
+        (
+            {},
+            "SELECT complexes.name AS complexes_name, complexes.components AS "
+            "complexes_components, complexes.components_genesymbols AS "
+            "complexes_components_genesymbols, complexes.stoichiometry AS "
+            "complexes_stoichiometry, complexes.sources AS complexes_sources, "
+            "complexes.\"references\" AS complexes_references, "
+            "complexes.identifiers AS complexes_identifiers FROM complexes",
+        )
+    ],
+    'annotations': [
+        (
+            {},
+            "SELECT annotations.uniprot AS annotations_uniprot, "
+            "annotations.genesymbol AS annotations_genesymbol, "
+            "annotations.entity_type AS annotations_entity_type, "
+            "annotations.source AS annotations_source, annotations.label "
+            "AS annotations_label, annotations.value AS annotations_value, "
+            "annotations.record_id AS annotations_record_id FROM annotations",
+        )
+    ]
 }
+
+
+@pytest.mark.parametrize(
+    'query_type, args, expected',
+    ((q, a, e) for q, p in WHERE_CASES2.items() for a, e in p),
+    ids = lambda p: '#' if isinstance(p, str) and len(p) > 19 else None,
+)
+def test_statements_where2(legacy_service, query_type, args, expected):
+
+    stm = legacy_service._query_str(query_type, **args)
+    where = stm.split('WHERE')[-1].strip()
+
+    where_args = [s.strip('()') for s in where.split(' AND ')]
+
+    assert expected in where_args
+
 
 
 @pytest.mark.parametrize(

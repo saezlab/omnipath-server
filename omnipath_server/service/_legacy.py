@@ -1690,7 +1690,7 @@ class LegacyService:
                 A dictionary containing the different arguments for the query
                 selection (argument name/value pairs).
              query_type:
-                The target database name for the query (e.g. `'intercell`).
+                The target database name for the query (e.g. `'intercell'`).
 
         Returns:
             The newly created query instance with the `SELECT` clause based on
@@ -2083,6 +2083,15 @@ class LegacyService:
 
         in_args = lambda k: args.get(k, [])
 
+        if (
+            (
+                'dorothea_levels' in args or
+                'dorothea_methods' in args
+            ) and not 'dorothea' in in_args('datasets')
+        ):
+
+            args['datasets'] = in_args('datasets') + ['dorothea']
+
         if not in_args('resources') and not in_args('datasets'):
 
             if not in_args('types') or 'post_translational' in in_args('types'):
@@ -2093,18 +2102,12 @@ class LegacyService:
 
                 args['datasets'] = in_args('datasets') + ['collectri']
 
-        if (
-            (
-                'dorothea_levels' in args or
-                'dorothea_methods' in args
-            ) and not 'dorothea' in in_args('datasets')
-        ):
-
-            args['datasets'] = in_args('datasets') + ['dorothea']
-
         if 'dorothea' in in_args('datasets') and not in_args('dorothea_levels'):
 
             args['dorothea_levels'] = {'A', 'B'}
+
+        # XXX: If dorothea in datasets and dorothea levels are specified, query
+        #      does not have where clause for datasets
 
         return args
 
@@ -2296,9 +2299,13 @@ class LegacyService:
                 arg_cols = {cols.get(x, x) for x in arg_cols}
                 cols = set(cols.values())
 
+            if arg == 'signed' and True in arg_cols:
+
+                arg_cols = {'is_stimulation', 'is_inhibition'}
+
             if (cols := arg_cols & cols):
 
-                expr = or_(*(_override(col) for col in cols))
+                expr = or_(*(_override(col) for col in sorted(cols)))
 
                 if arg in in_override:
 
@@ -2308,7 +2315,7 @@ class LegacyService:
 
                     where.append(expr)
 
-        return and_(*where)
+        return and_(True, *where)
 
 
     def enzsub(
