@@ -2083,6 +2083,15 @@ class LegacyService:
 
         in_args = lambda k: args.get(k, [])
 
+        if (
+            (
+                'dorothea_levels' in args or
+                'dorothea_methods' in args
+            ) and not 'dorothea' in in_args('datasets')
+        ):
+
+            args['datasets'] = in_args('datasets') + ['dorothea']
+
         if not in_args('resources') and not in_args('datasets'):
 
             if not in_args('types') or 'post_translational' in in_args('types'):
@@ -2291,7 +2300,7 @@ class LegacyService:
                 cols = set(cols.values())
 
             if arg == 'signed' and True in arg_cols:
-                
+
                 arg_cols = {'is_stimulation', 'is_inhibition'}
 
             if (cols := arg_cols & cols):
