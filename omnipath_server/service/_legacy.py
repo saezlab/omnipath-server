@@ -2093,6 +2093,15 @@ class LegacyService:
 
                 args['datasets'] = in_args('datasets') + ['collectri']
 
+        if (
+            (
+                'dorothea_levels' in args or
+                'dorothea_methods' in args
+            ) and not 'dorothea' in in_args('datasets')
+        ):
+
+            args['datasets'] = in_args('datasets') + ['dorothea']
+
         if 'dorothea' in in_args('datasets') and not in_args('dorothea_levels'):
 
             args['dorothea_levels'] = {'A', 'B'}
