@@ -59,14 +59,11 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
             {'loops': False},
             'interactions.source != interactions.target',
         ),
-#        (
-#            {'entity_types': []},
-#            ''
-#        ),
-#        (
-#            {'evidences': []},
-#            ''
-#        ),
+        (
+            {'entity_types': ['protein']},
+            'interactions.entity_type_source = ANY (ARRAY[%(param_2)s])) OR '
+            '(interactions.entity_type_target = ANY (ARRAY[%(param_2)s]'
+        ),
     ],
 }
 
@@ -363,11 +360,17 @@ SELECT_CASES = {
 
 
 @pytest.mark.parametrize(
-    'query_type, args, expected',
-    ((q, a, e) for q, p in WHERE_CASES2.items() for a, e in p),
+    'query_type, args, expected, test_neg',
+    ((q, a, e, neg) for q, p in WHERE_CASES2.items() for (a, e, neg) in p),
     ids = lambda p: '#' if isinstance(p, str) and len(p) > 19 else None,
 )
-def test_statements_where2(legacy_service, query_type, args, expected):
+def test_statements_where2(
+    legacy_service,
+    query_type,
+    args,
+    expected,
+    test_neg=False
+):
 
     stm = legacy_service._query_str(query_type, **args)
     where = stm.split('WHERE')[-1].strip()
