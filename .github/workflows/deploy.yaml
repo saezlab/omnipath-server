@@ -1,0 +1,21 @@
+name: deploy
+
+on:
+    push:
+        branches: [deploy]
+
+jobs:
+
+    build:
+
+        runs-on: ubuntu-latest
+
+        defaults:
+            run:
+                shell: bash -e {0}
+
+        with: # Set the secret as an input
+            ssh_key: ${{ secrets.SSH_KEY_SERVER }}
+
+        env:
+            ssh_key: ${{ secrets.SSH_KEY_SERVER }}
