@@ -361,7 +361,7 @@ SELECT_CASES = {
 
 @pytest.mark.parametrize(
     'query_type, args, expected, test_neg',
-    ((q, a, e, neg) for q, p in WHERE_CASES2.items() for (a, e, neg) in p),
+    (((q, ) + args + (False, ))[:4] for q, p in WHERE_CASES2.items() for args in p),
     ids = lambda p: '#' if isinstance(p, str) and len(p) > 19 else None,
 )
 def test_statements_where2(
@@ -369,7 +369,7 @@ def test_statements_where2(
     query_type,
     args,
     expected,
-    test_neg=False
+    test_neg
 ):
 
     stm = legacy_service._query_str(query_type, **args)
@@ -378,7 +378,6 @@ def test_statements_where2(
     where_args = [s.strip('()') for s in where.split(' AND ')]
 
     assert expected in where_args
-
 
 
 @pytest.mark.parametrize(
