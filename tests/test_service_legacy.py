@@ -13,51 +13,51 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
     'interactions': [
         (
             {'resources': ['SIGNOR']},
-            'interactions.sources && %(sources_1)s::VARCHAR[]'
+            'interactions.sources && %(sources_1)s::VARCHAR[]',
         ),
         (
             {'partners': ['EGFR']},
             'interactions.source = ANY (ARRAY[%(param_2)s])) OR '
             '(interactions.source_genesymbol = ANY (ARRAY[%(param_3)s])) OR '
             '(interactions.target = ANY (ARRAY[%(param_4)s])) OR '
-            '(interactions.target_genesymbol = ANY (ARRAY[%(param_5)s]'
+            '(interactions.target_genesymbol = ANY (ARRAY[%(param_5)s]',
         ),
         (
             {'sources': ['EGFR']},
             'interactions.source = ANY (ARRAY[%(param_2)s])) OR '
-            '(interactions.source_genesymbol = ANY (ARRAY[%(param_3)s]'
+            '(interactions.source_genesymbol = ANY (ARRAY[%(param_3)s]',
         ),
         (
             {'targets': ['EGFR']},
             'interactions.target = ANY (ARRAY[%(param_2)s])) OR '
-            '(interactions.target_genesymbol = ANY (ARRAY[%(param_3)s]'
+            '(interactions.target_genesymbol = ANY (ARRAY[%(param_3)s]',
         ),
         (
             {'datasets': ['collectri', 'omnipath']},
-            'interactions.collectri OR interactions.omnipath'
+            'interactions.collectri OR interactions.omnipath',
         ),
         (# XXX: Requires datasets='dorothea' to work
-            {'dorothea_levels': ['A', 'B', 'C'], 'datasets': 'dorothea'},
-            'interactions.dorothea_level && %(dorothea_level_1)s::VARCHAR[]'
+            {'dorothea_levels': ['A', 'B', 'C']},
+            'interactions.dorothea_level && %(dorothea_level_1)s::VARCHAR[]',
         ),
         (# XXX: Requires datasets='dorothea' to work
            {
                 'dorothea_methods': ['dorothea_curated', 'dorothea_tfbs'],
-                'datasets': ['dorothea']
-            },
-           'interactions.dorothea_curated OR interactions.dorothea_tfbs'
+                'datasets': ['dorothea'],
+           },
+           'interactions.dorothea_curated OR interactions.dorothea_tfbs',
         ),
         (
             {'types': 'post_translational'},
-            'interactions.type = ANY (ARRAY[%(param_2)s]'
+            'interactions.type = ANY (ARRAY[%(param_2)s]',
         ),
         (
             {'signed': True},
-            'interactions.is_inhibition OR interactions.is_stimulation'
+            'interactions.is_inhibition OR interactions.is_stimulation',
         ),
         (# XXX: Test the reverse, when it something shouldn't be in the query
             {'loops': False},
-            '(interactions.source != interactions.target)'
+            'interactions.source != interactions.target',
         ),
 #        (
 #            {'entity_types': []},
@@ -67,7 +67,7 @@ WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
 #            {'evidences': []},
 #            ''
 #        ),
-    ]
+    ],
 }
 
 
@@ -335,7 +335,7 @@ SELECT_CASES = {
             "intercell_plasma_membrane_transmembrane, "
             "intercell.plasma_membrane_peripheral AS "
             "intercell_plasma_membrane_peripheral FROM intercell",
-        )
+        ),
     ],
     'complexes': [
         (
@@ -346,7 +346,7 @@ SELECT_CASES = {
             "complexes_stoichiometry, complexes.sources AS complexes_sources, "
             "complexes.\"references\" AS complexes_references, "
             "complexes.identifiers AS complexes_identifiers FROM complexes",
-        )
+        ),
     ],
     'annotations': [
         (
@@ -357,8 +357,8 @@ SELECT_CASES = {
             "annotations.source AS annotations_source, annotations.label "
             "AS annotations_label, annotations.value AS annotations_value, "
             "annotations.record_id AS annotations_record_id FROM annotations",
-        )
-    ]
+        ),
+    ],
 }
 
 
