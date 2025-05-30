@@ -21,7 +21,8 @@ jobs:
             ssh_key: ${{ secrets.SSH_KEY_SERVER }}
 
         steps:
+        -   name: Check out deploy
+            uses: actions/checkout@v4
         -   name: Push to server
-
             run: |
-                ssh -o StrictHostKeyChecking=no -i $ssh_key opsrv@omnipathdb.org 'update-and-run.sh'
+                ssh -o StrictHostKeyChecking=no -i $ssh_key opsrv@omnipathdb.org 'bash -s' < scripts/update-and-run.sh
