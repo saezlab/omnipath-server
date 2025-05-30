@@ -21,5 +21,5 @@ jobs:
             uses: actions/checkout@v4
         -   name: Push to server
             run: |
-                ssh-add - <<< "$ssh_key"
-                ssh -o StrictHostKeyChecking=no opsrv@omnipathdb.org 'bash -s' < scripts/update-and-run.sh
+                echo -n "$ssh_key" > 'ssh_key.pub'
+                ssh -o StrictHostKeyChecking=no -i ssh_key.pub opsrv@omnipathdb.org 'bash -s' < scripts/update-and-run.sh
