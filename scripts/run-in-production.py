@@ -42,7 +42,7 @@ def kill_old(port: int) -> bool:
 
     old_proc = None
 
-    for proc in psutil.process_iter(['pid', 'name', 'conns']):
+    for proc in psutil.process_iter(['pid', 'name', 'connections']):
 
         try:
 
