@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import argparse
+
+import psutil
 
 from omnipath_server.server import _legacy as _server
 
 __all__ = [
+    'PORT',
     'POSTGRES_ADDRESS',
     'PW_PATH',
     'SERVER_PARAM',
+    'kill_old',
     'load_db',
 ]
 
@@ -21,11 +26,48 @@ POSTGRES_ADDRESS = {
 
 PW_PATH = os.path.expanduser('~/OMNIPATH_PSQL_PASSWD')
 
+PORT = 44444
+
 SERVER_PARAM = {
     'host': '127.0.0.1',
-    'port': 44444,
+    'port': PORT,
     'dev': False,
 }
+
+
+def kill_old(port: int) -> bool:
+    """
+    If an old instance is running, kill it to free the port.
+    """
+
+    old_proc = None
+
+    for proc in psutil.process_iter(['pid', 'name', 'conns']):
+
+        try:
+
+            for conn in proc.connections():
+
+                if conn.status == 'LISTEN' and conn.laddr.port == port:
+
+                    old_proc = proc
+                    break
+
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+
+            continue
+
+    if old_proc is not None:
+
+        try:
+            os.kill(old_proc.pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
+
+    return True
+
 
 def load_db() -> bool:
 
@@ -64,6 +106,13 @@ if load_db():
         'path': os.path.expanduser('~'),
         'wipe': True,
     }
+
+
+if not kill_old(port = PORT):
+
+    raise RuntimeError(
+        f'Port {PORT} is already in use. And failed to free it.',
+    )
 
 app = _server.create_server(con = POSTGRES_ADDRESS, load_db = loader_args)
 
