@@ -60,10 +60,15 @@ def kill_old(port: int) -> bool:
     if old_proc is not None:
 
         try:
+
             os.kill(old_proc.pid, 0)
+
         except OSError:
+
             return False
+
         else:
+
             return True
 
     return True
