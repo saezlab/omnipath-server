@@ -28,6 +28,7 @@ __all__ = [
 
 WorkerManager.THRESHOLD = 1200
 
+
 def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
     """
     Creates and sets up the legacy database server (implemented in Sanic).
@@ -59,12 +60,19 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
 
         load_db = app.state.args['load_db']
 
-        if (dct := isinstance(load_db, dict)) or load_db:
+        if (
+            (
+                (dct := isinstance(load_db, dict)) or
+                load_db
+            ) and
+            not getattr(app.ctx, 'db_loaded', False)
+        ):
 
             _log('Loading legacy database...')
+            app.ctx.db_loaded = True
             from omnipath_server.loader import _legacy as _loader
             load_db = load_db if dct else {}
-            loader = _loader.Loader(con = con, **load_db).load()
+            loader = _loader.Loader(con = con, **load_db).load()  # noqa: F841
 
 
     @legacy_server.before_server_start
@@ -107,7 +115,7 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
     @legacy_server.route('/<path:path>')
     async def legacy_handler(request: Request, path: str):
         """
-        Request handler
+        Request handler.
 
         Args:
             request:
