@@ -42,13 +42,13 @@ def kill_old(port: int) -> bool:
 
     old_proc = None
 
-    for proc in psutil.process_iter(['pid', 'name', 'connections']):
+    for proc in psutil.process_iter(['pid', 'name', 'net_connections']):
 
         try:
 
-            for conn in proc.connections():
+            for conn in proc.net_connections():
 
-                if conn.status == 'LISTEN' and conn.laddr.port == port:
+                if conn.laddr.port == port:
 
                     old_proc = proc
                     break
