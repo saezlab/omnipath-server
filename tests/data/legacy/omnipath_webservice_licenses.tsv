@@ -10,7 +10,7 @@ Yu2011	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attri
 Yang2016	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 ELM	ELM	ELM Software License Agreement	academic	attrib	free	http://elm.eu.org/media/Elm_academic_license.pdf
 LMPID	CC BY-NC 2.0	Creative Commons Attribution-NonCommercial 2.0 International	academic	attrib	free	https://creativecommons.org/licenses/by-nc/2.0/
-PDZBase	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike
+PDZBase	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike	
 Guide2Pharma	CC BY-SA 3.0	Creative Commons Attribution-ShareAlike 3.0 International	commercial	attrib	alike	https://creativecommons.org/licenses/by-sa/3.0/
 guidetopharmacology	CC BY-SA 3.0	Creative Commons Attribution-ShareAlike 3.0 International	commercial	attrib	alike	https://creativecommons.org/licenses/by-sa/3.0/
 Guide to Pharmacology	CC BY-SA 3.0	Creative Commons Attribution-ShareAlike 3.0 International	commercial	attrib	alike	https://creativecommons.org/licenses/by-sa/3.0/
@@ -18,7 +18,7 @@ GuideToPharmacology	CC BY-SA 3.0	Creative Commons Attribution-ShareAlike 3.0 Int
 phosphoELM	ELM	ELM Software License Agreement	academic	attrib	free	http://elm.eu.org/media/Elm_academic_license.pdf
 phospho.ELM	ELM	ELM Software License Agreement	academic	attrib	free	http://elm.eu.org/media/Elm_academic_license.pdf
 DOMINO	CC BY 2.5	Creative Commons Attribution 2.5 International	commercial	attrib	free	https://creativecommons.org/licenses/by/2.5/
-dbPTM	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike
+dbPTM	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike	
 SIGNOR	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 Signor	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 HuPho	No license	No license	ignore	attrib	ignore	http://www.gnu.org/licenses/license-list.html#NoLicense
@@ -31,7 +31,7 @@ ARN	CC BY-SA 3.0	Creative Commons Attribution-ShareAlike 3.0 International	comme
 HPRD	HPRD	HPRD License	academic	attrib	free	http://hprd.org/FAQ
 HPRD-phos	HPRD	HPRD License	academic	attrib	free	http://hprd.org/FAQ
 ACSN	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
-DeathDomain	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike
+DeathDomain	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike	
 TRIP	CC BY-NC-SA 3.0	Creative Commons Attribution-NonCommercial-ShareAlike 3.0 International	academic	attrib	alike	https://creativecommons.org/licenses/by-nc-sa/3.0/
 Awan2007	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 Cui2007	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
@@ -63,7 +63,7 @@ PhosphoSite	CC BY-NC-SA 3.0	Creative Commons Attribution-NonCommercial-ShareAlik
 SPIKE	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 NCI-PID	BSD	3-clause BSD License	commercial	attrib	alike	https://www.gnu.org/licenses/license-list.html#ModifiedBSD
 WikiPathways	CC BY 3.0	Creative Commons Attribution 3.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/3.0/
-ConsensusPathDB	Composite	Constituting databases carry their own licenses	composite	attrib	composite
+ConsensusPathDB	Composite	Constituting databases carry their own licenses	composite	attrib	composite	
 KEGG	KEGG	KEGG License	ignore	attrib	ignore	http://www.gnu.org/licenses/license-list.html#NoLicense
 KEGG-MEDICUS	CC BY-SA 4.0	Creative Commons Attribution-ShareAlike 4.0 International	commercial	attrib	alike	https://creativecommons.org/licenses/by-sa/4.0/
 BioGRID	MIT	MIT License	commercial	attrib	free	https://spdx.org/licenses/MIT.html
@@ -81,7 +81,7 @@ HTRI	LGPLv3	GNU Lesser General Public License version 3	commercial	attrib	free	h
 NFIRegulomeDB	LGPLv3	GNU Lesser General Public License version 3	commercial	attrib	free	https://www.gnu.org/licenses/lgpl-3.0.en.html
 TFe	CC BY-SA 3.0	Creative Commons Attribution-ShareAlike 3.0 International	commercial	attrib	alike	https://creativecommons.org/licenses/by-sa/3.0/
 TRRD	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
-TRED	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike
+TRED	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike	
 Fantom4	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 FANTOM4	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 FANTOM5	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
@@ -100,7 +100,7 @@ Vesiclepedia	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial
 Matrisome	CC BY-NC 4.0	Creative Commons Attribution-NonCommercial 4.0 International	academic	attrib	free	https://creativecommons.org/licenses/by-nc/4.0/
 CSPA	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 HPMR	CC BY-NC 4.0	Creative Commons Attribution-NonCommercial 4.0 International	academic	attrib	free	https://creativecommons.org/licenses/by-nc/4.0/
-LOCATE	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike
+LOCATE	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike	
 CellPhoneDB	MIT	MIT License	commercial	attrib	free	https://spdx.org/licenses/MIT.html
 ComPPI	CC BY-SA 4.0	Creative Commons Attribution-ShareAlike 4.0 International	commercial	attrib	alike	https://creativecommons.org/licenses/by-sa/4.0/
 Kirouac2010	CC BY-NC-ND 3.0	Creative Commons Attribution-NonCommercial-NoDerivs 3.0 International	nonprofit	attrib	noderiv	https://creativecommons.org/licenses/by-nc-nd/3.0/
@@ -132,7 +132,7 @@ ENCODE-distal	CC BY 4.0	Creative Commons Attribution 4.0 International	commercia
 ENCODE-proximal	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 lncRNADisease	CC BY-NC 4.0	Creative Commons Attribution-NonCommercial 4.0 International	academic	attrib	free	https://creativecommons.org/licenses/by-nc/4.0/
 LncRNADisease	CC BY-NC 4.0	Creative Commons Attribution-NonCommercial 4.0 International	academic	attrib	free	https://creativecommons.org/licenses/by-nc/4.0/
-lncrnadb	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike
+lncrnadb	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike	
 miRecords	miRecords	miRecords License	commercial	attrib	free	http://c1.accurascience.com/miRecords/copyright.php
 miRTarBase	miRTarBase	miRTarBase License	academic	attrib	free	http://mirtarbase.cuhk.edu.cn/cache/download/LICENSE
 HIPPIE	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
@@ -152,7 +152,7 @@ Baccin2019	CC BY-NC 4.0	Creative Commons Attribution-NonCommercial 4.0 Internati
 ABS	GPLv2	GNU General Public License version 2	commercial	attrib	alike	https://www.gnu.org/licenses/gpl-2.0.html
 CancerSEA	CC BY-NC 4.0	Creative Commons Attribution-NonCommercial 4.0 International	academic	attrib	free	https://creativecommons.org/licenses/by-nc/4.0/
 Surfaceome	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
-KEA	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike
+KEA	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike	
 iTALK	CC BY-NC-SA 3.0	Creative Commons Attribution-NonCommercial-ShareAlike 3.0 International	academic	attrib	alike	https://creativecommons.org/licenses/by-nc-sa/3.0/
 ICELLNET	GPLv3	GNU General Public License version 3	commercial	attrib	alike	https://www.gnu.org/licenses/gpl-3.0.html
 CellCellInteractions	CellCellInteractions	CellCellInteractions License	non_profit	attrib	alike	https://baderlab.org/CellCellInteractions
@@ -160,13 +160,13 @@ EMBRACE	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attr
 Almen2009	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 TCDB	CC BY-SA 3.0	Creative Commons Attribution-ShareAlike 3.0 International	commercial	attrib	alike	https://creativecommons.org/licenses/by-sa/3.0/
 iPTMnet	CC BY-NC-SA 4.0	Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International	academic	attrib	alike	https://creativecommons.org/licenses/by-nc-sa/4.0/
-MCAM	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike
-DoRothEA	Composite	Constituting databases carry their own licenses	composite	attrib	composite
-DoRothEA_A	Composite	Constituting databases carry their own licenses	composite	attrib	composite
-DoRothEA_B	Composite	Constituting databases carry their own licenses	composite	attrib	composite
-DoRothEA_C	Composite	Constituting databases carry their own licenses	composite	attrib	composite
-DoRothEA_D	Composite	Constituting databases carry their own licenses	composite	attrib	composite
-DoRothEA_E	Composite	Constituting databases carry their own licenses	composite	attrib	composite
+MCAM	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike	
+DoRothEA	Composite	Constituting databases carry their own licenses	composite	attrib	composite	
+DoRothEA_A	Composite	Constituting databases carry their own licenses	composite	attrib	composite	
+DoRothEA_B	Composite	Constituting databases carry their own licenses	composite	attrib	composite	
+DoRothEA_C	Composite	Constituting databases carry their own licenses	composite	attrib	composite	
+DoRothEA_D	Composite	Constituting databases carry their own licenses	composite	attrib	composite	
+DoRothEA_E	Composite	Constituting databases carry their own licenses	composite	attrib	composite	
 ARACNe-GTEx	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 JASPAR	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 JASPAR-v2018	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
@@ -174,7 +174,7 @@ HOCOMOCO	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	att
 HOCOMOCO-v11	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 ReMap	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 DoRothEA-reviews	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
-BEL-Large-Corpus	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike
+BEL-Large-Corpus	NAR Open Access	Nucleic Acids Research Open Access	commercial	attrib	alike	
 Dinarello2013	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 REACH	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 RLIMS-P	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
@@ -197,13 +197,13 @@ CellChatDB	GPLv3	GNU General Public License version 3	commercial	attrib	alike	ht
 CellChatDB-cofactors	GPLv3	GNU General Public License version 3	commercial	attrib	alike	https://www.gnu.org/licenses/gpl-3.0.html
 connectomeDB2020	MIT	MIT License	commercial	attrib	free	https://spdx.org/licenses/MIT.html
 talklr	GPLv3	GNU General Public License version 3	commercial	attrib	alike	https://www.gnu.org/licenses/gpl-3.0.html
-DLRP	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike
+DLRP	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike	
 HumanCellMap	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 scConnect	MIT	MIT License	commercial	attrib	free	https://spdx.org/licenses/MIT.html
 CellCall	Artistic-2.0	Artistic License 2.0	commercial	attrib	alike	https://directory.fsf.org/wiki/License:Artistic-2.0
 Cellinker	CC BY-NC 4.0	Creative Commons Attribution-NonCommercial 4.0 International	academic	attrib	free	https://creativecommons.org/licenses/by-nc/4.0/
 PROGENy	Apache 2.0	Apache License, version 2.0	commercial	attrib	alike	http://www.apache.org/licenses/LICENSE-2.0
-CancerDrugsDB	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike
+CancerDrugsDB	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike	
 CellTypist	CC BY 3.0	Creative Commons Attribution 3.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/3.0/
 PanglaoDB	Informal	Informal license	commercial	attrib	free	https://www.gnu.org/licenses/license-list.en.html#informal
 CytoSig	CytoSig	CytoSig License	non_profit	attrib	alike	https://github.com/data2intelligence/CytoSig/blob/master/LICENSE
@@ -215,8 +215,8 @@ HPO	HPO	HPO License	academic	attrib	alike	https://hpo.jax.org/app/license
 OMA	CC BY-SA 2.5	Creative Commons Attribution-ShareAlike 3.0 International	commercial	attrib	alike	https://creativecommons.org/licenses/by-sa/3.0/
 PathoPhenoDB	No license	No license	ignore	attrib	ignore	http://www.gnu.org/licenses/license-list.html#NoLicense
 Clinvar	EMBL-EBI	EMBL-EBI terms of use	academic	attrib	free	https://www.ebi.ac.uk/about/terms-of-use
-Pharos	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike
-CTD	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike
+Pharos	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike	
+CTD	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike	
 DISEASES	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 SIDER	CC BY-NC-SA 4.0	Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International	academic	attrib	alike	https://creativecommons.org/licenses/by-nc-sa/4.0/
 Humsavar	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
@@ -226,7 +226,7 @@ Adrecs	CC BY-NC 4.0	Creative Commons Attribution-NonCommercial 4.0 International
 DDInter	CC BY-NC-SA 4.0	Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International	academic	attrib	alike	https://creativecommons.org/licenses/by-nc-sa/4.0/
 Compath	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 TRRUST	CC BY-SA 4.0	Creative Commons Attribution-ShareAlike 4.0 International	commercial	attrib	alike	https://creativecommons.org/licenses/by-sa/4.0/
-CollecTRI	Composite	Constituting databases carry their own licenses	composite	attrib	composite
+CollecTRI	Composite	Constituting databases carry their own licenses	composite	attrib	composite	
 ExTRI	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 GOA	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 CytReg	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
@@ -236,10 +236,11 @@ Pavlidis2021	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial
 DoRothEA-A	Informal	Informal license	commercial	attrib	free	https://www.gnu.org/licenses/license-list.en.html#informal
 NTNUcuration	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 NTNU.Curated	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
-RaMP	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike
+RaMP	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike	
 ExPASy	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 Lambert2018	EUL	Elsevier User License	academic	attrib	alike	https://www.elsevier.com/about/policies/open-access-licenses/elsevier-user-license
 OpenTargets	OpenTargets	Open Targets mixed license	academic	attrib	free	https://platform-docs.opentargets.org/licence
 gutMGene	No license	No license	ignore	attrib	ignore	http://www.gnu.org/licenses/license-list.html#NoLicense
 SwissLipids	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
 LipidMAPS	CC BY 4.0	Creative Commons Attribution 4.0 International	commercial	attrib	free	https://creativecommons.org/licenses/by/4.0/
+HINT	Unspecified NC-SA	Unspecified Non-commercial Redistributable	academic	attrib	alike	
