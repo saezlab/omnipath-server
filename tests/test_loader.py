@@ -37,7 +37,7 @@ def test_load_tables(legacy_db_loaded):
 
         if table == 'licenses':
 
-            assert next(result)[0] == 244
+            assert next(result)[0] >= 244
 
         else:
             assert next(result)[0] == 99

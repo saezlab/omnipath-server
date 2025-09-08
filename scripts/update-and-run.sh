@@ -18,4 +18,4 @@ ln -s ../omnipath_webservice_complexes.tsv.gz
 ln -s ../omnipath_webservice_enzsub.tsv.gz
 ln -s ../omnipath_webservice_interactions.tsv.gz
 ln -s ../omnipath_webservice_intercell.tsv.gz
-nohup poetry run python scripts/run-in-production.py --load-db &>> "$OUTFILE" &
+nohup poetry run python scripts/run-in-production.py &>> "$OUTFILE" &
