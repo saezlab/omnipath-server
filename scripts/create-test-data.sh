@@ -10,9 +10,16 @@ QUERY_TYPES=(
     "annotations"
 )
 SAMPLES=(
-    "interactions,post_translational,omnipath;kinaseextra"
+    "interactions,post_translational,omnipath;kinaseextra;pathway_extra;ligrec_extra"
+    "interactions,post_transcriptional"
+    "interactions,transcriptional,collectri;dorothea"
+    "enzsub"
+    "intercell,functional,composite;resource_specific"
+    "intercell,locational,composite;resource_specific"
+    "complexes"
+#    "annotations"
 )
-
+#TODO: fix DBs with empty args + annotations not being populated
 
 for query_type in ${QUERY_TYPES[@]}; do
     infile="$DIRECTORY/omnipath_webservice_$query_type.tsv.gz"
@@ -34,4 +41,21 @@ for sample in ${SAMPLES[@]}; do
         zcat $infile | grep $filter1 | grep $dataset | shuf -n $N_LINES >> $outfile
     done
 
+done
+
+# Annotations case
+annotation_resources=(
+    "MSigDB"
+    "UniProt"
+    "PROGENy"
+    "CellPhoneDB"
+)
+for resource in ${annotation_resources[@]}; do
+
+    infile="$DIRECTORY/omnipath_webservice_annotations.tsv.gz"
+    outfile="$DIRECTORY/annotations-sample.tsv"
+
+    for dataset in "${datasets[@]}"; do
+        zcat $infile | grep $resource | grep '\t(12|43|57)$' >> $outfile
+    done
 done
