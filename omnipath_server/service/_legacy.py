@@ -1232,9 +1232,11 @@ class LegacyService:
 
             val = _misc.first(val)
 
-        elif isinstance(val, str):
+        if isinstance(val, str):
 
             val = val.split(',')
+
+        val = _misc.to_list(val)
 
         return _misc.to_list(val)
 
