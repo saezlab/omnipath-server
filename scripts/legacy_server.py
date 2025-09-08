@@ -1,3 +1,5 @@
+#!/bin/env python
+
 from omnipath_server.server import _legacy
 
 con_param = {
