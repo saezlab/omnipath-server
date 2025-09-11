@@ -1299,6 +1299,7 @@ class LegacyService:
 
                 val = val[0] if isinstance(val, list) else val
                 val = str(val).lower() if isinstance(val, bool) else val
+                val = int(val) if val.isdigit() else val
                 val = _misc.to_set(val)
 
                 unknowns = val - set(ref[arg])
@@ -3025,6 +3026,8 @@ class LegacyService:
 
         if isinstance(arg, str):
 
+            # TODO: why organism not handled here?
+            # because it is an array?
             if _misc.is_int(arg):
 
                 arg = int(arg)
