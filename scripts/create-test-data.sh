@@ -62,7 +62,6 @@ for resource in ${annotation_resources[@]}; do
     infile="$DIRECTORY/omnipath_webservice_annotations.tsv.gz"
     outfile="$DIRECTORY/annotations-sample.tsv"
 
-    for dataset in "${datasets[@]}"; do
-        zcat $infile | grep $resource | grep '\t(12|43|57)$' >> $outfile
-    done
+    zcat $infile | grep $resource | grep -P '\t(12|43|57)$' >> $outfile
+
 done
