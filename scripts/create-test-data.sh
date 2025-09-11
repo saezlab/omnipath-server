@@ -17,7 +17,6 @@ SAMPLES=(
     "intercell,functional,composite;resource_specific"
     "intercell,locational,composite;resource_specific"
     "complexes"
-#    "annotations"
 )
 #TODO: fix DBs with empty args + annotations not being populated
 
@@ -35,11 +34,19 @@ for sample in ${SAMPLES[@]}; do
     infile="$DIRECTORY/omnipath_webservice_$query_type.tsv.gz"
     outfile="$DIRECTORY/$query_type-sample.tsv"
 
-    IFS=';' read -ra datasets <<< "$filter2"
+    if [[ -z $filter2 ]]; then
+        if [[ -z $filter1 ]]; then
+            zcat $infile | shuf -n $N_LINES >> $outfile
+        else
+            zcat $infile | grep $filter1 | shuf -n $N_LINES >> $outfile
+        fi
+    else
+        IFS=';' read -ra datasets <<< "$filter2"
 
-    for dataset in "${datasets[@]}"; do
-        zcat $infile | grep $filter1 | grep $dataset | shuf -n $N_LINES >> $outfile
-    done
+        for dataset in "${datasets[@]}"; do
+            zcat $infile | grep $filter1 | grep $dataset | shuf -n $N_LINES >> $outfile
+        done
+    fi
 
 done
 
