@@ -71,7 +71,24 @@ args <- c(
             'yes'
         )
     ),
-    annotations = list(),
+    annotations = list(organisms = c(9606, 10090, 10116),
+        genesymbols = list('yes', 'no', TRUE, FALSE, 1, 0),
+        resources = c(
+            'PROGENy',
+            'CellPhoneDB',
+            'UniProt_tissue',
+            'LOCATE',
+            'KEGG'
+        ),
+        entity_types = c(
+             'protein',
+             'mirna'
+        ),
+        license = c(
+            'commercial',
+            'academic'
+        ),
+    ),
     complexes = list(),
     enzsub = list(),
     intercell = list()
