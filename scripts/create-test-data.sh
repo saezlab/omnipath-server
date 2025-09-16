@@ -1,6 +1,7 @@
 #!/bin/bash
 
-DIRECTORY="data/legacy"
+IN_DIRECTORY="data/legacy"
+OUT_DIRECTORY="tests/data/legacy"
 N_LINES=20
 QUERY_TYPES=(
     "interactions"
@@ -10,7 +11,7 @@ QUERY_TYPES=(
     "annotations"
 )
 SAMPLES=(
-    "interactions,post_translational,omnipath;kinaseextra;pathway_extra;ligrec_extra"
+    "interactions,post_translational,omnipath;kinaseextra;pathwayextra;ligrecextra"
     "interactions,post_transcriptional"
     "interactions,transcriptional,collectri;dorothea"
     "enzsub"
@@ -21,8 +22,8 @@ SAMPLES=(
 #TODO: fix DBs with empty args + annotations not being populated
 
 for query_type in ${QUERY_TYPES[@]}; do
-    infile="$DIRECTORY/omnipath_webservice_$query_type.tsv.gz"
-    outfile="$DIRECTORY/$query_type-sample.tsv"
+    infile="$IN_DIRECTORY/omnipath_webservice_$query_type.tsv.gz"
+    outfile="$OUT_DIRECTORY/omnipath_webservice_$query_type.tsv"
 
     zcat $infile | head -n 1 > $outfile
 done
@@ -31,8 +32,8 @@ for sample in ${SAMPLES[@]}; do
 
     IFS="," read -r query_type filter1 filter2 <<< "$sample"
 
-    infile="$DIRECTORY/omnipath_webservice_$query_type.tsv.gz"
-    outfile="$DIRECTORY/$query_type-sample.tsv"
+    infile="$IN_DIRECTORY/omnipath_webservice_$query_type.tsv.gz"
+    outfile="$OUT_DIRECTORY/omnipath_webservice_$query_type.tsv"
 
     if [[ -z $filter2 ]]; then
         if [[ -z $filter1 ]]; then
@@ -59,8 +60,8 @@ annotation_resources=(
 )
 for resource in ${annotation_resources[@]}; do
 
-    infile="$DIRECTORY/omnipath_webservice_annotations.tsv.gz"
-    outfile="$DIRECTORY/annotations-sample.tsv"
+    infile="$IN_DIRECTORY/omnipath_webservice_annotations.tsv.gz"
+    outfile="$OUT_DIRECTORY/omnipath_webservice_annotations.tsv"
 
     zcat $infile | grep $resource | grep -P '\t(12|43|57)$' >> $outfile
 
