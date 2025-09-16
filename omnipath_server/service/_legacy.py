@@ -1299,7 +1299,7 @@ class LegacyService:
 
                 val = val[0] if isinstance(val, list) else val
                 val = str(val).lower() if isinstance(val, bool) else val
-                val = int(val) if val.isdigit() else val
+                val = int(val) if isinstance(val, str) and val.isdigit() else val
                 val = _misc.to_set(val)
 
                 unknowns = val - set(ref[arg])
