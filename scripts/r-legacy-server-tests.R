@@ -2,15 +2,24 @@
 
 library(OmnipathR)
 library(purrr)
+library(magrittr)
 
-options(omnipathr.url = 'http://localhost:44444')
+options(
+    omnipathr.retry_downloads = 1L,
+    omnipathr.url = 'http://localhost:44444'
+)
 .optrace()
 
 single_query <- function(query_type, args){
-    get(query_type, envir)
+
+    args %<>% discard(is.na)
+
+    get(query_type, envir = asNamespace(OmnipathR)) %>%
+    exec(!!!args)
+
 }
 
-args <- c(
+ARGS <- list(
     interactions = list(
         organisms = c(9606, 10090, 10116),
         genesymbols = list('yes', 'no', TRUE, FALSE, 1, 0),
@@ -144,4 +153,18 @@ args <- c(
     )
 )
 
-#purrr::cross
+
+main <- function() {
+
+    ARGS %>%
+    map2(
+        names(.),
+        .,
+        function(query_type, args) {
+            args %>%
+            cross %>%
+            map(~single_query(query_type, .x))
+        }
+    )
+
+}
