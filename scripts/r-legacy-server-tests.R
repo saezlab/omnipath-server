@@ -87,9 +87,19 @@ args <- c(
         license = c(
             'commercial',
             'academic'
-        ),
+        )
     ),
-    complexes = list(),
+    complexes = list(
+        license = c(
+            'commercial',
+            'academic'
+        ),
+        resources = c(
+            'hu.MAP',
+            'Compleat',
+            'SIGNOR'
+        )
+    ),
     enzsub = list(),
     intercell = list()
 )
