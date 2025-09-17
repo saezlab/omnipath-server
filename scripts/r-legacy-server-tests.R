@@ -6,6 +6,10 @@ library(purrr)
 options(omnipathr.url = 'http://localhost:44444')
 .optrace()
 
+single_query <- function(query_type, args){
+    get(query_type, envir)
+}
+
 args <- c(
     interactions = list(
         organisms = c(9606, 10090, 10116),
