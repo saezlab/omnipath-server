@@ -13,26 +13,15 @@ args <- c(
         datasets = c(
             'omnipath',
             'collectri',
-            'kinaseextra',
-            'ligrecextra',
-            'pathwayextra',
-            'mirnatarget'
+            'kinaseextra'
         ),
         resources = c(
             'SIGNOR',
-            'ACSN',
-            'BioGRID',
             'CellChatDB',
             'HPRD',
-            'ProtMapper',
             'PhosphoSite',
-            'CellCall',
-            'ICELLNET',
             'iTALK',
-            'talklr',
-            'Baccin2019',
-            'EMBRACE',
-            'Wang'
+            'Baccin2019'
         ),
         entity_types = c(
              'protein',
