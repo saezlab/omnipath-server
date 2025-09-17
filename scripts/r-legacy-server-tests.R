@@ -100,8 +100,55 @@ args <- c(
             'SIGNOR'
         )
     ),
-    enzsub = list(),
-    intercell = list()
+    enzsub = list(
+        license = c(
+            'commercial',
+            'academic'
+        ),
+        organisms = c(9606, 10090, 10116),
+        genesymbols = list('yes', 'no', TRUE, FALSE, 1, 0),
+        resources = c(
+            'SIGNOR',
+            'KEA',
+            'HPRD',
+            'ProtMapper',
+            'PhosphoSite'
+        ),
+        modification = c(NA, 'phosphorylation', 'dephosphorylation'),
+        residues = c('S', 'T')
+    ),
+    intercell = list(
+        license = c(
+            'commercial',
+            'academic'
+        ),
+        resources = c(
+            NA,
+            'CellChatDB'
+        ),
+        causality = c(
+            'both',
+            'transmitter',
+            NA
+        ),
+        topology = c(
+            'pmp',
+            'secreted',
+            NA
+        ),
+        sec = c(NA, TRUE, 'no'),
+        trans c(TRUE, NA),
+        rec = c(NA, FALSE),
+        pmtm = c(NA, TRUE),
+        pmp = c('yes', 'no'),
+        entity_types = c(
+            'protein',
+            'complex'
+        ),
+        aspect = c(NA, 'functional'),
+        categories = c('receptor', NA),
+        scope = c(NA, 'specific')
+    )
 )
 
 #purrr::cross
