@@ -1,16 +1,18 @@
 #!/usr/bin/env Rscript
 
 library(OmnipathR)
-library(purrr)
 library(magrittr)
+library(purrr)
+library(tidyr)
 
 options(
     omnipathr.retry_downloads = 1L,
     omnipathr.url = 'http://localhost:44444'
 )
-.optrace()
+OmnipathR:::.optrace()
 
 single_query <- function(query_type, args){
+    print(args)
 
     args %<>% discard(is.na)
 
@@ -139,7 +141,7 @@ ARGS <- list(
             NA
         ),
         sec = c(NA, TRUE, 'no'),
-        trans c(TRUE, NA),
+        trans = c(TRUE, NA),
         rec = c(NA, FALSE),
         pmtm = c(NA, TRUE),
         pmp = c('yes', 'no'),
@@ -162,9 +164,12 @@ main <- function() {
         .,
         function(query_type, args) {
             args %>%
-            cross %>%
+            # Fix this
+            #expand_grid(!!!.) %>%
             map(~single_query(query_type, .x))
         }
     )
 
 }
+
+main()
