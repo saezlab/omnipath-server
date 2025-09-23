@@ -14,11 +14,8 @@ options(
 OmnipathR:::.optrace()
 
 single_query <- function(query_type, args){
-    print(args)
     args %<>% discard(~length(.x) > 1 || is.na(.x))
-
     print(args)
-
     get(query_type, envir = asNamespace('OmnipathR')) %>%
     exec(!!!args)
 
@@ -27,7 +24,7 @@ single_query <- function(query_type, args){
 ARGS <- list(
     omnipath_interactions = list(
         organisms = c(9606, 10090, 10116),
-        genesymbols = list('yes', 'no', TRUE, FALSE, 1, 0),
+        genesymbols = c('yes', 'no', TRUE, FALSE, 1, 0),
         datasets = c(
             'omnipath',
             'collectri',
@@ -79,7 +76,7 @@ ARGS <- list(
         )
     ),
     annotations = list(organisms = c(9606, 10090, 10116),
-        genesymbols = list('yes', 'no', TRUE, FALSE, 1, 0),
+        genesymbols = c('yes', 'no', TRUE, FALSE, 1, 0),
         resources = c(
             'PROGENy',
             'CellPhoneDB',
@@ -113,7 +110,7 @@ ARGS <- list(
             'academic'
         ),
         organisms = c(9606, 10090, 10116),
-        genesymbols = list('yes', 'no', TRUE, FALSE, 1, 0),
+        genesymbols = c('yes', 'no', TRUE, FALSE, 1, 0),
         resources = c(
             'SIGNOR',
             'KEA',
