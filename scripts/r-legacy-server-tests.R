@@ -4,6 +4,7 @@ library(OmnipathR)
 library(magrittr)
 library(purrr)
 library(tidyr)
+library(dplyr)
 
 options(
     omnipathr.retry_downloads = 1L,
@@ -12,11 +13,9 @@ options(
 OmnipathR:::.optrace()
 
 single_query <- function(query_type, args){
-    print(args)
+    args %<>% discard(~length(.x) > 1 || is.na(.x))
 
-    args %<>% discard(is.na)
-
-    get(query_type, envir = asNamespace(OmnipathR)) %>%
+    get(query_type, envir = asNamespace('OmnipathR')) %>%
     exec(!!!args)
 
 }
@@ -165,8 +164,9 @@ main <- function() {
         function(query_type, args) {
             args %>%
             # Fix this
-            #expand_grid(!!!.) %>%
-            map(~single_query(query_type, .x))
+            expand_grid(!!!.) %>%
+            rowwise() %>%
+            mutate(single_query(query_type, list(cur_data())))
         }
     )
 
