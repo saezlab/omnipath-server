@@ -170,6 +170,9 @@ class LegacyService:
                 'entity_types',
                 'fields',
             },
+            'arg_types': {
+                'organisms': int,
+            },
             'select': {
                 'genesymbols': {'source_genesymbol', 'target_genesymbol'},
                 'organism': {'ncbi_tax_id_source', 'ncbi_tax_id_target'},
@@ -1153,7 +1156,7 @@ class LegacyService:
         _log('Finished updating resource information.')
 
 
-    def _clean_args(self, args: dict) -> dict:
+    def _clean_args(self, args: dict, query_type: QUERY_TYPES) -> dict:
         """
         Removes empty arguments, `kwargs` and `self` to prepare them for
         generating the SQL query.
@@ -1174,8 +1177,29 @@ class LegacyService:
             if v is not None
         }
         args['format'] = self._ensure_str(args.get('format'))
+        args = {
+            k: self._ensure_type(v, k, query_type)
+            for k, v in args.items()
+        }
 
         return args
+
+
+    def _ensure_type(val: Any, name: str, query_type: QUERY_TYPES) -> Any:
+
+        typ = self.query_param[query_type].get('arg_types', {}).get(name)
+
+        if typ is not None:
+
+            if isinstance(val, _const.LIST_LIKE):
+
+                val = [typ(x) for x in val]
+
+            else:
+
+                val = typ(val)
+
+        return val
 
 
     def _maybe_bool(self, val: Any) -> Any:
@@ -1879,7 +1903,7 @@ class LegacyService:
         """
 
         fields_to_remove = args.pop('fields_to_remove', set())
-        args = self._clean_args(args)
+        args = self._clean_args(args, query_type)
         args = self._array_args(args, query_type)
         query, bad_req = self._query(
             args,
