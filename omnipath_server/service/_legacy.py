@@ -1185,7 +1185,7 @@ class LegacyService:
         return args
 
 
-    def _ensure_type(val: Any, name: str, query_type: QUERY_TYPES) -> Any:
+    def _ensure_type(self, val: Any, name: str, query_type: QUERY_TYPES) -> Any:
 
         typ = self.query_param[query_type].get('arg_types', {}).get(name)
 
@@ -2230,7 +2230,7 @@ class LegacyService:
 
         organisms = organisms or {9606}
         args = locals()
-        args = self._clean_args(args)
+        args = self._clean_args(args, 'interactions')
         args = self._array_args(args, 'interactions')
 
         args = self._interactions_defaults(args)

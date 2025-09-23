@@ -54,7 +54,8 @@ ARGS <- list(
             'no',
             'yes'
         ),
-        evidences = c(
+        evidences = c( # TODO: fix handling of boolean/yes/no, etc
+        # We should make the service handle array with single values as values
             FALSE,
             TRUE
         ),
