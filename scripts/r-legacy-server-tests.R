@@ -55,8 +55,8 @@ ARGS <- list(
             'yes'
         ),
         evidences = c(
-            'no',
-            'yes'
+            FALSE,
+            TRUE
         ),
         dorothea_levels = c(
             NA,
