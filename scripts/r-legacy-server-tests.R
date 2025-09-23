@@ -8,7 +8,8 @@ library(dplyr)
 
 options(
     omnipathr.retry_downloads = 1L,
-    omnipathr.url = 'http://localhost:44444'
+    omnipathr.url = 'http://localhost:44444',
+    omnipathr.notls_fallback = FALSE
 )
 OmnipathR:::.optrace()
 
