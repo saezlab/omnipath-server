@@ -14,10 +14,35 @@ options(
 OmnipathR:::.optrace()
 
 single_query <- function(query_type, args){
+    hasdorothea <- FALSE
+    if ('dorothea_levels' %in% names(args) && !is.na(args$dorothea_levels)){
+        hasdorothea <- TRUE
+    }
+    args <- map(args, function(x){
+        if(length(x) != 0 && is.character(x) && !is.na(x) && stringr::str_detect(x, ",")){
+            stringr::str_split(x, ",")[[1]]
+        }
+        else{
+            x
+        }
+    })
+    if (hasdorothea && !('dorothea_levels' %in% names(args))){
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print(args)
+        stop('WERRROR')
+    }
+
     args %<>% discard(~length(.x) > 1 || is.na(.x))
-    print(args)
     get(query_type, envir = asNamespace('OmnipathR')) %>%
     exec(!!!args)
+    # TODO: Check why dorothea args disappear
+    # TODO: after that also, JSON blobs decoding error in evidences column
+
+    if (hasdorothea){
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print(args)
+        stop('WERRROR')
+    }
 
 }
 
