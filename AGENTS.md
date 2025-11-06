@@ -31,3 +31,10 @@
 ## Documentation and compatibility notes
 - Update Sphinx docs in `docs/` when modifying externally visible endpoints or service behaviors.
 - When introducing breaking changes to service interfaces, adjust the corresponding server layer adapters and tests in tandem to maintain compatibility between the Sanic handlers and service classes.
+
+## Legacy service cleanup focus
+- Make `LegacyServer` pass normalized argument values into `LegacyService`: convert single-item arrays into scalars, split delimited strings, and align booleans/ints with what the service expects to avoid failing queries.
+- Exercise the combinatorial request generator in `scripts/r-legacy-server-tests.R`, but trim it when query counts explode; fall back to a curated YAML of representative argument combinations when that delivers better coverage.
+- Ensure the R harness covers tricky endpoints and options such as `annotated_network`, `curated_ligand_receptor_interactions`, `extra_attrs`, and evidence toggles; add a switch so expensive, full-database scenarios can be disabled by default.
+- Treat initial test success as “no exceptions from the service,” then extend checks to validate returned data frames (mandatory columns, types, and targeted value assertions).
+- Reset OmnipathR state between runs (`OmnipathR:::.optrace()` for trace logs, `omnipath_set_cachedir("/tmp/omnipath001")` for a clean cache) so cached responses do not mask regressions.
