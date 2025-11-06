@@ -1216,6 +1216,18 @@ class LegacyService:
             `'true'`/`'false'` according to the value.
         """
 
+        if isinstance(val, _const.LIST_LIKE) and not isinstance(val, (str, bytes)):
+
+            items = list(val)
+
+            if len(items) == 1:
+
+                parsed = self._maybe_bool(items[0])
+
+                if isinstance(parsed, bool):
+
+                    return parsed
+
         if (bval := str(val).lower()) in _const.BOOLEAN_VALUES:
 
             val = self._parse_bool_arg(bval)

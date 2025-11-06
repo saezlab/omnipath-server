@@ -9,6 +9,14 @@ __all__ = [
     'test_statements_where2',
 ]
 
+
+def test_clean_args_converts_boolean_sequences(legacy_service):
+
+    args = legacy_service._clean_args({'directed': ['yes']}, 'interactions')
+
+    assert args['directed'] is True
+
+
 WHERE_CASES2 = { # XXX: Attempting systematic testing of all arguments
     'interactions': [
         (
