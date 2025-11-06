@@ -2410,7 +2410,7 @@ class LegacyService:
 
         organisms = organisms or {9606}
         args = locals()
-        args = self._clean_args(args)
+        args = self._clean_args(args, 'enzsub')
         args = self._array_args(args, 'enzsub')
         where_loops = self._where_loops('enzsub', args)
         extra_where = self._where_partners('enzsub', args)
@@ -2604,7 +2604,7 @@ class LegacyService:
         '''
 
         args = locals()
-        args = self._clean_args(args)
+        args = self._clean_args(args, 'annotations')
         args = self._array_args(args, 'annotations')
 
         _log(f'Args: {_misc.dict_str(args)}')
@@ -2629,7 +2629,7 @@ class LegacyService:
         """
 
         args = locals()
-        args = self._clean_args(args)
+        args = self._clean_args(args, 'annotations')
         args = self._array_args(args, 'annotations')
         format = self._ensure_str(format)
 
@@ -2766,7 +2766,7 @@ class LegacyService:
         '''
 
         args = locals()
-        args = self._clean_args(args)
+        args = self._clean_args(args, 'intercell')
         args = self._array_args(args, 'intercell')
 
         _log(f'Args: {_misc.dict_str(args)}')
@@ -2796,7 +2796,7 @@ class LegacyService:
         """
 
         args = locals()
-        args = self._clean_args(args)
+        args = self._clean_args(args, 'intercell')
         args = self._array_args(args, 'intercell')
         format = self._ensure_str(format)
 
