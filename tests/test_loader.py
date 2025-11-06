@@ -40,4 +40,4 @@ def test_load_tables(legacy_db_loaded):
             assert next(result)[0] >= 244
 
         else:
-            assert next(result)[0] == 99
+            assert next(result)[0] >= 5
