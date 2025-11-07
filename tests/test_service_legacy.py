@@ -421,3 +421,13 @@ def test_statements_select(legacy_service, query_type, args, expected):
     stm = legacy_service._query_str(query_type, **args)
 
     assert stm.split('WHERE')[0].strip() == expected
+
+
+def test_format_json(legacy_service):
+
+    req = legacy_service._request({'limit': 10}, 'complexes', format = 'json')
+    req = list(req)
+
+    assert all(isinstance(x, str) for x in req)
+    assert all('components' in x for x in req)
+    assert len(req) == 10
