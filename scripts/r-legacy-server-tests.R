@@ -13,6 +13,8 @@ options(
 )
 OmnipathR:::.optrace()
 
+omnipath_set_cachedir(tempdir())
+
 single_query <- function(query_type, args){
     args %<>% discard(~length(.x) > 1 || is.na(.x))
 
