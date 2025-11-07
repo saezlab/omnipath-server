@@ -2041,9 +2041,13 @@ class LegacyService:
 
             if names:
 
-                formatter = lambda x: dict(zip(names, [
-                    sorted(e) if isinstance(e, set) else e for e in x
-                ]))
+                formatter = lambda x: dict(
+                    zip(
+                        names, [
+                            sorted(e) if isinstance(e, set) else e for e in x
+                        ],
+                    ),
+                )
 
             for rec in result:
 
@@ -2096,10 +2100,10 @@ class LegacyService:
         """
 
         return (
-            ';'.join(field)
-                if isinstance(field, _const.LIST_LIKE) else
             json.dumps(field)
                 if isinstance(field, dict) else
+            ';'.join(field)
+                if isinstance(field, _const.LIST_LIKE) else
             str(field)
         )
 
