@@ -2041,7 +2041,9 @@ class LegacyService:
 
             if names:
 
-                formatter = lambda x: dict(zip(names, x))
+                formatter = lambda x: dict(zip(names, [
+                    sorted(e) if isinstance(e, set) else e for e in x
+                ]))
 
             for rec in result:
 
