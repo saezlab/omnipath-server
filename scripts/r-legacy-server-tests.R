@@ -27,10 +27,7 @@ single_query <- function(query_type, args){
             x
         }
     })
-    get(query_type, envir = asNamespace('OmnipathR')) %>% exec(!!!args)
-
-    # TODO: after that also, JSON blobs decoding error in evidences column
-}
+    get(query_type, envir = asNamespace('OmnipathR')) %>% exec(!!!args)}
 
 ARGS <- list(
     omnipath_interactions = list(
@@ -168,14 +165,12 @@ ARGS <- list(
 
 
 main <- function() {
-
     ARGS %>%
     map2(
         names(.),
         .,
         function(query_type, args) {
             args %>%
-            # Fix this
             expand_grid(!!!.) %>%
             rowwise() %>%
             mutate(
@@ -185,7 +180,6 @@ main <- function() {
             )
         }
     )
-
 }
 
 main()
