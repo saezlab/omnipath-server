@@ -302,6 +302,8 @@ class LegacyService:
                 'proteins',
                 'resources',
                 'entity_types',
+                'topology',
+                'causality',
             },
             'where': {
                 'resources': 'database',
@@ -2692,7 +2694,6 @@ class LegacyService:
 
 
     # TODO: Revisit handling of long/short synonym arguments
-    # TODO: Addd missing causality and topology
     def intercell(
             self,
             resources: list[str] | None = None,
@@ -2716,6 +2717,8 @@ class LegacyService:
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
+            topology: str | list[str] | None = None,
+            causality: str | list[str] | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         '''
