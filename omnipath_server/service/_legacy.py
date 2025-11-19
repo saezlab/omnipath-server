@@ -265,6 +265,7 @@ class LegacyService:
                 'organisms',
                 'types',
                 'residues',
+                'fields',
             },
             'select': {
                 'genesymbols': {'enzyme_genesymbol', 'substrate_genesymbol'},
