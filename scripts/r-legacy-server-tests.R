@@ -151,9 +151,9 @@ SCENARIOS <- list(
     list(
         id = 'enzsub_dephos_full',
         query = 'enzyme_substrate',
-        description = 'Dephosphorylation coverage on ProtMapper.',
+        description = 'Dephosphorylation coverage on DEPOD.',
         args = list(
-            resources = 'ProtMapper',
+            resources = 'DEPOD',
             modification = 'dephosphorylation',
             residues = 'Y'
         ),
