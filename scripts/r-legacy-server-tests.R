@@ -167,7 +167,7 @@ SCENARIOS <- list(
             resources = 'CellChatDB',
             trans = TRUE,
             sec = TRUE,
-            categories = 'receptor'
+            categories = 'ligand'
         ),
         tags = c('smoke', 'core')
     ),
