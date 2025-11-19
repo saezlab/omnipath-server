@@ -50,8 +50,7 @@ SCENARIOS <- list(
             organisms = 9606,
             datasets = 'omnipath',
             resources = 'SIGNOR',
-            genesymbols = TRUE,
-            limit = 50
+            genesymbols = TRUE
         ),
         tags = c('smoke', 'core')
     ),
@@ -64,8 +63,7 @@ SCENARIOS <- list(
             datasets = 'omnipath',
             resources = 'SIGNOR',
             evidences = TRUE,
-            fields = c('sources', 'references', 'curation_effort', 'evidences'),
-            limit = 25
+            fields = c('sources', 'references', 'curation_effort', 'evidences')
         ),
         tags = c('smoke', 'json')
     ),
@@ -78,8 +76,7 @@ SCENARIOS <- list(
             entity_types = 'mirna',
             types = 'post_transcriptional',
             datasets = 'mirnatarget',
-            signed = FALSE,
-            limit = 25
+            signed = FALSE
         ),
         tags = c('core')
     ),
@@ -92,8 +89,7 @@ SCENARIOS <- list(
             datasets = 'collectri',
             types = 'transcriptional',
             loops = TRUE,
-            directed = TRUE,
-            limit = 25
+            directed = TRUE
         ),
         tags = c('core')
     ),
@@ -105,8 +101,7 @@ SCENARIOS <- list(
             datasets = 'dorothea',
             dorothea_levels = 'A,B',
             dorothea_methods = 'coexp,tfbs',
-            organisms = 9606,
-            limit = 50
+            organisms = 9606
         ),
         tags = c('full-db')
     ),
@@ -117,8 +112,7 @@ SCENARIOS <- list(
         args = list(
             resources = 'UniProt_tissue',
             entity_types = 'protein',
-            genesymbols = TRUE,
-            limit = 50
+            genesymbols = TRUE
         ),
         tags = c('smoke', 'core')
     ),
@@ -128,8 +122,7 @@ SCENARIOS <- list(
         description = 'Complex level annotations from CellPhoneDB.',
         args = list(
             resources = 'CellPhoneDB',
-            entity_types = 'complex',
-            limit = 30
+            entity_types = 'complex'
         ),
         tags = c('full-db')
     ),
@@ -138,8 +131,7 @@ SCENARIOS <- list(
         query = 'complexes',
         description = 'hu.MAP complexes sanity check.',
         args = list(
-            resources = 'hu.MAP',
-            limit = 30
+            resources = 'hu.MAP'
         ),
         tags = c('smoke', 'core')
     ),
@@ -151,8 +143,7 @@ SCENARIOS <- list(
             organisms = 9606,
             genesymbols = TRUE,
             modification = 'phosphorylation',
-            residues = 'S',
-            limit = 40
+            residues = 'S'
         ),
         tags = c('smoke', 'core')
     ),
@@ -163,8 +154,7 @@ SCENARIOS <- list(
         args = list(
             resources = 'ProtMapper',
             modification = 'dephosphorylation',
-            residues = 'Y',
-            limit = 40
+            residues = 'Y'
         ),
         tags = c('full-db')
     ),
@@ -176,8 +166,7 @@ SCENARIOS <- list(
             resources = 'CellChatDB',
             trans = TRUE,
             sec = TRUE,
-            categories = 'receptor',
-            limit = 40
+            categories = 'receptor'
         ),
         tags = c('smoke', 'core')
     ),
@@ -190,8 +179,7 @@ SCENARIOS <- list(
             pmtm = TRUE,
             pmp = 'yes',
             aspect = 'functional',
-            scope = 'specific',
-            limit = 40
+            scope = 'specific'
         ),
         tags = c('full-db')
     )
