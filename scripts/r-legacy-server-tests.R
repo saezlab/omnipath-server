@@ -140,6 +140,7 @@ SCENARIOS <- list(
         query = 'enzyme_substrate',
         description = 'Phosphorylation queries on PhosphoSite.',
         args = list(
+            resources = 'PhosphoSite',
             organisms = 9606,
             genesymbols = TRUE,
             modification = 'phosphorylation',
