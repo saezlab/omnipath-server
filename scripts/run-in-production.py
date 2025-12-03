@@ -61,7 +61,8 @@ def kill_old(port: int) -> bool:
 
         try:
             print('Old process found. Killing PID:', old_proc.pid)
-            os.killpg(os.getpgid(old_proc.pid), signal.SIGTERM)
+            #os.killpg(os.getpgid(old_proc.pid), signal.SIGTERM)
+            os.kill(old_proc.pid, signal.SIGTERM)
 
         except OSError:
 
