@@ -60,7 +60,7 @@ def kill_old(port: int) -> bool:
     if old_proc is not None:
 
         try:
-
+            print('Old process found. Killing PID:', old_proc.pid)
             os.killpg(os.getpgid(old_proc.pid), signal.SIGTERM)
 
         except OSError:
