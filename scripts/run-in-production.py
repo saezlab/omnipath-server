@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import signal
 import argparse
 
 import psutil
@@ -60,7 +61,7 @@ def kill_old(port: int) -> bool:
 
         try:
 
-            os.kill(old_proc.pid, 0)
+            os.kill(old_proc.pid, signal.SIGTERM)
 
         except OSError:
 
