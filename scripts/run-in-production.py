@@ -112,7 +112,7 @@ if load_db():
         'wipe': True,
     }
 
-
+print('About to kill old process (if any)')
 if not kill_old(port = PORT):
 
     raise RuntimeError(
