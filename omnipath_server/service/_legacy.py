@@ -2926,7 +2926,7 @@ class LegacyService:
 
         else:
 
-            result = (json.dumps(result, cls=SetEncoder),)
+            result = (json.dumps(result, cls=SetEncoder) + os.linesep,)
 
         yield from result
 
