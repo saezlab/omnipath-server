@@ -26,7 +26,7 @@ __all__ = [
     'create_server',
 ]
 
-WorkerManager.THRESHOLD = 5000
+WorkerManager.THRESHOLD = 1200
 
 
 def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:

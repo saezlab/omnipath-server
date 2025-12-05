@@ -60,8 +60,7 @@ def kill_old(port: int) -> bool:
     if old_proc is not None:
 
         try:
-            print('Old process found. Killing PID:', old_proc.pid)
-            #os.killpg(os.getpgid(old_proc.pid), signal.SIGTERM)
+
             os.kill(old_proc.pid, signal.SIGTERM)
 
         except OSError:
@@ -113,15 +112,14 @@ if load_db():
         'wipe': True,
     }
 
-print('About to kill old process (if any)')
-if not kill_old(port = PORT):
-
-    raise RuntimeError(
-        f'Port {PORT} is already in use. And failed to free it.',
-    )
-
 app = _server.create_server(con = POSTGRES_ADDRESS, load_db = loader_args)
 
 if __name__ == '__main__':
+
+    if not kill_old(port = PORT):
+
+        raise RuntimeError(
+            f'Port {PORT} is already in use. And failed to free it.',
+        )
 
     app.run(**SERVER_PARAM)
