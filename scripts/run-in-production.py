@@ -61,7 +61,7 @@ def kill_old(port: int) -> bool:
 
         try:
 
-            os.kill(old_proc.pid, signal.SIGTERM)
+            os.killpg(os.getpgid(old_proc.pid), signal.SIGTERM)
 
         except OSError:
 
@@ -113,6 +113,7 @@ if load_db():
     }
 
 app = _server.create_server(con = POSTGRES_ADDRESS, load_db = loader_args)
+
 
 if __name__ == '__main__':
 
