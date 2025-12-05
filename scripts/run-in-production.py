@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import signal
 import argparse
 
 import psutil
@@ -60,9 +59,8 @@ def kill_old(port: int) -> bool:
     if old_proc is not None:
 
         try:
-            print('Old process found. Killing PID:', old_proc.pid)
-            #os.killpg(os.getpgid(old_proc.pid), signal.SIGTERM)
-            os.kill(old_proc.pid, signal.SIGTERM)
+
+            os.kill(old_proc.pid, 0)
 
         except OSError:
 
@@ -113,7 +111,7 @@ if load_db():
         'wipe': True,
     }
 
-print('About to kill old process (if any)')
+
 if not kill_old(port = PORT):
 
     raise RuntimeError(
