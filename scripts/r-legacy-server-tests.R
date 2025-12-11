@@ -344,12 +344,12 @@ print_summary <- function(results){
         sum(map_lgl(results, ~(.x$status %||% '') == status))
     }
 
-    message(sprintf(############
+    message(sprintf(
         '\nSucceeded: %d | Skipped: %d | Failed: %d | Checks: %d',
         status_count('success'),
         status_count('skipped'),
         status_count('error'),
-        results %>% map(~pluck(.x, 'check')) %>% sum()
+        results %>% map(~pluck(.x, 'check')) %>% unlist() %>% sum()
     ))
 }
 
