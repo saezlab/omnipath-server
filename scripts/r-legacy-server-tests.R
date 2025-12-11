@@ -98,7 +98,7 @@ SCENARIOS <- list(
         description = 'small molecule interactions.',
         args = list(
             organisms = 9606,
-            datasets = 'small_molecule',
+            datasets = 'small_molecule'
         ),
         tags = c('core')
     ),
@@ -108,7 +108,7 @@ SCENARIOS <- list(
         description = 'TF-miRNA interactions.',
         args = list(
             organisms = 9606,
-            datasets = 'tf_mirna',
+            datasets = 'tf_mirna'
         ),
         tags = c('core')
     ),
@@ -118,7 +118,7 @@ SCENARIOS <- list(
         description = 'TF-target interactions.',
         args = list(
             organisms = 9606,
-            datasets = 'tf_target',
+            datasets = 'tf_target'
         ),
         tags = c('core')
     ),
