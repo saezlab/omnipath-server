@@ -240,6 +240,14 @@ safe_row_count <- function(result){
     length(result)
 }
 
+check_results <- function(result, scenario) {
+    # Placeholder for future result checks
+    
+    if (!is.null(scenario$check)) {
+        scenario$check(result)
+    }
+}
+
 run_scenario <- function(scenario, include_full_db){
     tags <- scenario$tags %||% character(0)
 
@@ -266,9 +274,10 @@ run_scenario <- function(scenario, include_full_db){
     outcome <- tryCatch(
         {
             res <- single_query(scenario$query, scenario$args)
+            checkres <- check_results(res, scenario)
             rows <- safe_row_count(res)
             message(sprintf('  rows: %s', rows))
-            list(status = 'success', rows = rows)
+            list(status = 'success', rows = rows, check = checkres)
         },
         error = function(err){
             message(sprintf('  ERROR: %s', err$message))
@@ -298,10 +307,11 @@ print_summary <- function(results){
         }
 
         message(sprintf(
-            ' - %-24s %s%s',
+            ' - %-24s %s%s%s',
             res$id,
             toupper(res$status %||% 'UNKNOWN'),
-            extra
+            extra,
+            res$check
         ))
     })
 
