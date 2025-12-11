@@ -50,8 +50,14 @@ SCENARIOS <- list(
             organisms = 9606,
             datasets = 'omnipath',
             resources = 'SIGNOR',
-            genesymbols = TRUE
+            genesymbols = TRUE,
+            fields = c('sources', 'datasets')
         ),
+        check = function(result) {
+            (result$sources %>% str_detect('SIGNOR') %>% all) &&
+            (result$omnipath %>% all) &&
+            (c('source_genesymbol', 'target_genesymbol') %in% names(result) %>% all)
+        },
         tags = c('smoke', 'core')
     ),
     list(
@@ -62,8 +68,16 @@ SCENARIOS <- list(
             organisms = 10090,
             datasets = 'omnipath',
             resources = 'SIGNOR',
-            genesymbols = TRUE
+            genesymbols = TRUE,
+            fields = 'ncbi_tax_id'
         ),
+        check = function(result) {
+            result$ncbi_tax_id_source %>%
+            c(result$ncbi_tax_id_target) %>%
+            setdiff(10090) %>%
+            length() %>%
+            equals(0L)
+        },
         tags = c('smoke', 'core')
     ),
     list(
@@ -118,8 +132,12 @@ SCENARIOS <- list(
         description = 'TF-target interactions.',
         args = list(
             organisms = 9606,
-            datasets = 'tf_target'
+            datasets = 'tf_target',
+            fields = 'type'
         ),
+        check = function(result) {
+            result$type == 'transcriptional' %>% all
+        },
         tags = c('core')
     ),
     list(
