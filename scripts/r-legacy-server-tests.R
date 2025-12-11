@@ -55,6 +55,18 @@ SCENARIOS <- list(
         tags = c('smoke', 'core')
     ),
     list(
+        id = 'interactions_basic_mice',
+        query = 'omnipath_interactions',
+        description = 'Baseline OmniPath dataset via SIGNOR resources in mice.',
+        args = list(
+            organisms = 10090,
+            datasets = 'omnipath',
+            resources = 'SIGNOR',
+            genesymbols = TRUE
+        ),
+        tags = c('smoke', 'core')
+    ),
+    list(
         id = 'interactions_evidences',
         query = 'omnipath_interactions',
         description = 'Covers evidences JSON payload and column selection.',
@@ -77,6 +89,36 @@ SCENARIOS <- list(
             types = 'post_transcriptional',
             datasets = 'mirnatarget',
             signed = FALSE
+        ),
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_small_molecule',
+        query = 'omnipath_interactions',
+        description = 'small molecule interactions.',
+        args = list(
+            organisms = 9606,
+            datasets = 'small_molecule',
+        ),
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_tf_mirna',
+        query = 'omnipath_interactions',
+        description = 'TF-miRNA interactions.',
+        args = list(
+            organisms = 9606,
+            datasets = 'tf_mirna',
+        ),
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_tf_target',
+        query = 'omnipath_interactions',
+        description = 'TF-target interactions.',
+        args = list(
+            organisms = 9606,
+            datasets = 'tf_target',
         ),
         tags = c('core')
     ),
@@ -321,3 +363,6 @@ main <- function() {
 }
 
 main()
+
+# TODO: Add callback to check results
+# TODO: Check other args
