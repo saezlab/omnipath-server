@@ -242,7 +242,7 @@ safe_row_count <- function(result){
 
 check_results <- function(result, scenario) {
     # Placeholder for future result checks
-    
+
     if (!is.null(scenario$check)) {
         scenario$check(result)
     }
@@ -307,11 +307,11 @@ print_summary <- function(results){
         }
 
         message(sprintf(
-            ' - %-24s %s%s%s',
+            ' - %-24s %s%s\t%s',
             res$id,
             toupper(res$status %||% 'UNKNOWN'),
             extra,
-            res$check
+            res$check %||% 'UNKNOWN'
         ))
     })
 
