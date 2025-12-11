@@ -3,6 +3,7 @@
 library(OmnipathR)
 library(magrittr)
 library(purrr)
+library(stringr)
 
 options(
     omnipathr.retry_downloads = 1L,
@@ -69,7 +70,8 @@ SCENARIOS <- list(
             datasets = 'omnipath',
             resources = 'SIGNOR',
             genesymbols = TRUE,
-            fields = 'ncbi_tax_id'
+            fields = c('ncbi_tax_id_source', 'ncbi_tax_id_target')
+            # TODO: Fix in server accepting `ncbi_tax_id` as argument
         ),
         check = function(result) {
             result$ncbi_tax_id_source %>%
@@ -136,7 +138,7 @@ SCENARIOS <- list(
             fields = 'type'
         ),
         check = function(result) {
-            result$type == 'transcriptional' %>% all
+            (result$type == 'transcriptional') %>% all
         },
         tags = c('core')
     ),
@@ -152,7 +154,7 @@ SCENARIOS <- list(
             directed = TRUE
         ),
         check = function(result) {
-            result %>% filter(source == target) %>% nrow() %>% greater_than(0L)
+            result %>% filter(source == target) %>% nrow() %>% is_greater_than(0L)
         },
         tags = c('core')
     ),
@@ -332,8 +334,9 @@ print_summary <- function(results){
         message(sprintf(
             ' - %-24s %s%s\t%s',
             res$id,
-            toupper(res$status %||% 'NO CHECK'),
-            extra
+            toupper(res$status %||% 'UNKNOWN'),
+            extra,
+            res$check %||% 'NO CHECK'
         ))
     })
 
@@ -341,7 +344,7 @@ print_summary <- function(results){
         sum(map_lgl(results, ~(.x$status %||% '') == status))
     }
 
-    message(sprintf(
+    message(sprintf(############
         '\nSucceeded: %d | Skipped: %d | Failed: %d | Checks: %d',
         status_count('success'),
         status_count('skipped'),
@@ -399,3 +402,5 @@ main()
 
 # TODO: Add callback to check results
 # TODO: Check other args
+# FIXME: ncbi_tax_id in server
+# FIXME: fields in server
