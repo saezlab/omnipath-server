@@ -91,6 +91,9 @@ SCENARIOS <- list(
             loops = TRUE,
             directed = TRUE
         ),
+        check = function(result) {
+            result %>% filter(source == target) %>% nrow() %>% greater_than(0L)
+        },
         tags = c('core')
     ),
     list(
@@ -244,6 +247,8 @@ run_scenario <- function(scenario, include_full_db){
 print_summary <- function(results){
     message('\nSummary:')
 
+    message('Test\tResult\tNrows\tCheck')
+
     walk(results, function(res){
         extra <- ''
 
@@ -258,7 +263,7 @@ print_summary <- function(results){
         message(sprintf(
             ' - %-24s %s%s',
             res$id,
-            toupper(res$status %||% 'UNKNOWN'),
+            toupper(res$status %||% 'NO CHECK'),
             extra
         ))
     })
@@ -268,10 +273,11 @@ print_summary <- function(results){
     }
 
     message(sprintf(
-        '\nSucceeded: %d | Skipped: %d | Failed: %d',
+        '\nSucceeded: %d | Skipped: %d | Failed: %d | Checks: %d',
         status_count('success'),
         status_count('skipped'),
-        status_count('error')
+        status_count('error'),
+        status_count('check'),
     ))
 }
 
