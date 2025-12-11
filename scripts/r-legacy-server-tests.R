@@ -349,7 +349,7 @@ print_summary <- function(results){
         status_count('success'),
         status_count('skipped'),
         status_count('error'),
-        status_count('check'),
+        results %>% map(~pluck(.x, 'check')) %>% sum()
     ))
 }
 
