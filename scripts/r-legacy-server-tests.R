@@ -55,6 +55,18 @@ SCENARIOS <- list(
         tags = c('smoke', 'core')
     ),
     list(
+        id = 'interactions_basic_mice',
+        query = 'omnipath_interactions',
+        description = 'Baseline OmniPath dataset via SIGNOR resources in mice.',
+        args = list(
+            organisms = 10090,
+            datasets = 'omnipath',
+            resources = 'SIGNOR',
+            genesymbols = TRUE
+        ),
+        tags = c('smoke', 'core')
+    ),
+    list(
         id = 'interactions_evidences',
         query = 'omnipath_interactions',
         description = 'Covers evidences JSON payload and column selection.',
@@ -77,6 +89,36 @@ SCENARIOS <- list(
             types = 'post_transcriptional',
             datasets = 'mirnatarget',
             signed = FALSE
+        ),
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_small_molecule',
+        query = 'omnipath_interactions',
+        description = 'small molecule interactions.',
+        args = list(
+            organisms = 9606,
+            datasets = 'small_molecule'
+        ),
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_tf_mirna',
+        query = 'omnipath_interactions',
+        description = 'TF-miRNA interactions.',
+        args = list(
+            organisms = 9606,
+            datasets = 'tf_mirna'
+        ),
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_tf_target',
+        query = 'omnipath_interactions',
+        description = 'TF-target interactions.',
+        args = list(
+            organisms = 9606,
+            datasets = 'tf_target'
         ),
         tags = c('core')
     ),
@@ -201,6 +243,14 @@ safe_row_count <- function(result){
     length(result)
 }
 
+check_results <- function(result, scenario) {
+    # Placeholder for future result checks
+
+    if (!is.null(scenario$check)) {
+        scenario$check(result)
+    }
+}
+
 run_scenario <- function(scenario, include_full_db){
     tags <- scenario$tags %||% character(0)
 
@@ -227,9 +277,10 @@ run_scenario <- function(scenario, include_full_db){
     outcome <- tryCatch(
         {
             res <- single_query(scenario$query, scenario$args)
+            checkres <- check_results(res, scenario)
             rows <- safe_row_count(res)
             message(sprintf('  rows: %s', rows))
-            list(status = 'success', rows = rows)
+            list(status = 'success', rows = rows, check = checkres)
         },
         error = function(err){
             message(sprintf('  ERROR: %s', err$message))
@@ -261,7 +312,7 @@ print_summary <- function(results){
         }
 
         message(sprintf(
-            ' - %-24s %s%s',
+            ' - %-24s %s%s\t%s',
             res$id,
             toupper(res$status %||% 'NO CHECK'),
             extra
@@ -327,3 +378,6 @@ main <- function() {
 }
 
 main()
+
+# TODO: Add callback to check results
+# TODO: Check other args
