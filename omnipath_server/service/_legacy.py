@@ -722,7 +722,7 @@ class LegacyService:
         'lncrna_mrna': 'lncrna_post_transcriptional',
         'small_molecule': 'small_molecule_protein',
     }
-    interaction_fields = {
+    interaction_fields = { # XXX: Not used?
         'references', 'sources', 'dorothea_level',
         'dorothea_curated', 'dorothea_chipseq',
         'dorothea_tfbs', 'dorothea_coexp',

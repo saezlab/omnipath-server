@@ -4,6 +4,7 @@ library(OmnipathR)
 library(magrittr)
 library(purrr)
 library(stringr)
+library(dplyr)
 
 options(
     omnipathr.retry_downloads = 1L,
