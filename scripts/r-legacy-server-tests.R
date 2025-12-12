@@ -402,5 +402,5 @@ main()
 
 # TODO: Add callback to check results
 # TODO: Check other args
-# FIXME: ncbi_tax_id in server
 # FIXME: fields in server
+# FIXME: PyTest error

@@ -1827,7 +1827,7 @@ class LegacyService:
 
                 args['resources'] = args['databases']
 
-            if 'ncbi_tax_id' in args['fields']:
+            if 'ncbi_tax_id' in args.get('fields', []):
 
                 args['fields'].remove('ncbi_tax_id')
                 args['fields'] += ['ncbi_tax_id_source', 'ncbi_tax_id_target']
