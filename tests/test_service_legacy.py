@@ -101,12 +101,15 @@ WHERE_CASES = {
             "(interactions.source != interactions.target)",
         ),
         (
-            {'fields': ["source", "references", "type", "ncbi_tax_id"], 'limit': 10},
+            {
+                'fields': ["source", "references", "type", "ncbi_tax_id"],
+                'limit': 10
+            },
             "((interactions.ncbi_tax_id_source = ANY (ARRAY[%(param_1)s])) OR "
             "(interactions.ncbi_tax_id_target = ANY (ARRAY[%(param_1)s]))) AND "
             "(interactions.is_directed IS %(is_directed_1)s) AND "
             "interactions.omnipath AND "
-            "(interactions.source != interactions.target)",
+            "(interactions.source != interactions.target) LIMIT %(param_2)s",
         ),
 #        (
 #            {
@@ -332,8 +335,10 @@ SELECT_CASES = {
             "interactions.consensus_inhibition AS "
             "interactions_consensus_inhibition, interactions.sources AS "
             "interactions_sources, interactions.\"references\" AS "
-            "interactions_references, interactions.type AS interactions_type "
-            "FROM interactions",
+            "interactions_references, interactions.type AS interactions_type, "
+            "interactions.ncbi_tax_id_source AS "
+            "interactions_ncbi_tax_id_source, interactions.ncbi_tax_id_target "
+            "AS interactions_ncbi_tax_id_target FROM interactions",
         ),
     ],
     'intercell': [
