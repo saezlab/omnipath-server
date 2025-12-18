@@ -37,6 +37,7 @@ from omnipath_server import session
 from .. import _log, _connection
 from .._misc import SetEncoder
 from ..schema import _legacy as _schema
+from .._query_context import set_query_id
 
 __all__ = [
     'DEFAULT_LICENSE',
@@ -1178,6 +1179,9 @@ class LegacyService:
         Returns:
             The clean dictionary of arguments ready to generate a query.
         """
+
+        # Set query ID for this query context
+        set_query_id()
 
         _log(f'*** Starting new query on {query_type} ***')
 
