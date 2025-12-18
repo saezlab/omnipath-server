@@ -8,6 +8,7 @@ __all__ = [
 
 
 # [TEST AND FULL DATABASE]
+@pytest.mark.requires_loader
 def test_create_table(legacy_loader):
 
     tables = inspect(legacy_loader.con.engine).get_table_names()
@@ -25,6 +26,7 @@ def test_create_table(legacy_loader):
 
 
 # [TEST DATABASE ONLY]
+@pytest.mark.requires_loader
 def test_load_tables(legacy_db_loaded):
 
     loader = legacy_db_loaded

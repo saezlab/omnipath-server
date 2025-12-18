@@ -14,9 +14,33 @@ __all__ = [
     'legacy_service',
     'postgres_con',
     'pytest_addoption',
+    'pytest_configure',
+    'pytest_collection_modifyitems',
 ]
 
 sys.path.append(str(pl.Path(__file__).parent.parent))
+
+
+def pytest_configure(config):
+    """Register custom markers."""
+
+    config.addinivalue_line(
+        'markers',
+        'requires_loader: mark test as requiring database loading '
+        '(skipped with --use-existing-db)',
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    """Skip tests marked with requires_loader when --use-existing-db is set."""
+
+    if config.getoption('--use-existing-db'):
+        skip_loader = pytest.mark.skip(
+            reason = 'Skipping loader tests (--use-existing-db enabled)',
+        )
+        for item in items:
+            if 'requires_loader' in item.keywords:
+                item.add_marker(skip_loader)
 
 
 def pytest_addoption(parser):
@@ -26,6 +50,12 @@ def pytest_addoption(parser):
         default = './tests/test_config.yaml',
         action = 'store',
         help = 'Path to database config YAML',
+    )
+    parser.addoption(
+        '--use-existing-db',
+        action = 'store_true',
+        default = False,
+        help = 'Use existing database (skip loading, skip loader tests)',
     )
 
 
@@ -44,18 +74,29 @@ def postgres_con(request) -> Connection:
 
 
 @pytest.fixture(scope = 'session')
-def legacy_loader(legacy_data_path, postgres_con):
+def legacy_loader(legacy_data_path, postgres_con, request):
 
-    loader = Loader(path = legacy_data_path, con = postgres_con, wipe = True)
-    loader.create()
+    use_existing_db = request.config.getoption('--use-existing-db')
+
+    loader = Loader(
+        path = legacy_data_path,
+        con = postgres_con,
+        wipe = not use_existing_db,
+    )
+
+    if not use_existing_db:
+        loader.create()
 
     return loader
 
 
 @pytest.fixture(scope = 'session')
-def legacy_db_loaded(legacy_loader):
+def legacy_db_loaded(legacy_loader, request):
 
-    legacy_loader.load()
+    use_existing_db = request.config.getoption('--use-existing-db')
+
+    if not use_existing_db:
+        legacy_loader.load()
 
     return legacy_loader
 
