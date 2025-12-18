@@ -335,10 +335,7 @@ SELECT_CASES = {
             "interactions.consensus_inhibition AS "
             "interactions_consensus_inhibition, interactions.sources AS "
             "interactions_sources, interactions.\"references\" AS "
-            "interactions_references, interactions.type AS interactions_type, "
-            "interactions.ncbi_tax_id_source AS "
-            "interactions_ncbi_tax_id_source, interactions.ncbi_tax_id_target "
-            "AS interactions_ncbi_tax_id_target FROM interactions",
+            "interactions_references FROM interactions",
         ),
     ],
     'intercell': [
