@@ -1179,6 +1179,8 @@ class LegacyService:
             The clean dictionary of arguments ready to generate a query.
         """
 
+        _log(f'*** Starting new query on {query_type} ***')
+
         args.pop('self', None)
         kwargs = args.pop('kwargs', {})
         args = {
@@ -2896,6 +2898,8 @@ class LegacyService:
         """
 
         args = locals()
+        args = self._clean_args(args, 'complexes')
+        args = self._array_args(args, 'complexes')
 
         yield from self._request(args, 'complexes', **kwargs)
 
