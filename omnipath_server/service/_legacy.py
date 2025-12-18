@@ -1167,7 +1167,12 @@ class LegacyService:
         _log('Finished updating resource information.')
 
 
-    def _clean_args(self, args: dict, query_type: QUERY_TYPES) -> dict:
+    def _clean_args(
+            self,
+            args: dict,
+            query_type: QUERY_TYPES,
+            new_query: bool = True
+        ) -> dict:
         """
         Removes empty arguments, `kwargs` and `self` to prepare them for
         generating the SQL query.
@@ -1180,12 +1185,17 @@ class LegacyService:
             The clean dictionary of arguments ready to generate a query.
         """
 
-        # Set query ID for this query context
-        set_query_id()
+        if new_query:
 
-        _log(f'*** Starting new query on {query_type} ***')
+            # Set query ID for this query context
+            set_query_id()
+
+            _log(f'*** Starting new query on {query_type} ***')
 
         args.pop('self', None)
+
+        _log(f'[_clean_args] - Starting with args: {_misc.dict_str(args)}')
+
         kwargs = args.pop('kwargs', {})
         args = {
             k: self._maybe_bool(v)
@@ -1197,6 +1207,8 @@ class LegacyService:
             k: self._ensure_type(v, k, query_type)
             for k, v in args.items()
         }
+
+        _log(f'[_clean_args] - Returning with args: {_misc.dict_str(args)}')
 
         return args
 
@@ -1310,12 +1322,16 @@ class LegacyService:
             be in the right format.
         """
 
+        _log(f'[_array_args] - Starting with args: {_misc.dict_str(args)}')
+
         array_args = self.query_param[query_type].get('array_args', set())
 
         args = {
             k: self._ensure_array(v) if k in array_args else v
             for k, v in args.items()
         }
+
+        _log(f'[_array_args] - Starting with args: {_misc.dict_str(args)}')
 
         return args
 
@@ -1837,7 +1853,7 @@ class LegacyService:
 
                 args['resources'] = args['databases']
 
-            if 'ncbi_tax_id' in args.get('fields', []):
+            if 'ncbi_tax_id' in args.get('fields', []): # XXX Check here
 
                 args['fields'].remove('ncbi_tax_id')
                 args['fields'] += ['ncbi_tax_id_source', 'ncbi_tax_id_target']
@@ -1859,6 +1875,8 @@ class LegacyService:
             # TODO: reimplement and enable license filtering
             # tbl = self._filter_by_license_complexes(tbl, license)
 
+        _log(f'[_query] - Returning {query or bad_req}')
+
         return query, bad_req
 
 
@@ -1875,6 +1893,8 @@ class LegacyService:
         Yields:
             Tuples with the response rows.
         """
+
+        _log(f'[_execute] - Executing query: {query}')
 
         for row in self.con.execute(query):
 
@@ -1936,7 +1956,7 @@ class LegacyService:
         """
 
         fields_to_remove = args.pop('fields_to_remove', set())
-        args = self._clean_args(args, query_type)
+        args = self._clean_args(args, query_type, new_query=False)
         args = self._array_args(args, query_type)
         query, bad_req = self._query(
             args,
@@ -1946,7 +1966,11 @@ class LegacyService:
         format = format or args.pop('format', None) or 'tsv'
         colnames = ['no_column_names']
 
+        _log(f'[_request] - Args: {_misc.dict_str(args)}')
+
+
         if format == 'query':
+
             result = ((query,),)
 
         elif query:
@@ -1954,7 +1978,7 @@ class LegacyService:
             result = self._execute(query)
             colnames = [c.name for c in query.statement.selected_columns]
             _log(
-                'Finished executing query, columns in result: %s'
+                '[_request] - Finished executing query, columns in result: %s'
                 % ', '.join(colnames),
             )
             result = self._license_filter(
@@ -2280,8 +2304,9 @@ class LegacyService:
 
         args = self._inject_fields(args)
 
-        _log(f'Args: {_misc.dict_str(args)}')
-        _log(f'Interactions where: {extra_where}, {where_bool}, {where_loops}')
+        _log(f'[interactions] - Args: {_misc.dict_str(args)}')
+        _log(f'[interactions] - Interactions where: {extra_where},'
+             f'{where_bool}, {where_loops}')
 
         yield from self._request(
             args,
@@ -2456,8 +2481,8 @@ class LegacyService:
 
         args = self._inject_fields(args)
 
-        _log(f'Args: {_misc.dict_str(args)}')
-        _log(f'Enzsub where: {extra_where}, {where_loops}')
+        _log(f'[enzsub] - Args: {_misc.dict_str(args)}')
+        _log(f'[enzsub] - Enzsub where: {extra_where}, {where_loops}')
 
         yield from self._request(
             args,
@@ -2646,7 +2671,7 @@ class LegacyService:
         args = self._clean_args(args, 'annotations')
         args = self._array_args(args, 'annotations')
 
-        _log(f'Args: {_misc.dict_str(args)}')
+        _log(f'[annotations] - Args: {_misc.dict_str(args)}')
 
         yield from self._request(
             args,
@@ -2668,7 +2693,7 @@ class LegacyService:
         """
 
         args = locals()
-        args = self._clean_args(args, 'annotations')
+        args = self._clean_args(args, 'annotations', new_query=False)
         args = self._array_args(args, 'annotations')
         format = self._ensure_str(format)
 
@@ -2809,7 +2834,7 @@ class LegacyService:
         args = self._clean_args(args, 'intercell')
         args = self._array_args(args, 'intercell')
 
-        _log(f'Args: {_misc.dict_str(args)}')
+        _log(f'[intercell] - Args: {_misc.dict_str(args)}')
 
         yield from self._request(
             args,
@@ -2836,7 +2861,7 @@ class LegacyService:
         """
 
         args = locals()
-        args = self._clean_args(args, 'intercell')
+        args = self._clean_args(args, 'intercell', new_query=False)
         args = self._array_args(args, 'intercell')
         format = self._ensure_str(format)
 
