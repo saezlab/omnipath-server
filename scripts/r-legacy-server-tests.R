@@ -402,5 +402,3 @@ main()
 
 # TODO: Add callback to check results
 # TODO: Check other args
-# FIXME: fields in server
-# FIXME: PyTest error
