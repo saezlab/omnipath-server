@@ -71,8 +71,7 @@ SCENARIOS <- list(
             datasets = 'omnipath',
             resources = 'SIGNOR',
             genesymbols = TRUE,
-            fields = c('ncbi_tax_id_source', 'ncbi_tax_id_target')
-            # TODO: Fix in server accepting `ncbi_tax_id` as argument
+            fields = c('ncbi_tax_id')
         ),
         check = function(result) {
             result$ncbi_tax_id_source %>%
