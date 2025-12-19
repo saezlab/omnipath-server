@@ -1770,7 +1770,9 @@ class LegacyService:
 
         param = self.query_param[query_type]
         synonyms = param.get('select', {})
-        cols = param.get('select_default', set())
+        cols = param.get('select_default', set()).copy()
+        _log(f'[_select] - cols at beginning are: {cols}')
+
         tbl = self._schema(query_type)
         query_fields = set()
 
@@ -1788,14 +1790,17 @@ class LegacyService:
 
         _log(f'[_select] - query_fields values are: {query_fields}')
 
+        _log(f'[_select] - cols before values are: {cols}')
+
         cols.update(_misc.to_set(query_fields))
+        _log(f'[_select] - cols values are: {cols}')
         select = [
             c
             for c in tbl.__table__.columns
             if c.name != 'id' and (not cols or c.name in cols)
         ]
 
-        _log(f'[_select] - select values are: {select}')
+        _log(f'[_select] - select values are: {[c.name for c in select]}')
         # Instance of sqlalchemy.orm.Query
         return self.con.session.query(*select)
 
