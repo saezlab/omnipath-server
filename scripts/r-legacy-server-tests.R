@@ -25,6 +25,235 @@ parse_bool <- function(value) {
     tolower(value) %in% c('1', 'true', 't', 'yes', 'y')
 }
 
+# ============================================================================
+# Validation Helper Functions
+# ============================================================================
+
+check_columns_exist <- function(result, required_cols) {
+    # Check if all required columns exist in the result data frame.
+    #
+    # Args:
+    #   result: Data frame to check
+    #   required_cols: Character vector of required column names
+    #
+    # Returns:
+    #   TRUE if all required columns exist, FALSE otherwise
+
+    if (!inherits(result, 'data.frame')) {
+        return(FALSE)
+    }
+
+    all(required_cols %in% names(result))
+}
+
+check_column_types <- function(result, type_map) {
+    # Check if columns have expected types.
+    #
+    # Args:
+    #   result: Data frame to check
+    #   type_map: Named list mapping column names to expected types
+    #             (e.g., list(source = 'character', is_directed = 'logical'))
+    #
+    # Returns:
+    #   TRUE if all specified columns have correct types, FALSE otherwise
+    if (!inherits(result, 'data.frame')) {
+        return(FALSE)
+    }
+
+    all(map2_lgl(names(type_map), type_map, function(col_name, expected_type) {
+        if (!(col_name %in% names(result))) {
+            return(FALSE)
+        }
+
+        actual_type <- class(result[[col_name]])[1]
+
+        # Handle numeric types (integer counts as numeric)
+        if (expected_type == 'numeric' && actual_type %in% c('numeric', 'integer', 'double')) {
+            return(TRUE)
+        }
+
+        actual_type == expected_type
+    }))
+}
+
+check_organism_filter <- function(result, expected_organism) {
+    # Verify organism filtering is correctly applied.
+    #
+    # Args:
+    #   result: Data frame to check
+    #   expected_organism: Expected NCBI taxonomy ID (integer)
+    #
+    # Returns:
+    #   TRUE if all organism-related columns match expected_organism
+    if (!inherits(result, 'data.frame') || nrow(result) == 0) {
+        return(FALSE)
+    }
+
+    # Find all ncbi_tax_id columns
+    tax_cols <- names(result)[str_detect(names(result), 'ncbi_tax_id')]
+
+    if (length(tax_cols) == 0) {
+        # No organism columns, can't verify but don't fail
+        return(TRUE)
+    }
+
+    # Check all taxonomy columns contain only the expected organism
+    all(map_lgl(tax_cols, ~all(result[[.x]] == expected_organism, na.rm = TRUE)))
+}
+
+check_boolean_column <- function(result, col_name, expected_value) {
+    # Check if a boolean column has the expected value.
+    #
+    # Args:
+    #   result: Data frame to check
+    #   col_name: Name of the boolean column
+    #   expected_value: Expected boolean value (TRUE/FALSE)
+    #
+    # Returns:
+    #   TRUE if all values in the column match expected_value
+    if (!inherits(result, 'data.frame') || !(col_name %in% names(result))) {
+        return(FALSE)
+    }
+
+    all(result[[col_name]] == expected_value, na.rm = TRUE)
+}
+
+check_resource_filter <- function(result, resource_name) {
+    # Verify resource filtering is correctly applied.
+    #
+    # Args:
+    #   result: Data frame to check
+    #   resource_name: Expected resource name (string or vector)
+    #
+    # Returns:
+    #   TRUE if resource appears in sources/resources columns
+
+    if (!inherits(result, 'data.frame') || nrow(result) == 0) {
+        return(FALSE)
+    }
+
+    # Check sources column (interactions, enzsub, complexes)
+    if ('sources' %in% names(result)) {
+        return(any(str_detect(result$sources, resource_name)))
+    }
+
+    # Check database column (intercell)
+    if ('database' %in% names(result)) {
+        return(any(result$database %in% resource_name))
+    }
+
+    # Check source column (annotations)
+    if ('source' %in% names(result)) {
+        return(any(result$source %in% resource_name))
+    }
+
+    FALSE
+}
+
+check_has_rows <- function(result, min_rows = 1) {
+    # Check if result has minimum number of rows.
+    #
+    # Args:
+    #   result: Data frame to check
+    #   min_rows: Minimum required number of rows (default: 1)
+    #
+    # Returns:
+    #   TRUE if result has at least min_rows
+
+    if (!inherits(result, 'data.frame')) {
+        return(FALSE)
+    }
+
+    nrow(result) >= min_rows
+}
+
+check_only_requested_fields <- function(result, requested_fields,
+                                       base_fields = c('uniprot', 'genesymbol')) {
+    # Verify only requested fields are present in result.
+    #
+    # Args:
+    #   result: Data frame to check
+    #   requested_fields: Character vector of requested field names
+    #   base_fields: Base fields that are always present
+    #
+    # Returns:
+    #   TRUE if no extra fields beyond requested and base fields
+
+    if (!inherits(result, 'data.frame')) {
+        return(FALSE)
+    }
+
+    allowed_fields <- c(base_fields, requested_fields)
+    extra_fields <- setdiff(names(result), allowed_fields)
+
+    length(extra_fields) == 0
+}
+
+check_contains_value <- function(result, col_name, expected_values) {
+    # Check if column contains any of the expected values.
+    #
+    # Args:
+    #   result: Data frame to check
+    #   col_name: Name of the column
+    #   expected_values: Vector of expected values
+    #
+    # Returns:
+    #   TRUE if column contains at least one of the expected values
+
+    if (!inherits(result, 'data.frame') || !(col_name %in% names(result))) {
+        return(FALSE)
+    }
+
+    any(result[[col_name]] %in% expected_values)
+}
+
+check_all_values_in_set <- function(result, col_name, allowed_values) {
+    # Check if all values in column are within allowed set.
+    #
+    # Args:
+    #   result: Data frame to check
+    #   col_name: Name of the column
+    #   allowed_values: Vector of allowed values
+    #
+    # Returns:
+    #   TRUE if all values are in the allowed set
+
+    if (!inherits(result, 'data.frame') || !(col_name %in% names(result))) {
+        return(FALSE)
+    }
+
+    all(result[[col_name]] %in% allowed_values, na.rm = TRUE)
+}
+
+check_no_duplicates <- function(result, key_cols) {
+    # Check if result has no duplicate rows based on key columns.
+    #
+    # Args:
+    #   result: Data frame to check
+    #   key_cols: Character vector of column names to check for uniqueness
+    #
+    # Returns:
+    #   TRUE if no duplicate rows based on key columns
+
+    if (!inherits(result, 'data.frame')) {
+        return(FALSE)
+    }
+
+    if (!all(key_cols %in% names(result))) {
+        return(FALSE)
+    }
+
+    result %>%
+        select(all_of(key_cols)) %>%
+        duplicated() %>%
+        any() %>%
+        not()
+}
+
+# ============================================================================
+# End of Validation Helper Functions
+# ============================================================================
+
 single_query <- function(query_type, args){
     args %<>% discard(~length(.x) == 1 && (is.na(.x) || identical(.x, "")))
 
