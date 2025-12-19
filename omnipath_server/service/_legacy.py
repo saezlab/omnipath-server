@@ -363,22 +363,6 @@ class LegacyService:
         'enzsub',
         'complexes',
     }
-    list_fields = {
-        'sources',
-        'references',
-        'isoforms',
-    }
-
-    int_list_fields = {
-        'references',
-        'isoforms',
-    }
-
-    field_synonyms = {
-        'organism': 'ncbi_tax_id',
-        'sources': 'resources',
-        'databases': 'resources',
-    }
 
     args_reference = {
         'interactions': {
@@ -714,116 +698,6 @@ class LegacyService:
         'small_molecule',
     }
     dorothea_methods = {'curated', 'coexp', 'chipseq', 'tfbs'}
-    dataset2type = {
-        'omnipath': 'post_translational',
-        'dorothea': 'transcriptional',
-        'collectri': 'transcriptional',
-        'tf_target': 'transcriptional',
-        'kinaseextra': 'post_translational',
-        'ligrecextra': 'post_translational',
-        'pathwayextra': 'post_translational',
-        'mirnatarget': 'post_transcriptional',
-        'tf_mirna': 'mirna_transcriptional',
-        'lncrna_mrna': 'lncrna_post_transcriptional',
-        'small_molecule': 'small_molecule_protein',
-    }
-    interaction_fields = { # XXX: Not used?
-        'references', 'sources', 'dorothea_level',
-        'dorothea_curated', 'dorothea_chipseq',
-        'dorothea_tfbs', 'dorothea_coexp',
-        'type', 'ncbi_tax_id', 'databases', 'organism',
-        'curation_effort', 'resources', 'entity_type',
-        'datasets', 'extra_attrs', 'evidences',
-    }
-    enzsub_fields = {
-        'references', 'sources', 'databases',
-        'isoforms', 'organism', 'ncbi_tax_id',
-        'curation_effort', 'resources',
-    }
-    default_input_files = {
-        'interactions': 'omnipath_webservice_interactions.tsv',
-        'enzsub': 'omnipath_webservice_enz_sub.tsv',
-        'annotations': 'omnipath_webservice_annotations.tsv',
-        'complexes': 'omnipath_webservice_complexes.tsv',
-        'intercell': 'omnipath_webservice_intercell.tsv',
-    }
-    default_dtypes = collections.defaultdict(
-        dict,
-        interactions = {
-            'source': 'category',
-            'target': 'category',
-            'source_genesymbol': 'category',
-            'target_genesymbol': 'category',
-            'is_directed': 'int8',
-            'is_stimulation': 'int8',
-            'is_inhibition': 'int8',
-            'consensus_direction': 'int8',
-            'consensus_stimulation': 'int8',
-            'consensus_inhibition': 'int8',
-            'sources': 'category',
-            'references': 'category',
-            'dorothea_curated': 'category',
-            'dorothea_chipseq': 'category',
-            'dorothea_tfbs': 'category',
-            'dorothea_coexp': 'category',
-            'dorothea_level': 'category',
-            'type': 'category',
-            'ncbi_tax_id_source': 'int16',
-            'ncbi_tax_id_target': 'int16',
-            'entity_type_source': 'category',
-            'entity_type_target': 'category',
-            'curation_effort': 'int16',
-            'extra_attrs': 'category',
-            'evidences': 'category',
-        },
-        annotations = {
-            'uniprot': 'category',
-            'genesymbol': 'category',
-            'entity_type': 'category',
-            'source': 'category',
-            'label': 'category',
-            'value': 'category',
-            'record_id': 'uint32',
-        },
-        enzsub = {
-            'enzyme': 'category',
-            'substrate': 'category',
-            'enzyme_genesymbol': 'category',
-            'substrate_genesymbol': 'category',
-            'isoforms': 'category',
-            'residue_type': 'category',
-            'residue_offset': 'uint16',
-            'modification': 'category',
-            'sources': 'category',
-            'references': 'category',
-            'ncbi_tax_id': 'int16',
-            'curation_effort': 'int32',
-        },
-        complexes = {
-            'name': 'category',
-            'stoichiometry': 'category',
-            'sources': 'category',
-            'references': 'category',
-            'identifiers': 'category',
-        },
-        intercell = {
-            'category': 'category',
-            'database': 'category',
-            'uniprot': 'category',
-            'genesymbol': 'category',
-            'parent': 'category',
-            'aspect': 'category',
-            'scope': 'category',
-            'source': 'category',
-            'entity_type': 'category',
-            'consensus_score': 'uint16',
-            'transmitter': 'bool',
-            'receiver': 'bool',
-            'secreted': 'bool',
-            'plasma_membrane_transmembrane': 'bool',
-            'plasma_membrane_peripheral': 'bool',
-        },
-    )
     # the annotation attributes served for the cytoscape app
     cytoscape_attributes = {
         'Zhong2015': 'type',
