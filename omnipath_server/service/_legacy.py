@@ -1781,9 +1781,12 @@ class LegacyService:
             if args.get(f, False)
         }
 
+        _log(f'[_select] - fields_arg values are: {fields_arg}')
         for query_field in fields_arg:
 
             query_fields |= _misc.to_set(synonyms.get(query_field, query_field))
+
+        _log(f'[_select] - query_fields values are: {query_fields}')
 
         cols.update(_misc.to_set(query_fields))
         select = [
@@ -1792,6 +1795,7 @@ class LegacyService:
             if c.name != 'id' and (not cols or c.name in cols)
         ]
 
+        _log(f'[_select] - select values are: {select}')
         # Instance of sqlalchemy.orm.Query
         return self.con.session.query(*select)
 
@@ -1853,12 +1857,17 @@ class LegacyService:
 
                 args['resources'] = args['databases']
 
-            if 'ncbi_tax_id' in args.get('fields', []): # XXX Check here
+            _log(f'[_query] - Setting up query {_misc.dict_str(args)}')
+
+            if 'ncbi_tax_id' in args.get('fields', []):
+                _log('#########')
 
                 args['fields'].remove('ncbi_tax_id')
                 args['fields'] += ['ncbi_tax_id_source', 'ncbi_tax_id_target']
 
             query = self._select(args, query_type)
+            _log(f'[_query] - Post-query select call {_misc.dict_str(args)}')
+
             query = self._where(query, args, query_type)
 
             if extra_where := [
@@ -3117,8 +3126,6 @@ class LegacyService:
 
         if isinstance(arg, str):
 
-            # TODO: why organism not handled here?
-            # because it is an array?
             if _misc.is_int(arg):
 
                 arg = int(arg)
