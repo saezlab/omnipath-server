@@ -325,8 +325,10 @@ SCENARIOS <- list(
         check = function(result){
             ev1 <- result$evidences[[1]]
 
-            return (ev1$id_a == result$source[[1]] &&
-                ev1$id_b == result$target[[1]])
+            return (
+                ev1$id_a == result$source[[1]] &&
+                ev1$id_b == result$target[[1]]
+            )
         },
         tags = c('smoke', 'json')
     ),
