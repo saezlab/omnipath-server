@@ -4,6 +4,7 @@ library(OmnipathR)
 library(magrittr)
 library(purrr)
 library(stringr)
+library(logger)
 library(dplyr)
 
 options(
@@ -285,11 +286,15 @@ SCENARIOS <- list(
             genesymbols = TRUE,
             fields = c('sources', 'datasets')
         ),
-        check = function(result) {
-            (result$sources %>% str_detect('SIGNOR') %>% all) &&
-            (result$omnipath %>% all) &&
-            (result %>% check_columns_exist(c('source_genesymbol', 'target_genesymbol', 'omnipath')))
-        },
+        check = function(result) {c(
+            result$sources %>% str_detect('SIGNOR') %>% all,
+            result$omnipath %>% all,
+            result %>% check_columns_exist(c(
+                'source_genesymbol',
+                'target_genesymbol',
+                'omnipath'
+            ))
+        )},
         tags = c('smoke', 'core')
     ),
     list(
@@ -303,14 +308,14 @@ SCENARIOS <- list(
             genesymbols = TRUE,
             fields = c('ncbi_tax_id')
         ),
-        check = function(result) {
+        check = function(result) {c(
+            result %>% check_columns_exist(c('ncbi_tax_id_source', 'ncbi_tax_id_target')),
             result$ncbi_tax_id_source %>%
             c(result$ncbi_tax_id_target) %>%
             setdiff(10090) %>%
             length() %>%
-            equals(0L) &&
-            (result %>% check_columns_exist(c('ncbi_tax_id_source', 'ncbi_tax_id_target')))
-        },
+            equals(0L)
+        )},
         tags = c('smoke', 'core')
     ),
     list(
@@ -327,9 +332,16 @@ SCENARIOS <- list(
         check = function(result){
             ev1 <- result$evidences[[1]]
 
-            return (ev1$id_a == result$source[[1]] &&
-                ev1$id_b == result$target[[1]]) &&
-            (result %>% check_columns_exist(c('sources', 'references', 'curation_effort', 'evidences')))
+            return(c(
+                ev1$id_a == result$source[[1]],
+                ev1$id_b == result$target[[1]],
+                result %>% check_columns_exist(c(
+                    'sources',
+                    'references',
+                    'curation_effort',
+                    'evidences'
+                ))
+            ))
         },
         tags = c('smoke', 'json')
     ),
@@ -344,10 +356,13 @@ SCENARIOS <- list(
             datasets = 'mirnatarget',
             signed = FALSE
         ),
-        check = function(result) {
-            (result$type == 'post_transcriptional') %>% all &&
-            (result %>% check_columns_exist(c('source_genesymbol', 'target_genesymbol')))
-        },
+        check = function(result) {c(
+            result$type == 'post_transcriptional' %>% all,
+            result %>% check_columns_exist(c(
+                'source_genesymbol',
+                'target_genesymbol'
+            ))
+        )},
         tags = c('core')
     ),
     list(
@@ -359,7 +374,10 @@ SCENARIOS <- list(
             datasets = 'small_molecule'
         ),
         check = function(result) {
-            (result %>% check_columns_exist(c('source_genesymbol', 'target_genesymbol')))
+            result %>% check_columns_exist(c(
+                'source_genesymbol',
+                'target_genesymbol'
+            ))
         },
         tags = c('core')
     ),
@@ -371,10 +389,13 @@ SCENARIOS <- list(
             organisms = 9606,
             datasets = 'tf_mirna'
         ),
-        check = function(result) {
-            (result$type == 'transcriptional') %>% all &&
-            (result %>% check_columns_exist(c('source_genesymbol', 'target_genesymbol')))
-        },
+        check = function(result) {c(
+            result$type == 'transcriptional' %>% all,
+            result %>% check_columns_exist(c(
+                'source_genesymbol',
+                'target_genesymbol'
+            ))
+        )},
         tags = c('core')
     ),
     list(
@@ -386,10 +407,14 @@ SCENARIOS <- list(
             datasets = 'tf_target',
             fields = 'type'
         ),
-        check = function(result) {
-            (result$type == 'transcriptional') %>% all &&
-            (result %>% check_columns_exist(c('source_genesymbol', 'target_genesymbol', 'type')))
-        },
+        check = function(result) {c(
+            result$type == 'transcriptional' %>% all,
+            result %>% check_columns_exist(c(
+                'source_genesymbol',
+                'target_genesymbol',
+                'type'
+            ))
+        )},
         tags = c('core')
     ),
     list(
@@ -403,10 +428,15 @@ SCENARIOS <- list(
             loops = TRUE,
             directed = TRUE
         ),
-        check = function(result) {
-            result %>% filter(source == target) %>% nrow() %>% is_greater_than(0L) &&
-            (result %>% check_columns_exist(c('source_genesymbol', 'target_genesymbol')))
-        },
+        check = function(result) {c(
+            result %>%
+            filter(source == target) %>%
+            nrow() %>% is_greater_than(0L),
+            result %>% check_columns_exist(c(
+                'source_genesymbol',
+                'target_genesymbol'
+            ))
+        )},
         tags = c('core')
     ),
     list(
@@ -419,10 +449,13 @@ SCENARIOS <- list(
             dorothea_methods = 'coexp,tfbs',
             organisms = 9606
         ),
-        check = function(result) {
-            (result$sources %>% str_detect('DoRothEA') %>% all) &&
-            (result %>% check_columns_exist(c('source_genesymbol', 'target_genesymbol')))
-        },
+        check = function(result) {c(
+            result$sources %>% str_detect('DoRothEA') %>% all,
+            result %>% check_columns_exist(c(
+                'source_genesymbol',
+                'target_genesymbol'
+            ))
+        )},
         tags = c('full-db')
     ),
     list(
@@ -434,10 +467,10 @@ SCENARIOS <- list(
             entity_types = 'protein',
             genesymbols = TRUE
         ),
-        check = function(result) {
-            (result$source %>% unique() %>% equals('UniProt_tissue')) &&
-            (result %>% check_columns_exist(c('genesymbol', 'value', 'label')))
-        },
+        check = function(result) {c(
+            result$source %>% unique() %>% equals('UniProt_tissue'),
+            result %>% check_columns_exist(c('genesymbol', 'value', 'label'))
+        )},
         tags = c('smoke', 'core')
     ),
     list(
@@ -448,10 +481,10 @@ SCENARIOS <- list(
             resources = 'CellPhoneDB',
             entity_types = 'complex'
         ),
-        check = function(result) {
-            (result$source %>% unique() %>% equals('CellPhoneDB')) &&
-            (result %>% check_columns_exist(c('genesymbol', 'value', 'label')))
-        },
+        check = function(result) {c(
+            result$source %>% unique() %>% equals('CellPhoneDB'),
+            result %>% check_columns_exist(c('genesymbol', 'value', 'label'))
+        )},
         tags = c('full-db')
     ),
     list(
@@ -461,14 +494,14 @@ SCENARIOS <- list(
         args = list(
             resources = 'hu.MAP'
         ),
-        check = function(result) {
-            (result$source %>% unique() %>% equals('hu.MAP')) &&
-            (result %>% check_columns_exist(c(
+        check = function(result) {c(
+            result$source %>% unique() %>% equals('hu.MAP'),
+            result %>% check_columns_exist(c(
                 'name',
                 'components',
                 'stoichiometry'
-            )))
-        },
+            ))
+        )},
         tags = c('smoke', 'core')
     ),
     list(
@@ -482,16 +515,16 @@ SCENARIOS <- list(
             modification = 'phosphorylation',
             residues = 'S'
         ),
-        check = function(result) {
-            (result$residue_type %>% unique() %>% equals('S')) &&
-            (result$modification %>% unique() %>% equals('phosphorylation')) &&
-            (result %>% check_columns_exist(c(
+        check = function(result) {c(
+            result$residue_type %>% unique() %>% equals('S'),
+            result$modification %>% unique() %>% equals('phosphorylation'),
+            result %>% check_columns_exist(c(
                 'enzyme',
                 'substrate',
                 'enzyme_genesymbol',
                 'substrate_genesymbol'
-            )))
-        },
+            ))
+        )},
         tags = c('smoke', 'core')
     ),
     list(
@@ -503,18 +536,18 @@ SCENARIOS <- list(
             modification = 'dephosphorylation',
             residues = 'Y'
         ),
-        check = function(result) {
-            (result$residue_type %>% unique() %>% equals('Y')) &&
-            (result$modification %>% unique() %>% equals('dephosphorylation')) &&
-            (result %>% check_columns_exist(c(
+        check = function(result) {c(
+            result$residue_type %>% unique() %>% equals('Y'),
+            result$modification %>% unique() %>% equals('dephosphorylation'),
+            result %>% check_columns_exist(c(
                 'enzyme',
                 'substrate'
-            ))) &&
-            (result %>% check_columns_exist(c(
+            )),
+            result %>% check_columns_exist(c(
                 'enzyme_genesymbol',
                 'substrate_genesymbol'
-            ), negate = TRUE))
-        },
+            ), negate = TRUE)
+        )},
         tags = c('full-db')
     ),
     list(
@@ -527,17 +560,17 @@ SCENARIOS <- list(
             sec = TRUE,
             categories = 'ligand'
         ),
-        check = function(result) {
-            result$transmitter %>% all &&
-            result$secreted %>% all &&
-            result$receiver %>% all %>% not &&
-            result$catgegory %>% unique %>% equals('ligand') &&
-            result$database %>% unique %>% equals('CellChatDB') &&
+        check = function(result) {c(
+            result$transmitter %>% all,
+            result$secreted %>% all,
+            result$receiver %>% all %>% not,
+            result$catgegory %>% unique %>% equals('ligand'),
+            result$database %>% unique %>% equals('CellChatDB'),
             result %>% check_columns_exist(c(
                 'plasma_membrane_transmembrane',
                 'plasma_membrane_peripheral'
             ))
-        },
+        )},
         tags = c('smoke', 'core')
     ),
     list(
@@ -551,13 +584,13 @@ SCENARIOS <- list(
             aspect = 'functional',
             scope = 'specific'
         ),
-        check = function(result) {
-            result$plasma_membrane_transmembrane %>% all &&
-            result$plasma_membrane_peripheral %>% all &&
-            result$entity_type %>% unique %>% equals('complex') &&
-            result$uniprot %>% str_starts('COMPLEX:') %>% all &&
+        check = function(result) {c(
+            result$plasma_membrane_transmembrane %>% all,
+            result$plasma_membrane_peripheral %>% all,
+            result$entity_type %>% unique %>% equals('complex'),
+            result$uniprot %>% str_starts('COMPLEX:') %>% all,
             result$gensymbol %>% str_starts('COMPLEX:') %>% all
-        },
+        )},
         tags = c('full-db')
     )
 )
@@ -578,7 +611,15 @@ check_results <- function(result, scenario) {
     # Placeholder for future result checks
 
     if (!is.null(scenario$check)) {
-        scenario$check(result)
+        res <- scenario$check(result)
+        res_all <- res %>% all
+
+        if (!res_all) {
+            log_warn(paste(res, collapse = ' | '))
+            capture.output(print(result)) %>% head(-2) %>% walk(log_warn)
+        }
+
+        return(res_all)
     }
 }
 
