@@ -452,7 +452,7 @@ SCENARIOS <- list(
             (result %>% check_columns_exist(c('genesymbol', 'value', 'label')))
         },
         tags = c('full-db')
-    ), ### WE ARE HERE!!!
+    ),
     list(
         id = 'complexes_basic',
         query = 'complexes',
@@ -460,6 +460,14 @@ SCENARIOS <- list(
         args = list(
             resources = 'hu.MAP'
         ),
+        check = function(result) {
+            (result$source %>% unique() %>% equals('hu.MAP')) &&
+            (result %>% check_columns_exist(c(
+                'name',
+                'components',
+                'stoichiometry'
+            )))
+        },
         tags = c('smoke', 'core')
     ),
     list(
@@ -473,6 +481,16 @@ SCENARIOS <- list(
             modification = 'phosphorylation',
             residues = 'S'
         ),
+        check = function(result) {
+            (result$residue_type %>% unique() %>% equals('S')) &&
+            (result$modification %>% unique() %>% equals('phosphorylation')) &&
+            (result %>% check_columns_exist(c(
+                'enzyme',
+                'substrate',
+                'enzyme_genesymbol',
+                'substrate_genesymbol'
+            )))
+        },
         tags = c('smoke', 'core')
     ),
     list(
