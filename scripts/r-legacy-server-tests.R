@@ -43,7 +43,7 @@ check_columns_exist <- function(result, cols, negate = FALSE) {
     if (!inherits(result, 'data.frame')) {
         return(FALSE)
     }
-    negate %<>% `if`(, not, identity)
+    negate %<>% `if`(not, identity)
 
     all(cols %in% names(result) %>% negate)
 }
@@ -358,7 +358,7 @@ SCENARIOS <- list(
             fields = 'type'
         ),
         check = function(result) {c(
-            result$type == 'post_transcriptional' %>% all,
+            (result$type == 'post_transcriptional') %>% all,
             result %>% check_columns_exist(c(
                 'source_genesymbol',
                 'target_genesymbol'
@@ -392,7 +392,7 @@ SCENARIOS <- list(
             fields = 'type'
         ),
         check = function(result) {c(
-            result$type == 'transcriptional' %>% all,
+            (result$type == 'transcriptional') %>% all,
             result %>% check_columns_exist(c(
                 'source_genesymbol',
                 'target_genesymbol'
@@ -410,7 +410,7 @@ SCENARIOS <- list(
             fields = 'type'
         ),
         check = function(result) {c(
-            result$type == 'transcriptional' %>% all,
+            (result$type == 'transcriptional') %>% all,
             result %>% check_columns_exist(c(
                 'source_genesymbol',
                 'target_genesymbol',
@@ -432,7 +432,7 @@ SCENARIOS <- list(
         ),
         check = function(result) {c(
             result %>%
-            filter(source == target) %>%
+            dplyr::filter(source == target) %>%
             nrow() %>% is_greater_than(0L),
             result %>% check_columns_exist(c(
                 'source_genesymbol',
@@ -497,7 +497,7 @@ SCENARIOS <- list(
             resources = 'hu.MAP'
         ),
         check = function(result) {c(
-            result$sources %>% unique() %>% equals('hu.MAP'),
+            result$sources %>% unique() %>% equals('hu.MAP') %>% all,
             result %>% check_columns_exist(c(
                 'name',
                 'components',
@@ -560,14 +560,15 @@ SCENARIOS <- list(
             resources = 'CellChatDB',
             trans = TRUE,
             sec = TRUE,
-            categories = 'ligand'
+            categories = 'ligand',
+            fields = 'topology'
         ),
         check = function(result) {c(
             result$transmitter %>% all,
             result$secreted %>% all,
             result$receiver %>% all %>% not,
-            result$category %>% unique %>% equals('ligand'),
-            result$database %>% unique %>% equals('CellChatDB'),
+            result$category %>% unique %>% equals('ligand') %>% all,
+            result$database %>% unique %>% equals('CellChatDB') %>% all,
             result %>% check_columns_exist(c(
                 'plasma_membrane_transmembrane',
                 'plasma_membrane_peripheral'
