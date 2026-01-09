@@ -15,8 +15,8 @@
 
 from typing import Any, Literal
 from collections.abc import Callable, Iterable, Generator, Collection
-import re
 import os
+import re
 import json
 import functools
 import importlib as imp
@@ -1045,8 +1045,8 @@ class LegacyService:
             self,
             args: dict,
             query_type: QUERY_TYPES,
-            new_query: bool = True
-        ) -> dict:
+            new_query: bool = True,
+    ) -> dict:
         """
         Removes empty arguments, `kwargs` and `self` to prepare them for
         generating the SQL query.
@@ -1667,6 +1667,7 @@ class LegacyService:
             if c.name != 'id' and (not cols or c.name in cols)
         ]
 
+        # TODO: this is empty for intercell(fields = 'topology')
         _log(f'[_select] - select values are: {[c.name for c in select]}')
 
         # Instance of sqlalchemy.orm.Query
