@@ -29,7 +29,7 @@ parse_bool <- function(value) {
 # Validation Helper Functions
 # ============================================================================
 
-check_columns_exist <- function(result, required_cols) {
+check_columns_exist <- function(result, cols, negate = FALSE) {
     # Check if all required columns exist in the result data frame.
     #
     # Args:
@@ -42,8 +42,9 @@ check_columns_exist <- function(result, required_cols) {
     if (!inherits(result, 'data.frame')) {
         return(FALSE)
     }
+    negate %<>% `if`(, not, identity)
 
-    all(required_cols %in% names(result))
+    all(cols %in% names(result) %>% negate)
 }
 
 check_column_types <- function(result, type_map) {
@@ -502,6 +503,18 @@ SCENARIOS <- list(
             modification = 'dephosphorylation',
             residues = 'Y'
         ),
+        check = function(result) {
+            (result$residue_type %>% unique() %>% equals('Y')) &&
+            (result$modification %>% unique() %>% equals('dephosphorylation')) &&
+            (result %>% check_columns_exist(c(
+                'enzyme',
+                'substrate'
+            ))) &&
+            (result %>% check_columns_exist(c(
+                'enzyme_genesymbol',
+                'substrate_genesymbol'
+            ), negate = TRUE))
+        },
         tags = c('full-db')
     ),
     list(
@@ -514,6 +527,17 @@ SCENARIOS <- list(
             sec = TRUE,
             categories = 'ligand'
         ),
+        check = function(result) {
+            result$transmitter %>% all &&
+            result$secreted %>% all &&
+            result$receiver %>% all %>% not &&
+            result$catgegory %>% unique %>% equals('ligand') &&
+            result$database %>% unique %>% equals('CellChatDB') &&
+            result %>% check_columns_exist(c(
+                'plasma_membrane_transmembrane',
+                'plasma_membrane_peripheral'
+            ))
+        },
         tags = c('smoke', 'core')
     ),
     list(
@@ -527,6 +551,13 @@ SCENARIOS <- list(
             aspect = 'functional',
             scope = 'specific'
         ),
+        check = function(result) {
+            result$plasma_membrane_transmembrane %>% all &&
+            result$plasma_membrane_peripheral %>% all &&
+            result$entity_type %>% unique %>% equals('complex') &&
+            result$uniprot %>% str_starts('COMPLEX:') %>% all &&
+            result$gensymbol %>% str_starts('COMPLEX:') %>% all
+        },
         tags = c('full-db')
     )
 )
