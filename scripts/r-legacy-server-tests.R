@@ -354,7 +354,8 @@ SCENARIOS <- list(
             entity_types = 'mirna',
             types = 'post_transcriptional',
             datasets = 'mirnatarget',
-            signed = FALSE
+            signed = FALSE,
+            fields = 'type'
         ),
         check = function(result) {c(
             result$type == 'post_transcriptional' %>% all,
@@ -387,7 +388,8 @@ SCENARIOS <- list(
         description = 'TF-miRNA interactions.',
         args = list(
             organisms = 9606,
-            datasets = 'tf_mirna'
+            datasets = 'tf_mirna',
+            fields = 'type'
         ),
         check = function(result) {c(
             result$type == 'transcriptional' %>% all,
@@ -495,7 +497,7 @@ SCENARIOS <- list(
             resources = 'hu.MAP'
         ),
         check = function(result) {c(
-            result$source %>% unique() %>% equals('hu.MAP'),
+            result$sources %>% unique() %>% equals('hu.MAP'),
             result %>% check_columns_exist(c(
                 'name',
                 'components',
@@ -564,7 +566,7 @@ SCENARIOS <- list(
             result$transmitter %>% all,
             result$secreted %>% all,
             result$receiver %>% all %>% not,
-            result$catgegory %>% unique %>% equals('ligand'),
+            result$category %>% unique %>% equals('ligand'),
             result$database %>% unique %>% equals('CellChatDB'),
             result %>% check_columns_exist(c(
                 'plasma_membrane_transmembrane',
@@ -579,8 +581,8 @@ SCENARIOS <- list(
         description = 'Membrane topology / complex view.',
         args = list(
             entity_types = 'complex',
-            pmtm = TRUE,
-            pmp = 'yes',
+            plasma_membrane_transmembrane = TRUE,
+            plasma_membrane_peripheral = TRUE,
             aspect = 'functional',
             scope = 'specific'
         ),
@@ -589,7 +591,7 @@ SCENARIOS <- list(
             result$plasma_membrane_peripheral %>% all,
             result$entity_type %>% unique %>% equals('complex'),
             result$uniprot %>% str_starts('COMPLEX:') %>% all,
-            result$gensymbol %>% str_starts('COMPLEX:') %>% all
+            result$genesymbol %>% str_starts('COMPLEX:') %>% all
         )},
         tags = c('full-db')
     )
