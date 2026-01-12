@@ -576,7 +576,7 @@ class LegacyService:
                 'scope',
                 'aspect',
                 'source',
-                'unoprot',
+                'uniprot',
                 'genesymbol',
                 'entity_type',
                 'consensus_score',
@@ -1678,7 +1678,7 @@ class LegacyService:
 
         param = self.query_param[query_type]
         synonyms = param.get('select', {})
-        cols = param.get('select_default', set()).copy()
+        cols = param.get('select_default', set(self._columns(query_type))).copy()
 
         tbl = self._schema(query_type)
         query_fields = set()
@@ -2971,6 +2971,8 @@ class LegacyService:
 
             enabled_resources = self._license_enables(license)
 
+            print(cols)
+            _log('Columns: %s' % cols)
             res_col = cols.index(self._resource_col(query_type))
             prefix_cols_idx = [
                 cols.index(i) for i in self._resource_prefix_cols(query_type)
