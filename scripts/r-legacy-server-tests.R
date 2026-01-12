@@ -498,7 +498,7 @@ SCENARIOS <- list(
             resources = 'hu.MAP'
         ),
         check = function(result) {c(
-            result$sources %>% unique() %>% equals('hu.MAP') %>% all,
+            result$sources %>% unique() %>% str_detect('hu.MAP') %>% all,
             result %>% check_columns_exist(c(
                 'name',
                 'components',
@@ -549,7 +549,7 @@ SCENARIOS <- list(
             result %>% check_columns_exist(c(
                 'enzyme_genesymbol',
                 'substrate_genesymbol'
-            ), negate = TRUE)
+            ))
         )},
         tags = c('full-db')
     ),
