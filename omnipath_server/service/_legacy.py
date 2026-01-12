@@ -1706,7 +1706,6 @@ class LegacyService:
             if c.name != 'id' and (not cols or c.name in cols)
         ]
 
-        # TODO: this is empty for intercell(fields = 'topology')
         _log(f'[_select] - select values are: {[c.name for c in select]}')
 
         # Instance of sqlalchemy.orm.Query
@@ -2975,9 +2974,6 @@ class LegacyService:
         else:
 
             enabled_resources = self._license_enables(license)
-
-            print(cols)
-            _log('Columns: %s' % cols)
 
             res_col = cols.index(self._resource_col(query_type))
             prefix_cols_idx = [
