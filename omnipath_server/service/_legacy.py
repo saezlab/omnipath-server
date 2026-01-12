@@ -1520,7 +1520,7 @@ class LegacyService:
                 The desired database to retrieve its schema class.
 
         Returns:
-            The list of columns of the requested database.
+            The list of columns of the requested database as SQLalchemy columns.
         """
 
         return self._schema(query_type).__table__.columns
@@ -1678,7 +1678,12 @@ class LegacyService:
 
         param = self.query_param[query_type]
         synonyms = param.get('select', {})
-        cols = param.get('select_default', set(self._columns(query_type))).copy()
+        cols = param.get(
+            'select_default',
+            {c.name for c in self._columns(query_type)}
+        ).copy()
+
+        _log(f'[_select] Columns are: {cols}')
 
         tbl = self._schema(query_type)
         query_fields = set()
@@ -2973,6 +2978,7 @@ class LegacyService:
 
             print(cols)
             _log('Columns: %s' % cols)
+
             res_col = cols.index(self._resource_col(query_type))
             prefix_cols_idx = [
                 cols.index(i) for i in self._resource_prefix_cols(query_type)
