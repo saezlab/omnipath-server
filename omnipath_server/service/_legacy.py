@@ -49,6 +49,8 @@ __all__ = [
     'GEN_OF_TUPLES',
     'INTERACTION_DATASETS',
     'INTERACTION_TYPES',
+    'INTERCELL_CAUSALITY',
+    'INTERCELL_TOPOLOGY',
     'LICENSE_IGNORE',
     'LICENSE_INVALID',
     'LICENSE_LEVELS',
@@ -127,6 +129,16 @@ DOROTHEA_METHODS = Literal[
     'coexp',
     'tfbs',
     'chipseq',
+]
+INTERCELL_TOPOLOGY = Literal[
+    'secreted',
+    'plasma_membrane_transmembrane',
+    'plasma_membrane_peripheral',
+]
+INTERCELL_CAUSALITY = Literal[
+    'transmitter',
+    'receiver',
+    'mediator',
 ]
 LICENSE_LEVELS = Literal[
     'ignore',
@@ -327,6 +339,10 @@ class LegacyService:
                 'sec': 'secreted',
                 'pmtm': 'plasma_membrane_transmembrane',
                 'pmp': 'plasma_membrane_peripheral',
+            },
+            'select': {
+                'topology': INTERCELL_TOPOLOGY.__args__,
+                'causality': INTERCELL_CAUSALITY.__args__,
             },
         },
         'annotations': {
