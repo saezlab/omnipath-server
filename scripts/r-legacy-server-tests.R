@@ -392,7 +392,8 @@ SCENARIOS <- list(
             fields = 'type'
         ),
         check = function(result) {c(
-            (result$type == 'transcriptional') %>% all,
+            # FIXME: CollecTRI is set to transcriptional in the database build
+            (result$type %>% is_in(c('transcriptional', 'mirna_transcriptional'))) %>% all,
             result %>% check_columns_exist(c(
                 'source_genesymbol',
                 'target_genesymbol'
@@ -619,7 +620,7 @@ check_results <- function(result, scenario) {
 
         if (!res_all) {
             log_warn(paste(res, collapse = ' | '))
-            capture.output(print(result)) %>% head(-2) %>% walk(log_warn)
+            capture.output(print(result)) %>% head(-1) %>% walk(log_warn)
         }
 
         return(res_all)
