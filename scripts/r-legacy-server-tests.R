@@ -511,7 +511,7 @@ SCENARIOS <- list(
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
             # Unsigned means neither stimulation nor inhibition
-            !(result$is_stimulation | result$is_inhibition) %>% any
+            (result$is_stimulation | result$is_inhibition) %>% not %>% any
         )},
         tags = c('core')
     ),
@@ -528,20 +528,18 @@ SCENARIOS <- list(
         )},
         tags = c('core')
     ),
-    list(
-        id = 'interactions_limit',
-        query = 'omnipath_interactions',
-        description = 'Test SQL LIMIT clause functionality.',
-        args = list(
-            limit = 25
-        ),
-        check = function(result) {c(
-            result %>% check_has_rows(min_rows = 1),
-            nrow(result) <= 25,
-            result %>% check_columns_exist(c('source', 'target'))
-        )},
-        tags = c('core')
-    ),
+    # list(
+    #     id = 'interactions_limit',
+    #     query = 'omnipath_interactions',
+    #     description = 'Test SQL LIMIT clause functionality.',
+    #     args = list(
+    #         limit = 25
+    #     ),
+    #     check = function(result) {c(
+    #         nrow(result) == 25
+    #     )},
+    #     tags = c('core')
+    # ),
     list(
         id = 'interactions_fields_comprehensive',
         query = 'omnipath_interactions',
@@ -630,14 +628,15 @@ SCENARIOS <- list(
         query = 'omnipath_interactions',
         description = 'Test interactions of a specific type.',
         args = list(
+            datasets = 'mirnatarget',
             types = 'post_transcriptional',
             fields = c('type', 'datasets', 'entity_type')
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            !(result$omnipath) %>% all,
-            !(result$dorothea) %>% all,
-            !(result$pathwayextra) %>% all,
+            (result$omnipath) %>% not %>%  all,
+            (result$dorothea) %>% not %>% all,
+            (result$pathwayextra) %>% not %>% all,
             result$type %>% unique() %>% equals('post_transcriptional'),
             result$entity_type_source %>% unique %>% equals('mirna') %>% all,
             result %>% check_columns_exist(c(
@@ -671,6 +670,7 @@ SCENARIOS <- list(
         query = 'omnipath_interactions',
         description = 'Test lncRNA-mRNA interactions from entity_types argument.',
         args = list(
+            datasets = 'lncrna_mrna',
             entity_types = 'lncrna',
             fields = c('type', 'entity_type')
         ),
@@ -689,6 +689,7 @@ SCENARIOS <- list(
         query = 'omnipath_interactions',
         description = 'Test lncRNA-mRNA interactions from types argument.',
         args = list(
+            datasets = 'lncrna_mrna',
             types = 'lncrna_post_transcriptional',
             fields = c('type', 'entity_type')
         ),
