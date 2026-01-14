@@ -1105,6 +1105,8 @@ class LegacyService:
         _log(f'[_clean_args] - Starting with args: {_misc.dict_str(args)}')
 
         kwargs = args.pop('kwargs', {})
+        args = self._array_args(args, query_type)
+
         args = {
             k: self._maybe_bool(v)
             for k, v in args.items()
@@ -1208,9 +1210,9 @@ class LegacyService:
 
             val = val.split(',')
 
-        val = _misc.to_list(val)
+        val = _misc.to_list(val) or None
 
-        return _misc.to_list(val)
+        return val
 
 
     def _array_args(self, args: dict, query_type: str) -> dict:
@@ -1877,8 +1879,9 @@ class LegacyService:
         """
 
         fields_to_remove = args.pop('fields_to_remove', set())
+        _log(f'[_request] - Args before clean: {_misc.dict_str(args)}')
         args = self._clean_args(args, query_type, new_query=False)
-        args = self._array_args(args, query_type)
+        _log(f'[_request] - Args after clean: {_misc.dict_str(args)}')
         query, bad_req = self._query(
             args,
             query_type,
@@ -2215,7 +2218,6 @@ class LegacyService:
         organisms = organisms or {9606}
         args = locals()
         args = self._clean_args(args, 'interactions')
-        args = self._array_args(args, 'interactions')
 
         args = self._interactions_defaults(args)
 
@@ -2396,7 +2398,6 @@ class LegacyService:
         organisms = organisms or {9606}
         args = locals()
         args = self._clean_args(args, 'enzsub')
-        args = self._array_args(args, 'enzsub')
         where_loops = self._where_loops('enzsub', args)
         extra_where = self._where_partners('enzsub', args)
 
@@ -2590,7 +2591,6 @@ class LegacyService:
 
         args = locals()
         args = self._clean_args(args, 'annotations')
-        args = self._array_args(args, 'annotations')
 
         _log(f'[annotations] - Args: {_misc.dict_str(args)}')
 
@@ -2615,7 +2615,6 @@ class LegacyService:
 
         args = locals()
         args = self._clean_args(args, 'annotations', new_query=False)
-        args = self._array_args(args, 'annotations')
         format = self._ensure_str(format)
 
         renum = re.compile(r'(?:[-\d\.]+|nan|-?inf)')
@@ -2753,7 +2752,6 @@ class LegacyService:
 
         args = locals()
         args = self._clean_args(args, 'intercell')
-        args = self._array_args(args, 'intercell')
 
         _log(f'[intercell] - Args: {_misc.dict_str(args)}')
 
@@ -2783,7 +2781,6 @@ class LegacyService:
 
         args = locals()
         args = self._clean_args(args, 'intercell', new_query=False)
-        args = self._array_args(args, 'intercell')
         format = self._ensure_str(format)
 
         result = self._cached_data["intercell_summary"]
@@ -2849,7 +2846,6 @@ class LegacyService:
 
         args = locals()
         args = self._clean_args(args, 'complexes')
-        args = self._array_args(args, 'complexes')
 
         yield from self._request(args, 'complexes', **kwargs)
 
