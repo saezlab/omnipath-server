@@ -461,6 +461,275 @@ SCENARIOS <- list(
         )},
         tags = c('full-db')
     ),
+    # ========================================================================
+    # Phase 2: Additional Interactions Test Scenarios
+    # ========================================================================
+    list(
+        id = 'interactions_sources_filter',
+        query = 'omnipath_interactions',
+        description = 'Test filtering by multiple specific sources.',
+        args = list(
+            organisms = 9606,
+            datasets = 'omnipath',
+            sources = c('TP53', 'EGFR'),
+            genesymbols = TRUE
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$source_genesymbol %in% c('TP53', 'EGFR') %>% any,
+            result$target_genesymbol %in% c('TP53', 'EGFR') %>% any,
+            result %>% check_columns_exist(c('source_genesymbol', 'target_genesymbol'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_extra_attrs',
+        query = 'omnipath_interactions',
+        description = 'Validate extra_attrs parameter returns additional columns.',
+        args = list(
+            organisms = 9606,
+            datasets = 'omnipath',
+            resources = 'SIGNOR',
+            extra_attrs = TRUE,
+            fields = c('sources', 'extra_attrs'),
+            limit = 50
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c('extra_attrs')),
+            result$sources %>% str_detect('SIGNOR') %>% all
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_unsigned',
+        query = 'omnipath_interactions',
+        description = 'Test signed=FALSE filtering for unsigned interactions.',
+        args = list(
+            organisms = 9606,
+            datasets = 'pathwayextra',
+            signed = FALSE,
+            fields = c('is_stimulation', 'is_inhibition'),
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c('is_stimulation', 'is_inhibition')),
+            # Unsigned means neither stimulation nor inhibition
+            !(result$is_stimulation | result$is_inhibition) %>% all
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_undirected',
+        query = 'omnipath_interactions',
+        description = 'Test directed=FALSE for undirected interactions.',
+        args = list(
+            organisms = 9606,
+            datasets = 'omnipath',
+            directed = FALSE,
+            fields = c('is_directed'),
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c('is_directed')),
+            result$is_directed %>% all %>% not
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_limit',
+        query = 'omnipath_interactions',
+        description = 'Test SQL LIMIT clause functionality.',
+        args = list(
+            organisms = 9606,
+            datasets = 'omnipath',
+            limit = 25
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            nrow(result) <= 25,
+            result %>% check_columns_exist(c('source', 'target'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_fields_comprehensive',
+        query = 'omnipath_interactions',
+        description = 'Test multiple field combinations.',
+        args = list(
+            organisms = 9606,
+            datasets = 'omnipath',
+            resources = 'SIGNOR',
+            fields = c('sources', 'references', 'curation_effort', 'type'),
+            limit = 50
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c(
+                'sources',
+                'references',
+                'curation_effort',
+                'type'
+            ))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_protein_specific',
+        query = 'omnipath_interactions',
+        description = 'Test with specific protein identifiers.',
+        args = list(
+            organisms = 9606,
+            datasets = 'omnipath',
+            partners = c('TP53', 'MDM2'),
+            genesymbols = TRUE
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            # Check that TP53 or MDM2 appears in source or target
+            (result$source_genesymbol %in% c('TP53', 'MDM2') |
+             result$target_genesymbol %in% c('TP53', 'MDM2')) %>% all,
+            result %>% check_columns_exist(c('source_genesymbol', 'target_genesymbol'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_pathwayextra',
+        query = 'omnipath_interactions',
+        description = 'Test pathwayextra dataset.',
+        args = list(
+            organisms = 9606,
+            datasets = 'pathwayextra',
+            fields = c('datasets'),
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$pathwayextra %>% all,
+            result %>% check_columns_exist(c('source', 'target'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_ligrecextra',
+        query = 'omnipath_interactions',
+        description = 'Test ligrecextra dataset with ligand-receptor interactions.',
+        args = list(
+            organisms = 9606,
+            datasets = 'ligrecextra',
+            fields = c('type', 'datasets'),
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$ligrecextra %>% all,
+            result$type %>% unique() %in% c('post_translational') %>% all,
+            result %>% check_columns_exist(c('source', 'target', 'type'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_kinaseextra',
+        query = 'omnipath_interactions',
+        description = 'Test kinase interactions with PTM info.',
+        args = list(
+            organisms = 9606,
+            datasets = 'kinaseextra',
+            types = 'post_translational',
+            fields = c('type', 'datasets'),
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$kinaseextra %>% all,
+            result$type %>% unique() %>% equals('post_translational'),
+            result %>% check_columns_exist(c('source', 'target'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_tfregulons',
+        query = 'omnipath_interactions',
+        description = 'Test tfregulons dataset (if available).',
+        args = list(
+            organisms = 9606,
+            datasets = 'tfregulons',
+            types = 'transcriptional',
+            limit = 100
+        ),
+        check = function(result) {c(
+            # This dataset may not be available, so just check basic structure
+            result %>% check_columns_exist(c('source', 'target'))
+        )},
+        tags = c('full-db')
+    ),
+    list(
+        id = 'interactions_lncrna',
+        query = 'omnipath_interactions',
+        description = 'Test lncRNA-mRNA interactions.',
+        args = list(
+            organisms = 9606,
+            datasets = 'lncrna_mrna',
+            entity_types = 'lncrna',
+            types = 'lncrna_post_transcriptional',
+            fields = c('type', 'entity_type'),
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$type %>% unique() %>% equals('lncrna_post_transcriptional'),
+            # At least one entity should be lncRNA
+            (result$entity_type_source == 'lncrna' |
+             result$entity_type_target == 'lncrna') %>% any,
+            result %>% check_columns_exist(c('source', 'target', 'type'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_multi_organism',
+        query = 'omnipath_interactions',
+        description = 'Test organism parameter with multiple values.',
+        args = list(
+            organisms = c(9606, 10090),
+            datasets = 'omnipath',
+            resources = 'SIGNOR',
+            fields = c('ncbi_tax_id'),
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c('ncbi_tax_id_source', 'ncbi_tax_id_target')),
+            # All organisms should be either 9606 or 10090
+            result$ncbi_tax_id_source %in% c(9606, 10090) %>% all,
+            result$ncbi_tax_id_target %in% c(9606, 10090) %>% all
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'interactions_entity_combinations',
+        query = 'omnipath_interactions',
+        description = 'Test complex+protein entity types.',
+        args = list(
+            organisms = 9606,
+            datasets = 'omnipath',
+            entity_types = c('protein', 'complex'),
+            fields = c('entity_type'),
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c('entity_type_source', 'entity_type_target')),
+            # At least some results should have the specified entity types
+            result$entity_type_source %in% c('protein', 'complex') %>% all,
+            result$entity_type_target %in% c('protein', 'complex') %>% all
+        )},
+        tags = c('core')
+    ),
+    # ========================================================================
+    # End of Phase 2: Additional Interactions Test Scenarios
+    # ========================================================================
     list(
         id = 'annotations_basic',
         query = 'annotations',
