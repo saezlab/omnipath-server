@@ -312,6 +312,7 @@ class LegacyService:
         },
         'intercell': {
             'array_args': {
+                'fields',
                 'proteins',
                 'resources',
                 'entity_types',
@@ -350,6 +351,7 @@ class LegacyService:
                 'proteins',
                 'resources',
                 'entity_types',
+                'fields',
             },
             'where': {
                 'resources': 'source',
@@ -1682,7 +1684,7 @@ class LegacyService:
         synonyms = param.get('select', {})
         cols = param.get(
             'select_default',
-            {c.name for c in self._columns(query_type)}
+            {c.name for c in self._columns(query_type)},
         ).copy()
 
         _log(f'[_select] Columns are: {cols}')
