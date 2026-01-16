@@ -882,7 +882,333 @@ SCENARIOS <- list(
             result$genesymbol %>% str_starts('COMPLEX:') %>% all
         )},
         tags = c('full-db')
+    ),
+    # ========================================================================
+    # Phase 3: Additional Intercell Test Scenarios
+    # ========================================================================
+    list(
+        id = 'intercell_receiver',
+        query = 'intercell',
+        description = 'Test receiver=TRUE with receptor categories.',
+        args = list(
+            receiver = TRUE,
+            categories = 'receptor',
+            resources = 'CellChatDB',
+            fields = c('category')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$receiver %>% all,
+            result$category %>% unique() %>% equals('receptor')
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_transmitter',
+        query = 'intercell',
+        description = 'Test transmitter=TRUE with ligand categories.',
+        args = list(
+            transmitter = TRUE,
+            categories = 'ligand',
+            resources = 'CellPhoneDB',
+            fields = c('category')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$transmitter %>% all,
+            result$category %>% unique() %>% equals('ligand')
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_causality_transmitter',
+        query = 'intercell',
+        description = 'Test causality=transmitter parameter.',
+        args = list(
+            causality = 'transmitter',
+            categories = 'ligand',
+            fields = c('category')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$transmitter %>% all,
+            result$receiver %>% all %>% not,
+            result$category %>% unique() %>% equals('ligand')
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_causality_receiver',
+        query = 'intercell',
+        description = 'Test causality=receiver parameter.',
+        args = list(
+            causality = 'receiver',
+            categories = 'receptor',
+            fields = c('category')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$receiver %>% all,
+            result$transmitter %>% all %>% not,
+            result$category %>% unique() %>% equals('receptor')
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_source_composite',
+        query = 'intercell',
+        description = 'Test source=composite filtering.',
+        args = list(
+            source = 'composite',
+            categories = 'ligand',
+            fields = c('source')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$source %>% unique() %>% equals('composite'),
+            result$category %>% unique() %>% equals('ligand')
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_parent_categories',
+        query = 'intercell',
+        description = 'Test parent category filtering.',
+        args = list(
+            parent = 'adhesion',
+            fields = c('parent', 'category')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$parent %>% str_detect('adhesion') %>% any,
+            result %>% check_columns_exist(c('parent', 'category'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_proteins',
+        query = 'intercell',
+        description = 'Test specific protein queries.',
+        args = list(
+            proteins = c('EGFR', 'ERBB2', 'TGFB1'),
+            categories = 'receptor',
+            genesymbols = TRUE
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$genesymbol %in% c('EGFR', 'ERBB2', 'TGFB1') %>% all,
+            result %>% check_columns_exist(c('genesymbol', 'category'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_fields',
+        query = 'intercell',
+        description = 'Test field selection.',
+        args = list(
+            categories = 'ligand',
+            fields = c('sources', 'databases', 'parent'),
+            limit = 50
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c('sources', 'databases', 'parent'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_multiple_categories',
+        query = 'intercell',
+        description = 'Test category combinations.',
+        args = list(
+            categories = c('ligand', 'receptor'),
+            fields = c('category')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$category %in% c('ligand', 'receptor') %>% all,
+            result %>% check_columns_exist(c('category'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_topology_secreted',
+        query = 'intercell',
+        description = 'Test secreted topology filtering.',
+        args = list(
+            topology = 'secreted',
+            categories = 'ligand',
+            fields = c('topology')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$secreted %>% all,
+            result %>% check_columns_exist(c(
+                'secreted',
+                'plasma_membrane_transmembrane',
+                'plasma_membrane_peripheral'
+            ))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_topology_pmtm',
+        query = 'intercell',
+        description = 'Test plasma membrane transmembrane topology.',
+        args = list(
+            plasma_membrane_transmembrane = TRUE,
+            categories = 'receptor',
+            fields = c('topology')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$plasma_membrane_transmembrane %>% all,
+            result %>% check_columns_exist(c(
+                'plasma_membrane_transmembrane',
+                'plasma_membrane_peripheral',
+                'secreted'
+            ))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_topology_pmp',
+        query = 'intercell',
+        description = 'Test plasma membrane peripheral topology.',
+        args = list(
+            plasma_membrane_peripheral = TRUE,
+            categories = 'adhesion',
+            fields = c('topology')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$plasma_membrane_peripheral %>% all,
+            result %>% check_columns_exist(c(
+                'plasma_membrane_transmembrane',
+                'plasma_membrane_peripheral',
+                'secreted'
+            ))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_transmitter_secreted',
+        query = 'intercell',
+        description = 'Test transmitter with secreted flag.',
+        args = list(
+            transmitter = TRUE,
+            secreted = TRUE,
+            categories = 'ligand'
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$transmitter %>% all,
+            result$secreted %>% all,
+            result$category %>% unique() %>% equals('ligand')
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_generic_scope',
+        query = 'intercell',
+        description = 'Test scope=generic with categories.',
+        args = list(
+            scope = 'generic',
+            aspect = 'functional',
+            categories = 'ligand',
+            fields = c('scope')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$scope %>% unique() %>% equals('generic'),
+            result %>% check_columns_exist(c('scope', 'category'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_specific_scope',
+        query = 'intercell',
+        description = 'Test scope=specific with categories.',
+        args = list(
+            scope = 'specific',
+            aspect = 'functional',
+            categories = 'receptor',
+            fields = c('scope')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$scope %>% unique() %>% equals('specific'),
+            result %>% check_columns_exist(c('scope', 'category'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_locational_aspect',
+        query = 'intercell',
+        description = 'Test aspect=locational.',
+        args = list(
+            aspect = 'locational',
+            topology = 'plasma_membrane_transmembrane',
+            fields = c('aspect')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$aspect %>% unique() %>% equals('locational'),
+            result$plasma_membrane_transmembrane %>% all,
+            result %>% check_columns_exist(c('aspect'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_functional_aspect',
+        query = 'intercell',
+        description = 'Test aspect=functional.',
+        args = list(
+            aspect = 'functional',
+            categories = 'ligand',
+            fields = c('aspect', 'category')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$aspect %>% unique() %>% equals('functional'),
+            result$category %>% unique() %>% equals('ligand')
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_limit',
+        query = 'intercell',
+        description = 'Test SQL LIMIT functionality.',
+        args = list(
+            categories = 'ligand',
+            limit = 30
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            nrow(result) <= 30,
+            result$category %>% unique() %>% equals('ligand')
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_entity_complex',
+        query = 'intercell',
+        description = 'Test complex entity types.',
+        args = list(
+            entity_types = 'complex',
+            categories = 'receptor',
+            fields = c('entity_type')
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$entity_type %>% unique() %>% equals('complex'),
+            result$uniprot %>% str_starts('COMPLEX:') %>% all
+        )},
+        tags = c('core')
     )
+    # ========================================================================
+    # End of Phase 3: Additional Intercell Test Scenarios
+    # ========================================================================
 )
 
 safe_row_count <- function(result){
