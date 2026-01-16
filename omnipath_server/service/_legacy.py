@@ -340,21 +340,14 @@ class LegacyService:
             },
             'where_bool': {
                 'topology': {
-                    'secreted',
-                    'plasma_membrane_transmembrane',
-                    'plasma_membrane_peripheral',
+                    'sec': 'secreted',
+                    'pmtm': 'plasma_membrane_transmembrane',
+                    'pmp': 'plasma_membrane_peripheral',
                 },
                 'causality': {
-                    'transmitter',
-                    'receiver',
+                    'trans': 'transmitter',
+                    'rec': 'receiver',
                 },
-            },
-            'where_synonyms': {
-                'trans': 'transmitter',
-                'rec': 'receiver',
-                'sec': 'secreted',
-                'pmtm': 'plasma_membrane_transmembrane',
-                'pmp': 'plasma_membrane_peripheral',
             },
             'select': {
                 'topology': INTERCELL_TOPOLOGY.__args__,
