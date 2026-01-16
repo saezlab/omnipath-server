@@ -318,6 +318,10 @@ class LegacyService:
                 'entity_types',
                 'topology',
                 'causality',
+                'categories',
+                'aspect',
+                'scope',
+                'parent',
             },
             'where': {
                 'resources': 'database',

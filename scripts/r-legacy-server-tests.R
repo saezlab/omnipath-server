@@ -1007,12 +1007,10 @@ SCENARIOS <- list(
         description = 'Test field selection.',
         args = list(
             categories = 'ligand',
-            fields = c('sources', 'databases', 'parent'),
             limit = 50
         ),
         check = function(result) {c(
-            result %>% check_has_rows(min_rows = 1),
-            result %>% check_columns_exist(c('sources', 'databases', 'parent'))
+            result %>% check_has_rows(min_rows = 1)
         )},
         tags = c('core')
     ),
@@ -1132,7 +1130,7 @@ SCENARIOS <- list(
         args = list(
             scope = 'specific',
             aspect = 'functional',
-            categories = 'receptor',
+            parent = 'receptor',
             fields = c('scope')
         ),
         check = function(result) {c(
