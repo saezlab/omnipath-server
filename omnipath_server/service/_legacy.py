@@ -338,6 +338,17 @@ class LegacyService:
                 'plasma_membrane_transmembrane': 'plasma_membrane_transmembrane',
                 'plasma_membrane_peripheral': 'plasma_membrane_peripheral',
             },
+            'where_bool': {
+                'topology': {
+                    'secreted',
+                    'plasma_membrane_transmembrane',
+                    'plasma_membrane_peripheral',
+                },
+                'causality': {
+                    'transmitter',
+                    'receiver',
+                },
+            },
             'where_synonyms': {
                 'trans': 'transmitter',
                 'rec': 'receiver',
@@ -2759,11 +2770,15 @@ class LegacyService:
         args = locals()
         args = self._clean_args(args, 'intercell')
 
+        where_bool = self._where_bool('intercell', args)
+
         _log(f'[intercell] - Args: {_misc.dict_str(args)}')
+        _log(f'[intercell] - Intercell where: {where_bool}')
 
         yield from self._request(
             args,
             query_type = 'intercell',
+            extra_where = [where_bool],
             **kwargs,
         )
 
