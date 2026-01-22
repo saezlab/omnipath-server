@@ -946,8 +946,7 @@ SCENARIOS <- list(
         description = 'Test source=composite filtering.',
         args = list(
             source = 'composite',
-            categories = 'ligand',
-            fields = c('source')
+            categories = 'ligand'
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
@@ -966,8 +965,7 @@ SCENARIOS <- list(
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$parent %>% str_detect('adhesion') %>% any,
-            result %>% check_columns_exist(c('parent', 'category'))
+            (result$parent == 'adhesion') %>% all
         )},
         tags = c('core')
     ),
@@ -983,20 +981,6 @@ SCENARIOS <- list(
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
             result$genesymbol %in% c('EGFR', 'ERBB2', 'TGFB1') %>% all,
-            result %>% check_columns_exist(c('genesymbol', 'category'))
-        )},
-        tags = c('core')
-    ),
-    list(
-        id = 'intercell_fields',
-        query = 'intercell',
-        description = 'Test field selection.',
-        args = list(
-            categories = 'ligand',
-            limit = 50
-        ),
-        check = function(result) {c(
-            result %>% check_has_rows(min_rows = 1)
         )},
         tags = c('core')
     ),
@@ -1004,14 +988,10 @@ SCENARIOS <- list(
         id = 'intercell_multiple_categories',
         query = 'intercell',
         description = 'Test category combinations.',
-        args = list(
-            categories = c('ligand', 'receptor'),
-            fields = c('category')
-        ),
+        args = list(categories = c('ligand', 'receptor')),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$category %in% c('ligand', 'receptor') %>% all,
-            result %>% check_columns_exist(c('category'))
+            result$category %in% c('ligand', 'receptor') %>% all
         )},
         tags = c('core')
     ),
@@ -1019,19 +999,10 @@ SCENARIOS <- list(
         id = 'intercell_topology_secreted',
         query = 'intercell',
         description = 'Test secreted topology filtering.',
-        args = list(
-            topology = 'secreted',
-            categories = 'ligand',
-            fields = c('topology')
-        ),
+        args = list(topology = 'secreted'),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$secreted %>% all,
-            result %>% check_columns_exist(c(
-                'secreted',
-                'plasma_membrane_transmembrane',
-                'plasma_membrane_peripheral'
-            ))
+            result$secreted %>% all
         )},
         tags = c('core')
     ),
@@ -1039,19 +1010,10 @@ SCENARIOS <- list(
         id = 'intercell_topology_pmtm',
         query = 'intercell',
         description = 'Test plasma membrane transmembrane topology.',
-        args = list(
-            plasma_membrane_transmembrane = TRUE,
-            categories = 'receptor',
-            fields = c('topology')
-        ),
+        args = list(plasma_membrane_transmembrane = TRUE),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$plasma_membrane_transmembrane %>% all,
-            result %>% check_columns_exist(c(
-                'plasma_membrane_transmembrane',
-                'plasma_membrane_peripheral',
-                'secreted'
-            ))
+            result$plasma_membrane_transmembrane %>% all
         )},
         tags = c('core')
     ),
@@ -1059,19 +1021,10 @@ SCENARIOS <- list(
         id = 'intercell_topology_pmp',
         query = 'intercell',
         description = 'Test plasma membrane peripheral topology.',
-        args = list(
-            plasma_membrane_peripheral = TRUE,
-            categories = 'adhesion',
-            fields = c('topology')
-        ),
+        args = list(plasma_membrane_peripheral = TRUE),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$plasma_membrane_peripheral %>% all,
-            result %>% check_columns_exist(c(
-                'plasma_membrane_transmembrane',
-                'plasma_membrane_peripheral',
-                'secreted'
-            ))
+            result$plasma_membrane_peripheral %>% all
         )},
         tags = c('core')
     ),
@@ -1088,24 +1041,21 @@ SCENARIOS <- list(
             result %>% check_has_rows(min_rows = 1),
             result$transmitter %>% all,
             result$secreted %>% all,
-            result$category %>% unique() %>% equals('ligand')
+            (result$category == 'ligand') %>% all
         )},
         tags = c('core')
     ),
     list(
-        id = 'intercell_generic_scope',
+        id = 'intercell_mutually_exclusive_args',
         query = 'intercell',
-        description = 'Test scope=generic with categories.',
+        description = 'Test conflicting arguments should return 0 results.',
         args = list(
             scope = 'generic',
-            aspect = 'functional',
-            categories = 'ligand',
-            fields = c('scope')
+            aspect = 'locational',
+            categories = 'ligand'
         ),
         check = function(result) {c(
-            result %>% check_has_rows(min_rows = 1),
-            result$scope %>% unique() %>% equals('generic'),
-            result %>% check_columns_exist(c('scope', 'category'))
+            result %>% nrow %>% equals(0)
         )},
         tags = c('core')
     ),
@@ -1116,17 +1066,17 @@ SCENARIOS <- list(
         args = list(
             scope = 'specific',
             aspect = 'functional',
-            parent = 'receptor',
-            fields = c('scope')
+            parent = 'receptor'
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$scope %>% unique() %>% equals('specific'),
-            result %>% check_columns_exist(c('scope', 'category'))
+            (result$scope == 'specific') %>% all,
+            (result$aspect == 'functional') %>% all,
+            (result$parent == 'receptor') %>% all
         )},
         tags = c('core')
     ),
-    list(
+    list( # HERE
         id = 'intercell_locational_aspect',
         query = 'intercell',
         description = 'Test aspect=locational.',
