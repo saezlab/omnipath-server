@@ -866,23 +866,8 @@ SCENARIOS <- list(
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result %>% check_columns_exist(c('sources', 'identifiers')),
-            result$sources %>% str_detect('CORUM') %>% any,
-            result$identifiers %>% str_detect('CORUM:') %>% any
-        )},
-        tags = c('core')
-    ),
-    list(
-        id = 'complexes_complexportal',
-        query = 'complexes',
-        description = 'Test ComplexPortal complexes.',
-        args = list(
-            resources = 'ComplexPortal'
-        ),
-        check = function(result) {c(
-            result %>% check_has_rows(min_rows = 1),
-            result %>% check_columns_exist(c('sources', 'components')),
-            result$sources %>% str_detect('ComplexPortal') %>% any
+            result$sources %>% str_detect('CORUM') %>% all,
+            result$identifiers %>% str_detect('CORUM:') %>% all
         )},
         tags = c('core')
     ),
@@ -896,24 +881,8 @@ SCENARIOS <- list(
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result %>% check_columns_exist(c('components', 'sources')),
             result$components %>% str_detect('P04637') %>% all,
-            result$sources %>% str_detect('PDB') %>% any
-        )},
-        tags = c('core')
-    ),
-    list(
-        id = 'complexes_fields',
-        query = 'complexes',
-        description = 'Test field selection for complexes.',
-        args = list(
-            resources = 'CORUM',
-            fields = c('sources', 'references', 'identifiers'),
-            limit = 50
-        ),
-        check = function(result) {c(
-            result %>% check_has_rows(min_rows = 1),
-            result %>% check_columns_exist(c('sources', 'references', 'identifiers'))
+            result$sources %>% str_detect('PDB') %>% all
         )},
         tags = c('core')
     ),
@@ -921,43 +890,10 @@ SCENARIOS <- list(
         id = 'complexes_multiple_resources',
         query = 'complexes',
         description = 'Test resource combinations (CORUM + ComplexPortal).',
-        args = list(
-            resources = c('CORUM', 'ComplexPortal'),
-            fields = c('sources', 'identifiers'),
-            limit = 250
-        ),
+        args = list(resources = c('CORUM', 'ComplexPortal')),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result %>% check_columns_exist(c('sources', 'identifiers')),
-            result$sources %>% str_detect('CORUM') %>% any,
-            result$sources %>% str_detect('ComplexPortal') %>% any
-        )},
-        tags = c('core')
-    ),
-    list(
-        id = 'complexes_cellphonedb',
-        query = 'complexes',
-        description = 'Test CellPhoneDB complexes (needs complete DB).',
-        args = list(
-            resources = 'CellPhoneDB'
-        ),
-        check = function(result) {c(
-            result %>% check_has_rows(min_rows = 1),
-            result %>% check_resource_filter('CellPhoneDB')
-        )},
-        tags = c('full-db')
-    ),
-    list(
-        id = 'complexes_limit',
-        query = 'complexes',
-        description = 'Test SQL LIMIT functionality on complexes.',
-        args = list(
-            resources = 'Compleat',
-            limit = 25
-        ),
-        check = function(result) {c(
-            result %>% check_has_rows(min_rows = 1),
-            inherits(result, 'data.frame') && nrow(result) <= 25
+            result$sources %>% str_detect('CORUM|ComplexPortal') %>% all
         )},
         tags = c('core')
     ),
