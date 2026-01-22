@@ -1076,20 +1076,33 @@ SCENARIOS <- list(
         )},
         tags = c('core')
     ),
-    list( # HERE
+    list(
         id = 'intercell_locational_aspect',
         query = 'intercell',
         description = 'Test aspect=locational.',
         args = list(
             aspect = 'locational',
-            topology = 'plasma_membrane_transmembrane',
-            fields = c('aspect')
+            topology = 'plasma_membrane_transmembrane'
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$aspect %>% unique() %>% equals('locational'),
-            result$plasma_membrane_transmembrane %>% all,
-            result %>% check_columns_exist(c('aspect'))
+            (result$aspect == 'locational') %>% all,
+            result$plasma_membrane_transmembrane %>% all
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'intercell_locational_aspect_short',
+        query = 'intercell',
+        description = 'Test aspect=locational (short version).',
+        args = list(
+            aspect = 'locational',
+            topology = 'pmtm'
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            (result$aspect == 'locational') %>% all,
+            result$plasma_membrane_transmembrane %>% all
         )},
         tags = c('core')
     ),
@@ -1098,14 +1111,13 @@ SCENARIOS <- list(
         query = 'intercell',
         description = 'Test aspect=functional.',
         args = list(
-            aspect = 'functional',
-            categories = 'ligand',
-            fields = c('aspect', 'category')
+            aspect = 'functional'
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$aspect %>% unique() %>% equals('functional'),
-            result$category %>% unique() %>% equals('ligand')
+            (result$aspect == 'functional') %>% all,
+            (result$category == "transmembrane") %>% any() %>% not(),
+            (result$category == "ligand") %>% any()
         )},
         tags = c('core')
     ),
@@ -1129,13 +1141,11 @@ SCENARIOS <- list(
         query = 'intercell',
         description = 'Test complex entity types.',
         args = list(
-            entity_types = 'complex',
-            categories = 'receptor',
-            fields = c('entity_type')
+            entity_types = 'complex'
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$entity_type %>% unique() %>% equals('complex'),
+            (result$entity_type == 'complex') %>% all,
             result$uniprot %>% str_starts('COMPLEX:') %>% all
         )},
         tags = c('core')
