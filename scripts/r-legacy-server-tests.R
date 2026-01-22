@@ -776,6 +776,67 @@ SCENARIOS <- list(
         )},
         tags = c('full-db')
     ),
+    # ========================================================================
+    # Phase 5: Additional Annotations Test Scenarios
+    # ========================================================================
+    list(
+        id = 'annotations_protein_specific',
+        query = 'annotations',
+        description = 'Test proteins parameter with specific proteins.',
+        args = list(proteins = c('TP53', 'EGFR', 'MDM2')),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$genesymbol %in% c('TP53', 'EGFR', 'MDM2') %>% all
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'annotations_multiple_resources',
+        query = 'annotations',
+        description = 'Test resource combinations.',
+        args = list(
+            resources = c('UniProt_tissue', 'UniProt_keyword'),
+            entity_types = 'protein'
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$source %in% c('UniProt_tissue', 'UniProt_keyword') %>% all
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'annotations_entity_types_protein',
+        query = 'annotations',
+        description = 'Test protein entity type filtering.',
+        args = list(
+            entity_types = 'protein',
+            resources = 'UniProt_keyword'
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            (result$entity_type == 'protein') %>% all
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'annotations_subcellular',
+        query = 'annotations',
+        description = 'Test UniProt subcellular location.',
+        args = list(
+            resources = 'UniProt_location',
+            entity_types = 'protein',
+            wide = TRUE
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$source %>% unique() %>% equals('UniProt_location'),
+            result %>% check_columns_exist(c('features', 'location'))
+        )},
+        tags = c('core')
+    ),
+    # ========================================================================
+    # End of Phase 5: Additional Annotations Test Scenarios
+    # ========================================================================
     list(
         id = 'complexes_basic',
         query = 'complexes',
