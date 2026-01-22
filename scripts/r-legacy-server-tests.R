@@ -839,6 +839,276 @@ SCENARIOS <- list(
         )},
         tags = c('full-db')
     ),
+    # ========================================================================
+    # Phase 4: Additional Enzyme-Substrate Test Scenarios
+    # ========================================================================
+    list(
+        id = 'enzsub_specific_enzyme',
+        query = 'enzyme_substrate',
+        description = 'Test enzymes parameter with specific kinases.',
+        args = list(
+            enzymes = c('AKT1', 'MAPK1', 'GSK3B'),
+            modification = 'phosphorylation',
+            genesymbols = TRUE
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$enzyme_genesymbol %in% c('AKT1', 'MAPK1', 'GSK3B') %>% all,
+            result$modification %>% unique() %>% equals('phosphorylation'),
+            result %>% check_columns_exist(c('enzyme', 'substrate', 'enzyme_genesymbol'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_specific_substrate',
+        query = 'enzyme_substrate',
+        description = 'Test substrates parameter.',
+        args = list(
+            substrates = c('TP53', 'RB1', 'CDKN1B'),
+            modification = 'phosphorylation',
+            genesymbols = TRUE
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$substrate_genesymbol %in% c('TP53', 'RB1', 'CDKN1B') %>% all,
+            result$modification %>% unique() %>% equals('phosphorylation'),
+            result %>% check_columns_exist(c('enzyme', 'substrate', 'substrate_genesymbol'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_partners',
+        query = 'enzyme_substrate',
+        description = 'Test partners parameter (either enzyme or substrate).',
+        args = list(
+            partners = c('AKT1', 'TP53'),
+            modification = 'phosphorylation',
+            genesymbols = TRUE
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            # Partners should appear as either enzyme or substrate
+            (result$enzyme_genesymbol %in% c('AKT1', 'TP53') |
+             result$substrate_genesymbol %in% c('AKT1', 'TP53')) %>% all,
+            result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_enzyme_substrate_OR',
+        query = 'enzyme_substrate',
+        description = 'Test enzyme_substrate=OR logic.',
+        args = list(
+            enzymes = 'AKT1',
+            substrates = 'TP53',
+            enzyme_substrate = 'OR',
+            modification = 'phosphorylation',
+            genesymbols = TRUE
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            # With OR logic, either enzyme=AKT1 OR substrate=TP53
+            (result$enzyme_genesymbol == 'AKT1' |
+             result$substrate_genesymbol == 'TP53') %>% all,
+            result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_enzyme_substrate_AND',
+        query = 'enzyme_substrate',
+        description = 'Test enzyme_substrate=AND logic (default).',
+        args = list(
+            enzymes = 'AKT1',
+            substrates = 'GSK3B',
+            enzyme_substrate = 'AND',
+            modification = 'phosphorylation',
+            genesymbols = TRUE
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            # With AND logic, enzyme=AKT1 AND substrate=GSK3B
+            (result$enzyme_genesymbol == 'AKT1') %>% all,
+            (result$substrate_genesymbol == 'GSK3B') %>% all,
+            result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_multiple_residues',
+        query = 'enzyme_substrate',
+        description = 'Test residues with multiple values (S,T,Y).',
+        args = list(
+            residues = c('S', 'T', 'Y'),
+            modification = 'phosphorylation',
+            resources = 'PhosphoSite',
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$residue_type %in% c('S', 'T', 'Y') %>% all,
+            result$modification %>% unique() %>% equals('phosphorylation'),
+            result %>% check_columns_exist(c('residue_type', 'residue_offset'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_modification_ubiquitination',
+        query = 'enzyme_substrate',
+        description = 'Test ubiquitination modification type.',
+        args = list(
+            modification = 'ubiquitination',
+            organisms = 9606,
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$modification %>% unique() %>% equals('ubiquitination'),
+            result %>% check_columns_exist(c('enzyme', 'substrate', 'modification'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_modification_acetylation',
+        query = 'enzyme_substrate',
+        description = 'Test acetylation modification type.',
+        args = list(
+            modification = 'acetylation',
+            organisms = 9606,
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$modification %>% unique() %>% equals('acetylation'),
+            result %>% check_columns_exist(c('enzyme', 'substrate', 'modification'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_fields',
+        query = 'enzyme_substrate',
+        description = 'Test field selection.',
+        args = list(
+            modification = 'phosphorylation',
+            resources = 'PhosphoSite',
+            fields = c('sources', 'references', 'curation_effort'),
+            limit = 50
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c('sources', 'references', 'curation_effort')),
+            result %>% check_columns_exist(c('enzyme', 'substrate'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_multiple_resources',
+        query = 'enzyme_substrate',
+        description = 'Test resource combination queries.',
+        args = list(
+            resources = c('PhosphoSite', 'SIGNOR'),
+            modification = 'phosphorylation',
+            fields = c('sources'),
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            # At least one of the resources should appear
+            (result$sources %>% str_detect('PhosphoSite|SIGNOR') %>% any),
+            result %>% check_columns_exist(c('sources'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_organism_mice',
+        query = 'enzyme_substrate',
+        description = 'Test mouse organism filtering.',
+        args = list(
+            organisms = 10090,
+            modification = 'phosphorylation',
+            fields = c('ncbi_tax_id'),
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c('ncbi_tax_id_enzyme', 'ncbi_tax_id_substrate')),
+            (result$ncbi_tax_id_enzyme == 10090) %>% all,
+            (result$ncbi_tax_id_substrate == 10090) %>% all
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_limit',
+        query = 'enzyme_substrate',
+        description = 'Test SQL LIMIT functionality.',
+        args = list(
+            modification = 'phosphorylation',
+            resources = 'PhosphoSite',
+            limit = 20
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            nrow(result) <= 20,
+            result %>% check_columns_exist(c('enzyme', 'substrate'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_loops',
+        query = 'enzyme_substrate',
+        description = 'Test loops parameter (auto-phosphorylation).',
+        args = list(
+            modification = 'phosphorylation',
+            loops = TRUE,
+            genesymbols = TRUE,
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            # Should have some auto-phosphorylation events
+            (result$enzyme_genesymbol == result$substrate_genesymbol) %>% any,
+            result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_no_loops',
+        query = 'enzyme_substrate',
+        description = 'Test loops=FALSE (no auto-modifications).',
+        args = list(
+            modification = 'phosphorylation',
+            loops = FALSE,
+            genesymbols = TRUE,
+            resources = 'PhosphoSite',
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            # Should have NO auto-phosphorylation events
+            (result$enzyme_genesymbol == result$substrate_genesymbol) %>% any %>% not,
+            result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol'))
+        )},
+        tags = c('core')
+    ),
+    list(
+        id = 'enzsub_types',
+        query = 'enzyme_substrate',
+        description = 'Test types parameter for phosphorylation.',
+        args = list(
+            types = 'phosphorylation',
+            resources = 'PhosphoSite',
+            limit = 100
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            result$modification %>% unique() %>% equals('phosphorylation'),
+            result %>% check_columns_exist(c('modification', 'enzyme', 'substrate'))
+        )},
+        tags = c('core')
+    ),
+    # ========================================================================
+    # End of Phase 4: Additional Enzyme-Substrate Test Scenarios
+    # ========================================================================
     list(
         id = 'intercell_secreted',
         query = 'intercell',
