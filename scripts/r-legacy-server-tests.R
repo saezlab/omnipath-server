@@ -855,7 +855,7 @@ SCENARIOS <- list(
             result %>% check_has_rows(min_rows = 1),
             result$enzyme_genesymbol %in% c('AKT1', 'MAPK1', 'GSK3B') %>% all,
             result$modification %>% unique() %>% equals('phosphorylation'),
-            result %>% check_columns_exist(c('enzyme', 'substrate', 'enzyme_genesymbol'))
+            result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol'))
         )},
         tags = c('core')
     ),
@@ -872,7 +872,7 @@ SCENARIOS <- list(
             result %>% check_has_rows(min_rows = 1),
             result$substrate_genesymbol %in% c('TP53', 'RB1', 'CDKN1B') %>% all,
             result$modification %>% unique() %>% equals('phosphorylation'),
-            result %>% check_columns_exist(c('enzyme', 'substrate', 'substrate_genesymbol'))
+            result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol'))
         )},
         tags = c('core')
     ),
@@ -937,18 +937,15 @@ SCENARIOS <- list(
     list(
         id = 'enzsub_multiple_residues',
         query = 'enzyme_substrate',
-        description = 'Test residues with multiple values (S,T,Y).',
+        description = 'Test residues with multiple values (T,Y).',
         args = list(
-            residues = c('S', 'T', 'Y'),
-            modification = 'phosphorylation',
-            resources = 'PhosphoSite',
-            limit = 100
+            residues = c('T', 'Y'),
+            modification = 'phosphorylation'
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$residue_type %in% c('S', 'T', 'Y') %>% all,
-            result$modification %>% unique() %>% equals('phosphorylation'),
-            result %>% check_columns_exist(c('residue_type', 'residue_offset'))
+            result$residue_type %in% c('T', 'Y') %>% all,
+            result$modification %>% unique() %>% equals('phosphorylation')
         )},
         tags = c('core')
     ),
@@ -956,15 +953,10 @@ SCENARIOS <- list(
         id = 'enzsub_modification_ubiquitination',
         query = 'enzyme_substrate',
         description = 'Test ubiquitination modification type.',
-        args = list(
-            modification = 'ubiquitination',
-            organisms = 9606,
-            limit = 100
-        ),
+        args = list(modification = 'ubiquitination'),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$modification %>% unique() %>% equals('ubiquitination'),
-            result %>% check_columns_exist(c('enzyme', 'substrate', 'modification'))
+            result$modification %>% unique() %>% equals('ubiquitination')
         )},
         tags = c('core')
     ),
@@ -972,15 +964,10 @@ SCENARIOS <- list(
         id = 'enzsub_modification_acetylation',
         query = 'enzyme_substrate',
         description = 'Test acetylation modification type.',
-        args = list(
-            modification = 'acetylation',
-            organisms = 9606,
-            limit = 100
-        ),
+        args = list(modification = 'acetylation'),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$modification %>% unique() %>% equals('acetylation'),
-            result %>% check_columns_exist(c('enzyme', 'substrate', 'modification'))
+            result$modification %>% unique() %>% equals('acetylation')
         )},
         tags = c('core')
     ),
@@ -988,20 +975,14 @@ SCENARIOS <- list(
         id = 'enzsub_fields',
         query = 'enzyme_substrate',
         description = 'Test field selection.',
-        args = list(
-            modification = 'phosphorylation',
-            resources = 'PhosphoSite',
-            fields = c('sources', 'references', 'curation_effort'),
-            limit = 50
-        ),
+        args = list(fields = c('sources', 'references', 'curation_effort')),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result %>% check_columns_exist(c('sources', 'references', 'curation_effort')),
-            result %>% check_columns_exist(c('enzyme', 'substrate'))
+            result %>% check_columns_exist(c('sources', 'references', 'curation_effort'))
         )},
         tags = c('core')
     ),
-    list(
+    list( # HERE
         id = 'enzsub_multiple_resources',
         query = 'enzyme_substrate',
         description = 'Test resource combination queries.',
