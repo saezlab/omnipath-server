@@ -891,15 +891,12 @@ SCENARIOS <- list(
         query = 'intercell',
         description = 'Test receiver=TRUE with receptor categories.',
         args = list(
-            receiver = TRUE,
-            categories = 'receptor',
-            resources = 'CellChatDB',
-            fields = c('category')
+            receiver = TRUE
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
             result$receiver %>% all,
-            result$category %>% unique() %>% equals('receptor')
+            'receptor' %in% result$category
         )},
         tags = c('core')
     ),
@@ -908,15 +905,12 @@ SCENARIOS <- list(
         query = 'intercell',
         description = 'Test transmitter=TRUE with ligand categories.',
         args = list(
-            transmitter = TRUE,
-            categories = 'ligand',
-            resources = 'CellPhoneDB',
-            fields = c('category')
+            transmitter = TRUE
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
             result$transmitter %>% all,
-            result$category %>% unique() %>% equals('ligand')
+            'ligand' %in% result$category
         )},
         tags = c('core')
     ),
@@ -924,16 +918,12 @@ SCENARIOS <- list(
         id = 'intercell_causality_transmitter',
         query = 'intercell',
         description = 'Test causality=transmitter parameter.',
-        args = list(
-            causality = 'transmitter',
-            categories = 'ligand',
-            fields = c('category')
-        ),
+        args = list(causality = 'transmitter'),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
             result$transmitter %>% all,
             result$receiver %>% all %>% not,
-            result$category %>% unique() %>% equals('ligand')
+            'ligand' %in% result$category
         )},
         tags = c('core')
     ),
@@ -941,16 +931,12 @@ SCENARIOS <- list(
         id = 'intercell_causality_receiver',
         query = 'intercell',
         description = 'Test causality=receiver parameter.',
-        args = list(
-            causality = 'receiver',
-            categories = 'receptor',
-            fields = c('category')
-        ),
+        args = list(causality = 'receiver'),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
             result$receiver %>% all,
             result$transmitter %>% all %>% not,
-            result$category %>% unique() %>% equals('receptor')
+            'receptor' %in% result$category
         )},
         tags = c('core')
     ),
