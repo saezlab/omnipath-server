@@ -840,7 +840,7 @@ SCENARIOS <- list(
         tags = c('full-db')
     ),
     # ========================================================================
-    # Phase 4: Additional Enzyme-Substrate Test Scenarios
+    # Phase 3: Additional Enzyme-Substrate Test Scenarios
     # ========================================================================
     list(
         id = 'enzsub_specific_enzyme',
@@ -1107,7 +1107,7 @@ SCENARIOS <- list(
         tags = c('core')
     ),
     # ========================================================================
-    # End of Phase 4: Additional Enzyme-Substrate Test Scenarios
+    # End of Phase 3: Additional Enzyme-Substrate Test Scenarios
     # ========================================================================
     list(
         id = 'intercell_secreted',
@@ -1154,7 +1154,7 @@ SCENARIOS <- list(
         tags = c('full-db')
     ),
     # ========================================================================
-    # Phase 3: Additional Intercell Test Scenarios
+    # Phase 4: Additional Intercell Test Scenarios
     # ========================================================================
     list(
         id = 'intercell_receiver',
@@ -1421,7 +1421,7 @@ SCENARIOS <- list(
         tags = c('core')
     )
     # ========================================================================
-    # End of Phase 3: Additional Intercell Test Scenarios
+    # End of Phase 4: Additional Intercell Test Scenarios
     # ========================================================================
 )
 
