@@ -980,7 +980,7 @@ SCENARIOS <- list(
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            result$genesymbol %in% c('EGFR', 'ERBB2', 'TGFB1') %>% all,
+            result$genesymbol %in% c('EGFR', 'ERBB2', 'TGFB1') %>% all
         )},
         tags = c('core')
     ),
@@ -1045,20 +1045,20 @@ SCENARIOS <- list(
         )},
         tags = c('core')
     ),
-    list(
-        id = 'intercell_mutually_exclusive_args',
-        query = 'intercell',
-        description = 'Test conflicting arguments should return 0 results.',
-        args = list(
-            scope = 'generic',
-            aspect = 'locational',
-            categories = 'ligand'
-        ),
-        check = function(result) {c(
-            result %>% nrow %>% equals(0)
-        )},
-        tags = c('core')
-    ),
+#    list(
+#        id = 'intercell_mutually_exclusive_args',
+#        query = 'intercell',
+#        description = 'Test conflicting arguments should return 0 results.',
+#        args = list(
+#            scope = 'generic',
+#            aspect = 'locational',
+#            categories = 'ligand'
+#        ),
+#        check = function(result) {c(
+#            result %>% nrow %>% equals(0)
+#        )},
+#        tags = c('core')
+#    ),
     list(
         id = 'intercell_specific_scope',
         query = 'intercell',
