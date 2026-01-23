@@ -167,6 +167,22 @@ GEN_OF_STR = Generator[str, None, None]
 resources_mod = None
 
 
+# class Arg(types.NamedTuple):
+#
+#     name: str
+#     typ: type
+#     is_array: False
+#     synonyms: set[str]
+#     select_cols: set[str]
+#     where....
+#
+#
+# ref = {
+#     'interactions': [Arg(), Arg()],
+#     'interactions': [Arg(), Arg()],
+#     'interactions': [Arg(), Arg()],
+# }
+
 class LegacyService:
 
     query_param = {
@@ -283,6 +299,9 @@ class LegacyService:
             },
             'arg_types': {
                 'organisms': int,
+            },
+            'arg_synonyms': {
+                'modification': ['types', 'modifications'],
             },
             'select': {
                 'genesymbols': {'enzyme_genesymbol', 'substrate_genesymbol'},
@@ -1086,6 +1105,38 @@ class LegacyService:
         _log('Finished updating resource information.')
 
 
+    def _args_synonyms(
+        self,
+            args: dict,
+            kwargs: dict,
+            query_type: QUERY_TYPES,
+    ) -> tuple[dict, dict]:
+        """
+        Replaces arguments with their synonyms.
+        """
+
+        synonyms = self.query_param[query_type].get('args_synonyms', {})
+
+        argnames = (
+            {argname for it in synonyms.items() for argname in it} |
+            set(args.keys())
+        )
+        args = {
+            a: v
+            for a in argnames
+            if (v := args.get(a, kwargs.pop(a, None))) is not None
+        }
+
+        # totally wrong:
+        args = {
+            key: args.get(key, syn)
+            for key, value in args.items()
+            for syn in synonyms.get(key)
+        }
+
+        return args, kwargs
+
+
     def _clean_args(
             self,
             args: dict,
@@ -1116,6 +1167,12 @@ class LegacyService:
         _log(f'[_clean_args] - Starting with args: {_misc.dict_str(args)}')
 
         kwargs = args.pop('kwargs', {})
+
+        args, kwargs = self._args_synonyms(args, kwargs, query_type)
+
+        _log(f'[_clean_args] - After synonyms: {_misc.dict_str(args)}')
+        _log(f'[_clean_args] - After synonyms: {_misc.dict_str(kwargs)}')
+
         args = self._array_args(args, query_type)
 
         args = {
