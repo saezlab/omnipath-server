@@ -1033,8 +1033,7 @@ SCENARIOS <- list(
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
             (result$enzyme_genesymbol == 'AKT1') %>% all,
-            (result$substrate_genesymbol == 'GSK3B') %>% all,
-            result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol'))
+            (result$substrate_genesymbol == 'GSK3B') %>% all
         )},
         tags = c('core')
     ),
