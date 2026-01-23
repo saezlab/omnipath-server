@@ -279,6 +279,7 @@ class LegacyService:
                 'types',
                 'residues',
                 'fields',
+                'modification',
             },
             'arg_types': {
                 'organisms': int,
@@ -1122,7 +1123,7 @@ class LegacyService:
             for k, v in args.items()
             if v is not None
         }
-        args['format'] = self._ensure_str(args.get('format'))
+        args['format'] = self._ensure_simple(args.get('format'))
         args = {
             k: self._ensure_type(v, k, query_type)
             for k, v in args.items()
@@ -1184,16 +1185,16 @@ class LegacyService:
 
 
     @staticmethod
-    def _ensure_str(val: str | Iterable[str] | None = None) -> str | None:
+    def _ensure_simple(val: Any | Iterable[Any] | None = None) -> Any | None:
         """
-        Ensures a given value is a string.
+        Ensures a given value is not an array/iterable.
 
         Args:
             val:
-                A string or iterable of these.
+                A variable or iterable of them.
 
         Returns:
-            The value in `str` format.
+            The value not in an array.
         """
 
         return _misc.first(_misc.to_list(val))
@@ -1247,7 +1248,11 @@ class LegacyService:
         array_args = self.query_param[query_type].get('array_args', set())
 
         args = {
-            k: self._ensure_array(v) if k in array_args else v
+            k: (
+                    self._ensure_array(v)
+                        if k in array_args else
+                    self._ensure_simple(v)
+            )
             for k, v in args.items()
         }
 
@@ -1346,7 +1351,7 @@ class LegacyService:
             TODO.
         """
 
-        format = self._ensure_str(format)
+        format = self._ensure_simple(format)
         query = query_type or kwargs.pop('path', [])[1:]
 
         query = _misc.to_list(query)
@@ -2354,6 +2359,7 @@ class LegacyService:
             limit: int | None = None,
             format: FORMATS | None = None,
             enzyme_substrate = 'OR',
+            modification: str | list[str] | None = None,
             organisms: Collection[int | str] | None = None,
             loops: bool = False,
             genesymbols: bool = False,
@@ -2625,7 +2631,7 @@ class LegacyService:
 
         args = locals()
         args = self._clean_args(args, 'annotations', new_query=False)
-        format = self._ensure_str(format)
+        format = self._ensure_simple(format)
 
         renum = re.compile(r'(?:[-\d\.]+|nan|-?inf)')
 
@@ -2795,7 +2801,7 @@ class LegacyService:
 
         args = locals()
         args = self._clean_args(args, 'intercell', new_query=False)
-        format = self._ensure_str(format)
+        format = self._ensure_simple(format)
 
         result = self._cached_data["intercell_summary"]
 
