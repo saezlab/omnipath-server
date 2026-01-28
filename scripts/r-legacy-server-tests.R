@@ -1032,7 +1032,7 @@ SCENARIOS <- list(
         check = function(result) {c( # FIXME: Failing due to not recognized arg in OmnipathR
             result %>% check_has_rows(min_rows = 1),
             (result$enzyme_genesymbol == 'AKT1') %>% all, # Fails
-            (result$substrate_genesymbol == 'GSK3B') %>% all, #Fails
+            (result$substrate_genesymbol == 'GSK3B') %>% all #Fails
         )},
         tags = c('core')
     ),

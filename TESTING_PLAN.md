@@ -419,6 +419,12 @@ check_only_requested_fields <- function(result, requested_fields, base_fields = 
    - Verify gene symbol columns appear/disappear correctly
    - Check UniProt ID vs gene symbol consistency
 
+What we find important from the points above:
+-- Empty result handling
+-- Test JSON format
+-- Test for error messages
+-- Factor out repetative checks into small helper functions
+
 ---
 
 ### Phase 8: Enhanced Check Functions (Priority: HIGH)
