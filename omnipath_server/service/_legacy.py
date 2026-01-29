@@ -318,7 +318,7 @@ class LegacyService:
             },
             'where': {
                 'organisms': 'ncbi_tax_id',
-                'types': 'modification',
+                'modification': 'modification',
                 'resources': 'sources',
                 'residues': 'residue_type',
             },
