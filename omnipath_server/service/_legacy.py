@@ -846,6 +846,7 @@ class LegacyService:
 
     def _preprocess(self):
 
+        self._preprocess_args_ref()
         self._update_resources()
         self._preprocess_annotations()
         self._preprocess_intercell()
@@ -888,6 +889,11 @@ class LegacyService:
             }
 
         self.con = _connection.ensure_con(con)
+
+
+    def _preprocess_args_ref(self):
+        pass
+        #HERE
 
 
     def _preprocess_annotations(self):
@@ -1115,12 +1121,12 @@ class LegacyService:
         Replaces arguments with their synonyms.
         """
 
-        synonyms = self.query_param[query_type].get('args_synonyms', {})
+        synonyms = self.query_param[query_type].get('arg_synonyms', {})
 
-        argnames = (
-            {argname for it in synonyms.items() for argname in it} |
-            set(args.keys())
-        )
+        argnames = set(itertools.chain(
+            synonyms.keys(), *synonyms.values(), args.keys()
+        ))
+
         args = {
             a: v
             for a in argnames
