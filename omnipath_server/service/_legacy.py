@@ -892,8 +892,10 @@ class LegacyService:
 
 
     def _preprocess_args_ref(self):
-        pass
-        #HERE
+
+        for query_type, param in self.query_param.items():
+
+            param['syn2arg'] = _misc.swap_dict(param.get('arg_synonyms', {}))
 
 
     def _preprocess_annotations(self):
@@ -1122,13 +1124,14 @@ class LegacyService:
         """
 
         synonyms = self.query_param[query_type].get('arg_synonyms', {})
+        syn2arg = self.query_param[query_type].get('syn2arg', {})
 
         argnames = set(itertools.chain(
             synonyms.keys(), *synonyms.values(), args.keys()
         ))
 
         args = {
-            a: v
+            syn2arg.get(, a) v
             for a in argnames
             if (v := args.get(a, kwargs.pop(a, None))) is not None
         }
