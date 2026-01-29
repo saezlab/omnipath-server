@@ -1123,24 +1123,16 @@ class LegacyService:
         Replaces arguments with their synonyms.
         """
 
-        synonyms = self.query_param[query_type].get('arg_synonyms', {})
         syn2arg = self.query_param[query_type].get('syn2arg', {})
 
         argnames = set(itertools.chain(
-            synonyms.keys(), *synonyms.values(), args.keys()
+            syn2arg.keys(), syn2arg.values(), args.keys()
         ))
 
         args = {
-            syn2arg.get(, a) v
+            syn2arg.get(a, a): v
             for a in argnames
             if (v := args.get(a, kwargs.pop(a, None))) is not None
-        }
-
-        # totally wrong:
-        args = {
-            key: args.get(key, syn)
-            for key, value in args.items()
-            for syn in synonyms.get(key)
         }
 
         return args, kwargs
@@ -1179,8 +1171,8 @@ class LegacyService:
 
         args, kwargs = self._args_synonyms(args, kwargs, query_type)
 
-        _log(f'[_clean_args] - After synonyms: {_misc.dict_str(args)}')
-        _log(f'[_clean_args] - After synonyms: {_misc.dict_str(kwargs)}')
+        _log(f'[_clean_args] - Args after synonyms: {_misc.dict_str(args)}')
+        _log(f'[_clean_args] - Kwargs after synonyms: {_misc.dict_str(kwargs)}')
 
         args = self._array_args(args, query_type)
 
