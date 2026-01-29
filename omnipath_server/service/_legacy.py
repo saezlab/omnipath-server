@@ -203,9 +203,13 @@ class LegacyService:
             'arg_types': {
                 'organisms': int,
             },
+            'arg_synonyms': {
+                'organism': ['ncbi_tax_id'],
+            },
             'select': {
                 'genesymbols': {'source_genesymbol', 'target_genesymbol'},
                 'organism': {'ncbi_tax_id_source', 'ncbi_tax_id_target'},
+                'ncbi_tax_id': {'ncbi_tax_id_source', 'ncbi_tax_id_target'},
                 'entity_type': {'entity_type_source', 'entity_type_target'},
                 'extra_attrs': 'extra_attrs',
                 'evidences': 'evidences',
@@ -302,9 +306,11 @@ class LegacyService:
             },
             'arg_synonyms': {
                 'modification': ['types', 'modifications'],
+                'organism': ['ncbi_tax_id'],
             },
             'select': {
                 'genesymbols': {'enzyme_genesymbol', 'substrate_genesymbol'},
+                'organism': {'ncbi_tax_id'},
             },
             'select_args': {
                 'genesymbols',
@@ -1845,12 +1851,6 @@ class LegacyService:
                 args['resources'] = args['databases']
 
             _log(f'[_query] - Setting up query {_misc.dict_str(args)}')
-
-            if 'ncbi_tax_id' in args.get('fields', []):
-                _log('#########')
-
-                args['fields'].remove('ncbi_tax_id')
-                args['fields'] += ['ncbi_tax_id_source', 'ncbi_tax_id_target']
 
             query = self._select(args, query_type)
             _log(f'[_query] - Post-query select call {_misc.dict_str(args)}')
