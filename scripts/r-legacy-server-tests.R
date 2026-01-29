@@ -1013,8 +1013,9 @@ SCENARIOS <- list(
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol')),
             (result$enzyme_genesymbol == 'AKT1' |
-             result$substrate_genesymbol == 'TP53') %>% all,
+             result$substrate_genesymbol == 'TP53') %>% all
         )},
         tags = c('core')
     ),
@@ -1031,6 +1032,7 @@ SCENARIOS <- list(
         ),
         check = function(result) {c( # FIXME: Failing due to not recognized arg in OmnipathR
             result %>% check_has_rows(min_rows = 1),
+            result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol')),
             (result$enzyme_genesymbol == 'AKT1') %>% all, # Fails
             (result$substrate_genesymbol == 'GSK3B') %>% all #Fails
         )},
@@ -1111,28 +1113,27 @@ SCENARIOS <- list(
         ),
         check = function(result) {c( # FIXME: second fails but not 3 and 4???
             result %>% check_has_rows(min_rows = 1),
-            result %>% check_columns_exist(c('ncbi_tax_id_enzyme', 'ncbi_tax_id_substrate')),
-            (result$ncbi_tax_id_enzyme == 10090) %>% all,
-            (result$ncbi_tax_id_substrate == 10090) %>% all,
+            result %>% check_columns_exist(c('ncbi_tax_id')),
+            (result$ncbi_tax_id == 10090) %>% all,
             !("P00533" %in% result$enzyme)
         )},
         tags = c('core')
     ),
-    # list(
-    #     id = 'enzsub_limit',
-    #     query = 'enzyme_substrate',
-    #     description = 'Test SQL LIMIT functionality.',
-    #     args = list(
-    #         modification = 'phosphorylation',
-    #         resources = 'PhosphoSite',
-    #         limit = 20
-    #     ),
-    #     check = function(result) {c(
-    #         result %>% check_has_rows(min_rows = 1),
-    #         nrow(result) <= 20
-    #     )},
-    #     tags = c('core')
-    # ),
+    list(
+        id = 'enzsub_limit',
+        query = 'enzyme_substrate',
+        description = 'Test SQL LIMIT functionality.',
+        args = list(
+            modification = 'phosphorylation',
+            resources = 'PhosphoSite',
+            limit = 20
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            nrow(result) <= 20
+        )},
+        tags = c('core')
+    ),
     list(
         id = 'enzsub_loops',
         query = 'enzyme_substrate',
@@ -1464,21 +1465,21 @@ SCENARIOS <- list(
         )},
         tags = c('core')
     ),
-#    list(
-#        id = 'intercell_limit',
-#        query = 'intercell',
-#        description = 'Test SQL LIMIT functionality.',
-#        args = list(
-#            categories = 'ligand',
-#            limit = 30
-#        ),
-#        check = function(result) {c(
-#            result %>% check_has_rows(min_rows = 1),
-#            nrow(result) <= 30,
-#            result$category %>% unique() %>% equals('ligand')
-#        )},
-#        tags = c('core')
-#    ),
+    list(
+        id = 'intercell_limit',
+        query = 'intercell',
+        description = 'Test SQL LIMIT functionality.',
+        args = list(
+            categories = 'ligand',
+            limit = 30
+        ),
+        check = function(result) {c(
+            result %>% check_has_rows(min_rows = 1),
+            nrow(result) <= 30,
+            result$category %>% unique() %>% equals('ligand')
+        )},
+        tags = c('core')
+    ),
     list(
         id = 'intercell_entity_complex',
         query = 'intercell',
