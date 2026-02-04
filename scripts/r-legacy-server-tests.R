@@ -1030,11 +1030,11 @@ SCENARIOS <- list(
             modification = 'phosphorylation',
             genesymbols = TRUE
         ),
-        check = function(result) {c( # FIXME: Failing due to not recognized arg in OmnipathR
+        check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
             result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol')),
-            (result$enzyme_genesymbol == 'AKT1') %>% all, # Fails
-            (result$substrate_genesymbol == 'GSK3B') %>% all #Fails
+            (result$enzyme_genesymbol == 'AKT1') %>% all,
+            (result$substrate_genesymbol == 'GSK3B') %>% all
         )},
         tags = c('core')
     ),
@@ -1111,7 +1111,7 @@ SCENARIOS <- list(
             modification = 'phosphorylation',
             fields = c('ncbi_tax_id')
         ),
-        check = function(result) {c( # FIXME: second fails but not 3 and 4???
+        check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
             result %>% check_columns_exist(c('ncbi_tax_id')),
             (result$ncbi_tax_id == 10090) %>% all,
@@ -1161,7 +1161,7 @@ SCENARIOS <- list(
         ),
         check = function(result) {c(
             result %>% check_has_rows(min_rows = 1),
-            (result$enzyme_genesymbol == result$substrate_genesymbol) %>% any %>% not, # Failing
+            (result$enzyme == result$substrate) %>% any %>% not,
             result %>% check_columns_exist(c('enzyme_genesymbol', 'substrate_genesymbol'))
         )},
         tags = c('core')
@@ -1218,6 +1218,8 @@ SCENARIOS <- list(
             aspect = 'functional',
             scope = 'specific'
         ),
+        # R package (we guess) injects them as part of topology so we cannot do true/true for both
+        # also if short arg, does not filter, if full, yes
         check = function(result) {c(
             result$plasma_membrane_transmembrane %>% all,
             result$plasma_membrane_peripheral %>% all,
