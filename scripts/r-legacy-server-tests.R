@@ -528,18 +528,18 @@ SCENARIOS <- list(
         )},
         tags = c('core')
     ),
-    # list(
-    #     id = 'interactions_limit',
-    #     query = 'omnipath_interactions',
-    #     description = 'Test SQL LIMIT clause functionality.',
-    #     args = list(
-    #         limit = 25
-    #     ),
-    #     check = function(result) {c(
-    #         nrow(result) == 25
-    #     )},
-    #     tags = c('core')
-    # ),
+    list(
+        id = 'interactions_limit',
+        query = 'omnipath_interactions',
+        description = 'Test SQL LIMIT clause functionality.',
+        args = list(
+            limit = 25
+        ),
+        check = function(result) {c(
+            nrow(result) == 25
+        )},
+        tags = c('core')
+    ),
     list(
         id = 'interactions_fields_comprehensive',
         query = 'omnipath_interactions',
@@ -1390,7 +1390,7 @@ SCENARIOS <- list(
             (result$category == 'ligand') %>% all
         )},
         tags = c('core')
-    ),
+    ), # FIXME: R package fails when empty table in intercell only
 #    list(
 #        id = 'intercell_mutually_exclusive_args',
 #        query = 'intercell',

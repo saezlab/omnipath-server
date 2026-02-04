@@ -179,8 +179,9 @@ resources_mod = None
 #
 # ref = {
 #     'interactions': [Arg(), Arg()],
-#     'interactions': [Arg(), Arg()],
-#     'interactions': [Arg(), Arg()],
+#     'enzsub': [Arg(), Arg()],
+#     'intercell': [Arg(), Arg()],
+
 # }
 
 class LegacyService:
