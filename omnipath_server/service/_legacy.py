@@ -350,6 +350,13 @@ class LegacyService:
                 'scope',
                 'parent',
             },
+            'arg_synonyms': {
+                'secreted': ['sec'],
+                'plasma_membrane_transmembrane': ['pmtm'],
+                'plasma_membrane_peripheral': ['pmp'],
+                'transmitter': ['trans'],
+                'receiver': ['rec'],
+            },
             'where': {
                 'resources': 'database',
                 'entity_types': 'entity_type',
@@ -619,7 +626,7 @@ class LegacyService:
                 'consensus_score',
                 'transmitter',
                 'receiver',
-                'seccreted',
+                'secreted',
                 'plasma_membrane_transmembrane',
                 'plasma_membrane_peripheral',
                 'topology',
