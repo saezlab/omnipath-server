@@ -1218,8 +1218,6 @@ SCENARIOS <- list(
             aspect = 'functional',
             scope = 'specific'
         ),
-        # R package (we guess) injects them as part of topology so we cannot do true/true for both
-        # also if short arg, does not filter, if full, yes
         check = function(result) {c(
             result$plasma_membrane_transmembrane %>% all,
             result$plasma_membrane_peripheral %>% all,
@@ -1390,21 +1388,21 @@ SCENARIOS <- list(
             (result$category == 'ligand') %>% all
         )},
         tags = c('core')
-    ), # FIXME: R package fails when empty table in intercell only
-#    list(
-#        id = 'intercell_mutually_exclusive_args',
-#        query = 'intercell',
-#        description = 'Test conflicting arguments should return 0 results.',
-#        args = list(
-#            scope = 'generic',
-#            aspect = 'locational',
-#            categories = 'ligand'
-#        ),
-#        check = function(result) {c(
-#            result %>% nrow %>% equals(0)
-#        )},
-#        tags = c('core')
-#    ),
+    ),
+    list(
+        id = 'intercell_mutually_exclusive_args',
+        query = 'intercell',
+        description = 'Test conflicting arguments should return 0 results.',
+        args = list(
+            scope = 'generic',
+            aspect = 'locational',
+            categories = 'ligand'
+        ),
+        check = function(result) {c(
+            result %>% nrow %>% equals(0)
+        )},
+        tags = c('core')
+    ),
     list(
         id = 'intercell_specific_scope',
         query = 'intercell',
