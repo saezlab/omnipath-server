@@ -2017,6 +2017,8 @@ class LegacyService:
             result,
             names,
             format = format,
+            query_type = query_type,
+            colnames = colnames,
             postformat=postformat if query else None,
             precontent=precontent,
             postcontent=postcontent,
@@ -2029,6 +2031,8 @@ class LegacyService:
         result,
         names,
         format: FORMATS | None = None,
+        query_type: str | None = None,
+        colnames: list[str] | None = None,
         postformat: Callable[[str], str] | None = None,
         precontent: Iterable[str] | None = None,
         postcontent: Iterable[str] | None = None,
@@ -2040,7 +2044,13 @@ class LegacyService:
 
         _ = kwargs.pop('path', None)
 
-        result = self._format(result, format = format, names = names)
+        result = self._format(
+            result,
+            format = format,
+            names = names,
+            query_type = query_type,
+            colnames = colnames,
+        )
 
         if callable(postformat):
 
@@ -2057,6 +2067,8 @@ class LegacyService:
             result: GEN_OF_TUPLES,
             format: FORMATS = 'raw',
             names: list[str] | None = None,
+            query_type: str | None = None,
+            colnames: list[str] | None = None,
     ) -> GEN_OF_TUPLES:
         """
         Formats the result as Python generator, TSV or JSON.
@@ -2109,53 +2121,90 @@ class LegacyService:
 
         else:
 
-            formatter = self._table_formatter
+            formatters = self._get_field_formatters(query_type, colnames)
 
             if names:
 
-                yield formatter(names)
+                yield self._table_formatter(names, formatters = formatters)
 
             for rec in result:
 
-                yield formatter(rec)
+                yield self._table_formatter(rec, formatters = formatters)
 
 
     @classmethod
-    def _table_formatter(cls, rec: tuple) -> str:
+    def _table_formatter(
+            cls,
+            rec: tuple,
+            formatters: Iterable[Callable],
+    ) -> str:
         """
-        Fortmats result record as a tab-separated entry.
+        Formats result record as a tab-separated entry.
 
         Args:
             rec:
                 A record entry as a tuple.
+            formatters:
+                Field formatters.
 
         Returns:
             The entry formatted as tab-separated text.
         """
+    
+        return '\t'.join(
+            f(v) for f, v in zip(formatters, rec, strict = False)
+        ) + '\n'
 
-        return '\t'.join(cls._table_field_formatter(f) for f in rec) + '\n'
 
-
-    @staticmethod
-    def _table_field_formatter(field: Any) -> str:
+    @classmethod
+    def _get_field_formatters(
+            cls,
+            query_type: str | None,
+            colnames: list[str] | None,
+    ) -> list[Callable] | None:
         """
-        Formats an individual field from a record.
-
-        Args:
-            field:
-                The field to be formatted.
-
-        Returns:
-            The formatted field.
+        Pre-calculates field formatters for a given query type and columns.
         """
 
-        return (
-            json.dumps(field)
-                if isinstance(field, dict) else
-            ';'.join(field)
-                if isinstance(field, _const.LIST_LIKE) else
-            str(field)
-        )
+        if not colnames:
+
+            return None
+
+        def get_formatter(name):
+
+            sep = cls._get_array_sep(query_type, name)
+
+            def formatter(field):
+
+                if isinstance(field, _const.LIST_LIKE):
+
+                    return sep.join(str(f) for f in field)
+
+                return (
+                    json.dumps(field)
+                        if isinstance(field, dict) else
+                    str(field)
+                )
+
+            return formatter
+
+        return [get_formatter(name) for name in colnames]
+
+
+    @classmethod
+    def _get_array_sep(cls, query_type: str | None, name: str | None) -> str:
+        """
+        Returns the separator for an array field.
+        """
+
+        if not query_type or not name:
+
+            return ';'
+
+        schema_name = query_type.capitalize().replace('_', '')
+        schema = getattr(_schema, schema_name, None)
+
+        return getattr(schema, '_array_sep', {}).get(name, ';')
 
 
     def _interactions_defaults(self, args: dict) -> dict:
