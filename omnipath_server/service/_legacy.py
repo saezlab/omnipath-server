@@ -2088,7 +2088,7 @@ class LegacyService:
 
         formatter = lambda x: x
 
-        if format == 'raw':
+        if format == 'raw': # Returns a Python object
 
             if names:
 
@@ -2099,7 +2099,7 @@ class LegacyService:
 
                 yield formatter(rec)
 
-        elif format == 'json':
+        elif format == 'json': # Returns a JSON
 
             if names:
 
@@ -2115,11 +2115,11 @@ class LegacyService:
 
                 yield json.dumps(formatter(rec))
 
-        elif format == 'query':
+        elif format == 'query': # Returns the SQL query text
 
             yield from result
 
-        else:
+        else: # Returns as plain text (TSV/CSV)
 
             formatters = self._get_field_formatters(query_type, colnames)
 
@@ -2150,7 +2150,7 @@ class LegacyService:
         Returns:
             The entry formatted as tab-separated text.
         """
-    
+
         return '\t'.join(
             f(v) for f, v in zip(formatters, rec, strict = False)
         ) + '\n'
