@@ -48,6 +48,7 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
 
     _log('Creating new legacy server...')
     legacy_server = Sanic('LegacyServer')
+    legacy_server.config.FALLBACK_ERROR_FORMAT = "text"
     legacy_server.state.args = {
         'con': con,
         'load_db': load_db,
