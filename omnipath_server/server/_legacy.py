@@ -14,6 +14,7 @@
 #
 
 from collections.abc import Generator
+import inspect
 
 from sanic import Sanic, Request, response
 from pypath_common import _misc
@@ -149,13 +150,16 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
                 (lambda x, last: x.rstrip('\n') if last else x)
             )
 
+            param = inspect.signature(endpoint).parameters
+            args = {a: v for a, v in request.args.items() if a in param}
+
             lines = endpoint(
                 postformat = postformat,
                 precontent = precontent,
                 postcontent = postcontent,
                 path = path,
                 format = format,
-                **request.args,
+                **args,
             )
 
             await stream(request, lines, json_format or resources)
