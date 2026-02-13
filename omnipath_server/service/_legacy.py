@@ -2121,6 +2121,8 @@ class LegacyService:
 
         else: # Returns as plain text (TSV/CSV)
 
+            colnames = colnames or names
+
             formatters = self._get_field_formatters(query_type, colnames)
 
             if names:
