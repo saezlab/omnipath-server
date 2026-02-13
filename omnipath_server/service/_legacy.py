@@ -2285,6 +2285,7 @@ class LegacyService:
             evidences: bool = False,
             genesymbols: bool = False,
             extra_attrs: bool = False,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
@@ -2485,6 +2486,7 @@ class LegacyService:
             organisms: Collection[int | str] | None = None,
             loops: bool = False,
             genesymbols: bool = False,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
@@ -2694,6 +2696,7 @@ class LegacyService:
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         '''
@@ -2817,6 +2820,7 @@ class LegacyService:
             format: FORMATS | None = None,
             topology: str | list[str] | None = None,
             causality: str | list[str] | None = None,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         '''
@@ -2956,6 +2960,7 @@ class LegacyService:
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
