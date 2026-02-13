@@ -2176,13 +2176,11 @@ class LegacyService:
 
             def formatter(field):
 
-                if isinstance(field, _const.LIST_LIKE):
-
-                    return sep.join(str(f) for f in field)
-
                 return (
                     json.dumps(field)
                         if isinstance(field, dict) else
+                    sep.join(str(f) for f in field)
+                        if isinstance(field, _const.LIST_LIKE) else
                     str(field)
                 )
 
