@@ -153,6 +153,7 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
 
             param = inspect.signature(endpoint).parameters
             args = {a: v for a, v in request.args.items() if a in param}
+            bad_args = {a: v for a, v in request.args.items() if a not in param}
 
             lines = endpoint(
                 postformat = postformat,
@@ -160,6 +161,7 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
                 postcontent = postcontent,
                 path = path,
                 format = format,
+                bad_args=bad_args,
                 **args,
             )
 
