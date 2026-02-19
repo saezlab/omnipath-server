@@ -2754,6 +2754,8 @@ class LegacyService:
         source, label, value triplets).
         """
 
+        kwargs.pop('bad_args', None)
+
         args = locals()
         args = self._clean_args(args, 'annotations', new_query=False)
         format = self._ensure_simple(format)
@@ -2925,6 +2927,8 @@ class LegacyService:
         category, parent, database triplets).
         """
 
+        kwargs.pop('bad_args', None)
+
         args = locals()
         args = self._clean_args(args, 'intercell', new_query=False)
         format = self._ensure_simple(format)
@@ -3004,6 +3008,8 @@ class LegacyService:
             format: FORMATS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
+
+        kwargs.pop('bad_args', None)
 
         datasets = {
             self._query_type(dataset)
