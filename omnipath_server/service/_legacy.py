@@ -3043,6 +3043,20 @@ class LegacyService:
         yield from result
 
 
+    def about(self):
+
+        import omnipath_server
+        version = omnipath_server.__version__
+        query_types = ', '.join('QUERY_TYPES.__args__)
+
+
+        return (
+            f'Hello, this is the omnipath-server {version}. Welcome!
+            'For the descriptions of pathway resources go to `/info`.
+            f'Available query types: {query_types}'
+        )
+
+
     @staticmethod
     def _query_license_level(license: LICENSE_LEVELS | None = None):
 
