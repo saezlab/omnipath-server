@@ -3051,12 +3051,12 @@ class LegacyService:
 
         import omnipath_server
         version = omnipath_server.__version__
-        query_types = ', '.join('QUERY_TYPES.__args__)
+        query_types = ', '.join(QUERY_TYPES.__args__)
 
 
         return (
-            f'Hello, this is the omnipath-server {version}. Welcome!
-            'For the descriptions of pathway resources go to `/info`.
+            f'Hello, this is the omnipath-server {version}. Welcome!\n'
+            'For the descriptions of pathway resources go to `/info`\n'
             f'Available query types: {query_types}'
         )
 
