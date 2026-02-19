@@ -1432,6 +1432,8 @@ class LegacyService:
             TODO.
         """
 
+        kwargs.pop('bad_args', None)
+
         format = self._ensure_simple(format)
         query = query_type or kwargs.pop('path', [])[1:]
 
@@ -3043,7 +3045,9 @@ class LegacyService:
         yield from result
 
 
-    def about(self):
+    def about(self, **kwargs):
+
+        kwargs.pop('bad_args', None)
 
         import omnipath_server
         version = omnipath_server.__version__
