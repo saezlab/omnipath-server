@@ -1333,7 +1333,12 @@ class LegacyService:
         return args
 
 
-    def _check_args(self, args: dict, query_type: str):
+    def _check_args(
+            self,
+            args: dict,
+            query_type: str,
+            bad_args: dict | None = None
+    ):
         """
         Checks the arguments of a given query and ensures consistency and data
         types as well as raise a warning if a wrong argument and/or value is
@@ -1381,6 +1386,10 @@ class LegacyService:
             else:
 
                 result.append(' ==> Unknown argument: `%s`' % arg)
+
+        for arg in bad_args.keys():
+
+            result.append(' ==> Unknown argument: `%s`' % arg)
 
         args['header'] = self._parse_bool_arg(args.get('header', True))
 
@@ -1830,6 +1839,7 @@ class LegacyService:
             args: dict,
             query_type: str,
             extra_where: Iterable | None = None,
+            bad_args: dict | None = None,
     ) -> tuple[Query | None, str | None]:
         """
         Generates the SQL query based on the request arguments.
@@ -1849,7 +1859,7 @@ class LegacyService:
         """
 
         query = None
-        bad_req = self._check_args(args, query_type)
+        bad_req = self._check_args(args, query_type, bad_args)
 
         if not bad_req:
 
@@ -1967,9 +1977,10 @@ class LegacyService:
             args,
             query_type,
             extra_where=extra_where,
+            bad_args=kwargs.pop('bad_args', None),
         )
         format = format or args.pop('format', None) or 'tsv'
-        colnames = ['no_column_names']
+        colnames = []
 
         _log(f'[_request] - Args: {_misc.dict_str(args)}')
 
@@ -2168,10 +2179,6 @@ class LegacyService:
         Pre-calculates field formatters for a given query type and columns.
         """
 
-        if not colnames:
-
-            return None
-
         def get_formatter(name):
 
             sep = cls._get_array_sep(query_type, name)
@@ -2188,7 +2195,7 @@ class LegacyService:
 
             return formatter
 
-        return [get_formatter(name) for name in colnames]
+        return [get_formatter(name) for name in colnames or (None, )]
 
 
     @classmethod
@@ -2278,6 +2285,7 @@ class LegacyService:
             evidences: bool = False,
             genesymbols: bool = False,
             extra_attrs: bool = False,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
@@ -2478,6 +2486,7 @@ class LegacyService:
             organisms: Collection[int | str] | None = None,
             loops: bool = False,
             genesymbols: bool = False,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
@@ -2687,6 +2696,7 @@ class LegacyService:
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         '''
@@ -2810,6 +2820,7 @@ class LegacyService:
             format: FORMATS | None = None,
             topology: str | list[str] | None = None,
             causality: str | list[str] | None = None,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         '''
@@ -2949,6 +2960,7 @@ class LegacyService:
             fields: list[str] | None = None,
             limit: int | None = None,
             format: FORMATS | None = None,
+            license: LICENSE_LEVELS | None = None,
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
         """
