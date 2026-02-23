@@ -1139,9 +1139,11 @@ class LegacyService:
 
         syn2arg = self.query_param[query_type].get('syn2arg', {})
 
-        argnames = set(itertools.chain(
-            syn2arg.keys(), syn2arg.values(), args.keys()
-        ))
+        argnames = set(
+            itertools.chain(
+                syn2arg.keys(), syn2arg.values(), args.keys(),
+            ),
+        )
 
         args = {
             syn2arg.get(a, a): v
@@ -1337,7 +1339,7 @@ class LegacyService:
             self,
             args: dict,
             query_type: str,
-            bad_args: dict | None = None
+            bad_args: dict | None = None,
     ):
         """
         Checks the arguments of a given query and ensures consistency and data
@@ -1431,6 +1433,8 @@ class LegacyService:
         Args:
             TODO.
         """
+
+        kwargs.pop('bad_args', None)
 
         format = self._ensure_simple(format)
         query = query_type or kwargs.pop('path', [])[1:]
@@ -2195,7 +2199,7 @@ class LegacyService:
 
             return formatter
 
-        return [get_formatter(name) for name in colnames or (None, )]
+        return [get_formatter(name) for name in colnames or (None,)]
 
 
     @classmethod
@@ -2754,6 +2758,8 @@ class LegacyService:
         source, label, value triplets).
         """
 
+        kwargs.pop('bad_args', None)
+
         args = locals()
         args = self._clean_args(args, 'annotations', new_query=False)
         format = self._ensure_simple(format)
@@ -2925,6 +2931,8 @@ class LegacyService:
         category, parent, database triplets).
         """
 
+        kwargs.pop('bad_args', None)
+
         args = locals()
         args = self._clean_args(args, 'intercell', new_query=False)
         format = self._ensure_simple(format)
@@ -3005,6 +3013,8 @@ class LegacyService:
             **kwargs,
     ) -> Generator[tuple | str, None, None]:
 
+        kwargs.pop('bad_args', None)
+
         datasets = {
             self._query_type(dataset)
             for dataset in _misc.to_list(datasets)
@@ -3037,7 +3047,9 @@ class LegacyService:
         yield from result
 
 
-    def about(self):
+    def about(self, **kwargs):
+
+        kwargs.pop('bad_args', None)
 
         import omnipath_server
         version = omnipath_server.__version__
