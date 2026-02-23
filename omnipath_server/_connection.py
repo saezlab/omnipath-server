@@ -190,7 +190,9 @@ class Connection:
 
         with self.connect() as con:
 
-            result = con.execute(query)
+            result = con.execution_options(
+                stream_results = True,
+            ).execute(query)
 
             while chunk := result.fetchmany(self.chunk_size):
 

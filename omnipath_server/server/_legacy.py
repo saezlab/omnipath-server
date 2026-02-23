@@ -14,6 +14,7 @@
 #
 
 from collections.abc import Generator
+import asyncio
 import inspect
 
 from sanic import Sanic, Request, response
@@ -85,6 +86,27 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
         app.ctx.service = LegacyService(con = con, **kwargs)
 
 
+    def _next_batch(lines: Generator, batch_size: int = 1000) -> list:
+        """
+        Consume up to `batch_size` items from a synchronous generator.
+
+        This function is meant to be called in a thread executor so that
+        blocking I/O inside the generator (e.g. database fetches) does not
+        block the async event loop.
+        """
+
+        batch = []
+
+        for _ in range(batch_size):
+
+            try:
+                batch.append(next(lines))
+            except StopIteration:
+                break
+
+        return batch
+
+
     async def stream(
             request: Request,
             lines: Generator,
@@ -106,10 +128,18 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
         content_type = 'application/json' if json_format else 'text/plain'
 
         _response = await request.respond(content_type = content_type)
+        loop = asyncio.get_event_loop()
+        it = iter(lines)
 
-        for line in lines:
+        while True:
 
-            await _response.send(line)
+            batch = await loop.run_in_executor(None, _next_batch, it)
+
+            if not batch:
+                break
+
+            for line in batch:
+                await _response.send(line)
 
         await _response.eof()
 
@@ -161,7 +191,7 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
                 postcontent = postcontent,
                 path = path,
                 format = format,
-                bad_args=bad_args,
+                bad_args = bad_args,
                 **args,
             )
 
