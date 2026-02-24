@@ -86,7 +86,7 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
         app.ctx.service = LegacyService(con = con, **kwargs)
 
 
-    def _next_batch(lines: Generator, batch_size: int = 1000) -> list:
+    def _next_batch(lines: Generator, batch_size: int = 300000) -> list:
         """
         Consume up to `batch_size` items from a synchronous generator.
 

@@ -45,7 +45,7 @@ class Connection:
     def __init__(
             self,
             param: str | dict | None = None,
-            chunk_size: int = 1000,
+            chunk_size: int = 300000,
             **kwargs,
     ):
         """
