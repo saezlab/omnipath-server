@@ -182,8 +182,12 @@ def create_server(con: dict, load_db: bool | dict = False, **kwargs) -> Sanic:
             )
 
             param = inspect.signature(endpoint).parameters
-            args = {a: v for a, v in request.args.items() if a in param}
-            bad_args = {a: v for a, v in request.args.items() if a not in param}
+            req_args = legacy_server.ctx.service.resolve_arg_synonyms(
+                dict(request.args),
+                path[0],
+            )
+            args = {a: v for a, v in req_args.items() if a in param}
+            bad_args = {a: v for a, v in req_args.items() if a not in param}
 
             lines = endpoint(
                 postformat = postformat,
