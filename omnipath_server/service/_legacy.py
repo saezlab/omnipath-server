@@ -1515,7 +1515,9 @@ class LegacyService:
             raise ValueError('Query type not specified.')
 
         query_type = self._query_type(query[0])
-        query_dsets = query[1].lower().split(',') if len(query) > 1 else None
+        query_dsets = query[1] if len(query) > 1 else None
+        # Processing - can be an empty string if URL ends with "/"
+        query_dsets = query_dsets.lower().split(',') if query_dsets else None
 
         # Ensuring valid query type
         if query_type in QUERY_TYPES.__args__:
