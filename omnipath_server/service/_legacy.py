@@ -206,6 +206,7 @@ class LegacyService:
             },
             'arg_synonyms': {
                 'organism': ['ncbi_tax_id'],
+                'resources': ['databases'],
             },
             'select': {
                 'genesymbols': {'source_genesymbol', 'target_genesymbol'},
@@ -285,6 +286,9 @@ class LegacyService:
                 'resources',
                 'proteins',
             },
+            'arg_synonyms': {
+                'resources': ['databases'],
+            },
             'where': {
                 'resources': 'sources',
                 'proteins': 'components',
@@ -308,6 +312,7 @@ class LegacyService:
             'arg_synonyms': {
                 'modification': ['types', 'modifications'],
                 'organism': ['ncbi_tax_id'],
+                'resources': ['databases'],
             },
             'select': {
                 'genesymbols': {'enzyme_genesymbol', 'substrate_genesymbol'},
@@ -356,6 +361,7 @@ class LegacyService:
                 'plasma_membrane_peripheral': ['pmp'],
                 'transmitter': ['trans'],
                 'receiver': ['rec'],
+                'resources': ['databases'],
             },
             'where': {
                 'resources': 'database',
@@ -394,6 +400,9 @@ class LegacyService:
                 'resources',
                 'entity_types',
                 'fields',
+            },
+            'arg_synonyms': {
+                'resources': ['databases'],
             },
             'where': {
                 'resources': 'source',
@@ -1139,9 +1148,11 @@ class LegacyService:
 
         syn2arg = self.query_param[query_type].get('syn2arg', {})
 
-        argnames = set(itertools.chain(
-            syn2arg.keys(), syn2arg.values(), args.keys()
-        ))
+        argnames = set(
+            itertools.chain(
+                syn2arg.keys(), syn2arg.values(), args.keys(),
+            ),
+        )
 
         args = {
             syn2arg.get(a, a): v
@@ -1150,6 +1161,34 @@ class LegacyService:
         }
 
         return args, kwargs
+
+
+    def resolve_arg_synonyms(
+            self,
+            args: dict,
+            query_type: str,
+    ) -> dict:
+        """
+        Resolves argument synonyms for a given query type.
+
+        Translates synonym argument names (e.g. ``databases``) to their
+        canonical form (e.g. ``resources``) so that the server can recognize
+        them before dispatching to the endpoint method.
+
+        Args:
+            args:
+                The request arguments (name-value pairs).
+            query_type:
+                The query type (e.g. ``'annotations'``, ``'interactions'``).
+
+        Returns:
+            The arguments with synonym names replaced by canonical names.
+        """
+
+        query_type = self._query_type(query_type)
+        syn2arg = self.query_param.get(query_type, {}).get('syn2arg', {})
+
+        return {syn2arg.get(k, k): v for k, v in args.items()}
 
 
     def _clean_args(
@@ -1337,7 +1376,7 @@ class LegacyService:
             self,
             args: dict,
             query_type: str,
-            bad_args: dict | None = None
+            bad_args: dict | None = None,
     ):
         """
         Checks the arguments of a given query and ensures consistency and data
@@ -1576,6 +1615,27 @@ class LegacyService:
                 if query_type in res_info['queries']
             }
             result[resource_col] = resources
+
+            # The resource list is set under the DB column name (e.g.
+            # 'source' for annotations); propagate it to the user-facing
+            # argument name ('resources') and its synonyms ('databases')
+            if 'resources' in result and result['resources'] is None:
+
+                result['resources'] = resources
+
+            arg_synonyms = self.query_param.get(
+                query_type, {},
+            ).get('arg_synonyms', {})
+
+            for canonical, syns in arg_synonyms.items():
+
+                if canonical in result and result[canonical] is not None:
+
+                    for syn in syns:
+
+                        if syn in result and result[syn] is None:
+
+                            result[syn] = result[canonical]
 
             if query_param is not None and query_param in result:
 
@@ -1922,11 +1982,6 @@ class LegacyService:
 
         if not bad_req:
 
-            # TODO: introduce systematic solution for synonyms
-            if 'databases' in args:
-
-                args['resources'] = args['databases']
-
             _log(f'[_query] - Setting up query {_misc.dict_str(args)}')
 
             query = self._select(args, query_type)
@@ -2254,7 +2309,7 @@ class LegacyService:
 
             return formatter
 
-        return [get_formatter(name) for name in colnames or (None, )]
+        return [get_formatter(name) for name in colnames or (None,)]
 
 
     @classmethod
@@ -3110,10 +3165,9 @@ class LegacyService:
         version = omnipath_server.__version__
         query_types = ', '.join(QUERY_TYPES.__args__)
 
-
         return (
-            f'Hello, this is the omnipath-server {version}. Welcome!\n'
-            'For the descriptions of pathway resources go to `/info`\n'
+            f'Hello, this is the omnipath-server {version}. Welcome! '
+            'For the descriptions of pathway resources go to `/info`. '
             f'Available query types: {query_types}'
         )
 

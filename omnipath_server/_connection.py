@@ -45,7 +45,7 @@ class Connection:
     def __init__(
             self,
             param: str | dict | None = None,
-            chunk_size: int = 1000,
+            chunk_size: int = 300000,
             **kwargs,
     ):
         """
@@ -190,7 +190,9 @@ class Connection:
 
         with self.connect() as con:
 
-            result = con.execute(query)
+            result = con.execution_options(
+                stream_results = True,
+            ).execute(query)
 
             while chunk := result.fetchmany(self.chunk_size):
 
