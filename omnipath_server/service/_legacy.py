@@ -207,6 +207,7 @@ class LegacyService:
             'arg_synonyms': {
                 'organism': ['ncbi_tax_id'],
                 'resources': ['databases'],
+                'dorothea_levels': ['tfregulons_levels'],
             },
             'select': {
                 'genesymbols': {'source_genesymbol', 'target_genesymbol'},
