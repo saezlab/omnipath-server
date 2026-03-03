@@ -2690,8 +2690,9 @@ class LegacyService:
         )
 
 
-    # Synonym
+    # Synonyms
     enz_sub = enzsub
+    ptms = enzsub
 
 
     def _query_sqla(self, query_type: QUERY_TYPES, **kwargs) -> Query:
