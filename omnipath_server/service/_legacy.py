@@ -1352,6 +1352,7 @@ class LegacyService:
         """
 
         result = []
+        bad_args = bad_args or dict()
 
         ref = (
             self.args_reference['resources']
