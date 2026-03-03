@@ -1391,6 +1391,7 @@ class LegacyService:
         """
 
         result = []
+        bad_args = bad_args or dict()
 
         ref = (
             self.args_reference['resources']
@@ -1458,6 +1459,119 @@ class LegacyService:
         )
 
 
+    def _dataset_sources(self, query_type: str | None = None):
+        """
+        Provides a dictionary mapping each dataset to their source databases
+        """
+
+        res = dict(list(self.resources(format='raw'))[0])
+
+        # If query_type provided, filter for only those (otherwise all pass)
+        if query_type is not None:
+
+            res = {
+                k: v
+                for k, v in res.items()
+                if query_type in v['queries'].keys()
+            }
+
+        if query_type == 'interactions':
+
+            dsets = INTERACTION_DATASETS.__args__
+
+            return {
+                dset: {k for k, v in res.items() if dset in v['datasets']}
+                for dset in dsets
+            }
+
+        else:
+
+            return {'*': set(res.keys())}
+
+
+    def databases(
+            self,
+            query_type: str | None = None,
+            format: FORMATS | None = None,
+            **kwargs,
+    ):
+        """
+        Gives back the source databases of the given query.
+
+        Args:
+            TODO.
+        """
+
+        kwargs.pop('bad_args', None)
+
+        format = self._ensure_simple(format)
+        query = query_type or kwargs.pop('path', [])[1:]
+
+        query = _misc.to_list(query)
+
+        if len(query) < 1:
+
+            # TODO: Returns 500 instead of actual message
+            raise ValueError('Query type not specified.')
+
+        query_type = self._query_type(query[0])
+        query_dsets = query[1].lower().split(',') if len(query) > 1 else None
+
+        # Ensuring valid query type
+        if query_type in QUERY_TYPES.__args__:
+
+            dset_sources = self._dataset_sources(query_type)
+
+            if query_dsets is not None:
+
+                # Ensuring valid dataset names
+                if all(q in INTERACTION_DATASETS.__args__ for q in query_dsets):
+
+                    result = {k: dset_sources[k] for k in query_dsets}
+
+                else:
+
+                    invalid = [
+                        q
+                        for q in query_dsets
+                        if q not in INTERACTION_DATASETS.__args__
+                    ]
+                    result = {}
+                    result[query_type] = (
+                        f'The datasets {', '.join(invalid)} could not be found.'
+                    )
+
+            else:
+
+                result = dset_sources
+
+        else:
+
+            result = {}
+            result[query_type] = (
+                f'No databases available for'
+                f'query {query_type} or no such query available.'
+            )
+
+        result = self._dict_set_to_list(result)
+
+        fmt_value = lambda v: (
+            ';'.join(str(x) for x in v)
+                if isinstance(v, (list, set, tuple)) else
+            str(v)
+        )
+
+        yield from self._output(
+            (
+                (k, fmt_value(v))
+                for k, v in result.items()
+            ),
+            names = ['dataset', 'resources'],
+            format = format,
+            **kwargs,
+        )
+
+
     def queries(
             self,
             query_type: str | None = None,
@@ -1480,6 +1594,7 @@ class LegacyService:
 
         if len(query) < 1:
 
+            # TODO: Returns 500 instead of actual message
             raise ValueError('Query type not specified.')
 
         query_type = self._query_type(query[0])
@@ -1568,64 +1683,6 @@ class LegacyService:
             for key, val in dct.items()
         }
 
-
-    def databases(self, req):
-
-        query_type = (
-            req.postpath[1]
-                if len(req.postpath) > 1 else
-            'interactions'
-        )
-
-        query_type = self._query_type(query_type)
-
-        datasets = (
-            set(req.postpath[2].split(','))
-                if len(req.postpath) > 2 else
-            None
-        )
-
-        tbl = (
-            self.data[query_type]
-                if query_type in self.data else
-            self.data['interactions']
-        )
-
-        # filter for datasets
-        if query_type == 'interactions':
-
-            if datasets is not None:
-
-                tbl = tbl.loc[tbl.type.isin(datasets)]
-
-            else:
-
-                datasets = self._get_datasets()
-
-            result = {}
-
-            for dataset in datasets:
-
-                result[dataset] = sorted(
-                    set.union(
-                        *tbl[tbl.type == dataset].set_sources,
-                    ),
-                )
-
-        else:
-
-            result = {}
-            result['*'] = sorted(set.union(*tbl.set_sources))
-
-        if b'format' in req.args and req.args['format'][0] == b'json':
-
-            return json.dumps(result)
-
-        else:
-
-            return 'dataset\tresources\n%s' % '\n'.join(
-                '{}\t{}'.format(k, ';'.join(v)) for k, v in result.items()
-            )
 
     @functools.cache
     def _get_datasets(self):
