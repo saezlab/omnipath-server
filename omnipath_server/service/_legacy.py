@@ -432,7 +432,20 @@ class LegacyService:
         'enzsub',
         'complexes',
     }
-
+    dataset2type = {
+        'omnipath': 'post_translational',
+        'tfregulons': 'transcriptional',
+        'dorothea': 'transcriptional',
+        'collectri': 'transcriptional',
+        'tf_target': 'transcriptional',
+        'kinaseextra': 'post_translational',
+        'ligrecextra': 'post_translational',
+        'pathwayextra': 'post_translational',
+        'mirnatarget': 'post_transcriptional',
+        'tf_mirna': 'mirna_transcriptional',
+        'lncrna_mrna': 'lncrna_post_transcriptional',
+        'small_molecule': 'small_molecule_protein',
+    }
     args_reference = {
         'interactions': {
             'header': None,
@@ -1478,11 +1491,18 @@ class LegacyService:
         if query_type == 'interactions':
 
             dsets = INTERACTION_DATASETS.__args__
+            types = INTERACTION_TYPES.__args__
+            dset2type = self.dataset2type
 
-            return {
-                dset: {k for k, v in res.items() if dset in v['datasets']}
-                for dset in dsets
-            }
+            result = {t: set() for t in types}
+
+            for dset in dsets:
+
+                result[dset2type[dset]].update({
+                    k for k, v in res.items() if dset in v['datasets']
+                })
+
+            return result
 
         else:
 
