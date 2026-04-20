@@ -1674,21 +1674,27 @@ class LegacyService:
 
         result = self._dict_set_to_list(result)
 
-        fmt_value = lambda v: (
-            ';'.join(str(x) for x in v)
-                if isinstance(v, (list, set, tuple)) else
-            str(v)
-        )
+        if format == 'json':
 
-        yield from self._output(
-            (
-                (k, fmt_value(v))
-                for k, v in result.items()
-            ),
-            names = ['argument', 'values'],
-            format = format,
-            **kwargs,
-        )
+            yield json.dumps(result)
+
+        else:
+
+            fmt_value = lambda v: (
+                ';'.join(str(x) for x in v)
+                    if isinstance(v, (list, set, tuple)) else
+                str(v)
+            )
+
+            yield from self._output(
+                (
+                    (k, fmt_value(v))
+                    for k, v in result.items()
+                ),
+                names = ['argument', 'values'],
+                format = format,
+                **kwargs,
+            )
 
 
     @classmethod
