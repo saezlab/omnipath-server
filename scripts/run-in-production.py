@@ -113,6 +113,7 @@ if load_db():
     }
 
 app = _server.create_server(con = POSTGRES_ADDRESS, load_db = loader_args)
+app.config.WORKER_START_TIMEOUT = 300
 
 
 if __name__ == '__main__':
