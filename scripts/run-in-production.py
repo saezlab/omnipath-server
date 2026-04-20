@@ -32,6 +32,7 @@ SERVER_PARAM = {
     'host': '127.0.0.1',
     'port': PORT,
     'dev': False,
+    'single_process': True,
 }
 
 
