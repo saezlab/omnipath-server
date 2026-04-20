@@ -1631,20 +1631,22 @@ class LegacyService:
                 for k, v in self.args_reference[query_type].items()
             }
 
-            resource_col = self._resource_col(query_type)
-            resources = {
-                res
-                for res, res_info in self._resources_meta.items()
-                if query_type in res_info['queries']
-            }
-            result[resource_col] = resources
+            if query_type in self.data_query_types:
 
-            # The resource list is set under the DB column name (e.g.
-            # 'source' for annotations); propagate it to the user-facing
-            # argument name ('resources') and its synonyms ('databases')
-            if 'resources' in result and result['resources'] is None:
+                resource_col = self._resource_col(query_type)
+                resources = {
+                    res
+                    for res, res_info in self._resources_meta.items()
+                    if query_type in res_info['queries']
+                }
+                result[resource_col] = resources
 
-                result['resources'] = resources
+                # The resource list is set under the DB column name (e.g.
+                # 'source' for annotations); propagate it to the user-facing
+                # argument name ('resources') and its synonyms ('databases')
+                if 'resources' in result and result['resources'] is None:
+
+                    result['resources'] = resources
 
             arg_synonyms = self.query_param.get(
                 query_type, {},
