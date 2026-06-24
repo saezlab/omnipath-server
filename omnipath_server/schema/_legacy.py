@@ -109,6 +109,7 @@ class Interactions(Base):
     mirnatarget = Column(Boolean)
     dorothea = Column(Boolean)
     collectri = Column(Boolean)
+    collectri2 = Column(Boolean)
     tf_target = Column(Boolean)
     lncrna_mrna = Column(Boolean)
     tf_mirna = Column(Boolean)

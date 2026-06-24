@@ -22,6 +22,7 @@ import lzma
 import pathlib as pl
 
 from pypath_common import _misc
+from sqlalchemy import inspect as sqla_inspect
 from sqlalchemy.orm import decl_api
 from sqlalchemy.sql.base import ReadOnlyColumnCollection
 
@@ -112,11 +113,48 @@ class Loader:
         """
         Method that creates the tables as defined in the legacy schema. Note
         that this method just creates the tables and does not populate them.
+
+        Tables that already exist but whose columns no longer match the schema
+        (e.g. a newly added dataset boolean column such as `collectri2`) are
+        dropped first so they are recreated with the current columns; their
+        data is repopulated by `load()`. `create_all` alone never alters an
+        existing table.
         """
 
         _log('Creating tables in legacy database...')
+        self._sync_schema()
         _schema.Base.metadata.create_all(self.con.engine)
         _log('Finished creating tables in legacy database...')
+
+
+    def _sync_schema(self):
+        """
+        Drops any existing table whose column set differs from the ORM schema,
+        so that `create_all()` recreates it with the current columns. Used to
+        pick up schema changes (e.g. a new dataset column) on an in-place
+        update without a full manual migration.
+        """
+
+        insp = sqla_inspect(self.con.engine)
+
+        for table in _schema.Base.metadata.sorted_tables:
+
+            if not insp.has_table(table.name):
+
+                continue
+
+            db_cols = {c['name'] for c in insp.get_columns(table.name)}
+            schema_cols = {c.name for c in table.columns}
+
+            if db_cols != schema_cols:
+
+                _log(
+                    f'Table `{table.name}` differs from the schema '
+                    f'(missing: {schema_cols - db_cols or "-"}, '
+                    f'extra: {db_cols - schema_cols or "-"}); '
+                    f'dropping to recreate.',
+                )
+                table.drop(self.con.engine)
 
 
     def load(self):
