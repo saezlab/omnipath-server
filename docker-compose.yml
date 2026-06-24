@@ -1,0 +1,56 @@
+#  Postgres backend for the legacy OmniPath server (omnipath-server).
+#
+#  The legacy API loads the build's `omnipath_webservice_*.tsv[.gz]` outputs plus
+#  `licenses.tsv` into this database and serves them over HTTP. This compose
+#  brings up only the database; the Sanic app is run separately (e.g. via
+#  `scripts/run-in-production.py`, pointed at this DB).
+#
+#  All settings are overridable from a `.env` file next to this compose; the
+#  defaults below are generous so the ~2 GB interactions / annotations tables
+#  load and serve comfortably.
+#
+#    cp .env.example .env   # then edit POSTGRES_PORT / password as needed
+#    docker compose up -d
+
+services:
+  db:
+    image: postgres:16
+    container_name: ${COMPOSE_PROJECT_NAME:-omnipath-server}-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-omnipath}
+      POSTGRES_USER: ${POSTGRES_USER:-omnipath}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-omnipath123}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5486}:5432"
+    #  Docker defaults /dev/shm to 64 MB, too small for large parallel-query
+    #  shared-memory segments; bump it.
+    shm_size: ${POSTGRES_SHM_SIZE:-2gb}
+    #  Generous memory tuning for loading + serving the large interactions and
+    #  annotations tables. Override per host via .env.
+    command:
+      - postgres
+      - -c
+      - shared_buffers=${POSTGRES_SHARED_BUFFERS:-4GB}
+      - -c
+      - effective_cache_size=${POSTGRES_EFFECTIVE_CACHE_SIZE:-12GB}
+      - -c
+      - work_mem=${POSTGRES_WORK_MEM:-512MB}
+      - -c
+      - maintenance_work_mem=${POSTGRES_MAINTENANCE_WORK_MEM:-2GB}
+      - -c
+      - max_wal_size=${POSTGRES_MAX_WAL_SIZE:-8GB}
+      - -c
+      - min_wal_size=1GB
+      - -c
+      - checkpoint_timeout=15min
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-omnipath} -d ${POSTGRES_DB:-omnipath}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
