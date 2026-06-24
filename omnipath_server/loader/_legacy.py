@@ -15,6 +15,7 @@
 
 from collections.abc import Generator
 import re
+import sys
 import bz2
 import csv
 import gzip
@@ -25,6 +26,23 @@ from pypath_common import _misc
 from sqlalchemy import inspect as sqla_inspect
 from sqlalchemy.orm import decl_api
 from sqlalchemy.sql.base import ReadOnlyColumnCollection
+
+#  Some `extra_attrs`/`evidences` JSON fields exceed the default CSV field-size
+#  limit (e.g. CollecTRI2's verbose per-source evidence); raise it as high as the
+#  platform allows.
+_csv_field_limit = sys.maxsize
+
+while True:
+
+    try:
+
+        csv.field_size_limit(_csv_field_limit)
+
+        break
+
+    except OverflowError:
+
+        _csv_field_limit //= 10
 
 from .. import _log, _connection
 from ..schema import _legacy as _schema
