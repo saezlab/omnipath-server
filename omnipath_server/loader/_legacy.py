@@ -71,8 +71,15 @@ class Loader:
         '.bz2': (bz2.open, {'mode': 'rt'}),
         '.xz': (lzma.open, {'mode': 'rt'}),
     }
-    # File name regular expression
+    # File name template (table name -> file name)
     _fname = 'omnipath_webservice_%s.tsv'
+    # Tables whose export file name does not follow the template above: the
+    # enzyme-substrate table is `enzsub` in the schema but exported as `enz_sub`,
+    # and licenses are exported by the ResourceController as a bare `licenses.tsv`.
+    _fname_override = {
+        'enzsub': 'omnipath_webservice_enz_sub.tsv',
+        'licenses': 'licenses.tsv',
+    }
 
 
     def __init__(
@@ -209,7 +216,10 @@ class Loader:
         """
 
         param = self.table_param.get(tbl, {})
-        path = self.path / param.get('path', self._fname % tbl)
+        path = self.path / param.get(
+            'path',
+            self._fname_override.get(tbl, self._fname % tbl),
+        )
         schema_name = tbl.capitalize().replace('_', '')
 
         if not (schema := getattr(_schema, schema_name, None)):
