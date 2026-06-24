@@ -286,13 +286,42 @@ class TableLoader:
             self.table.__table__.drop(bind=self.con.engine, checkfirst = True)
             self.table.__table__.create(bind=self.con.engine)
 
-        cols = [f'"{col.name}"' for col in self.columns if col.name != 'id']
+        #  Insert only the columns present in BOTH the schema and the TSV header,
+        #  in schema order. This keeps the INSERT column list in sync with the
+        #  value tuples produced by `_read` (which also skips columns absent from
+        #  the file), so a TSV missing a schema column (e.g. an older export
+        #  without the `collectri2` column) loads with that column left NULL
+        #  instead of failing.
+        self._file_cols = self._file_columns()
+        cols = [
+            f'"{col.name}"'
+            for col in self.columns
+            if col.name != 'id' and col.name in self._file_cols
+        ]
         query = f'INSERT INTO {self.tablename} ({", ".join(cols)}) VALUES %s'
         _log(f'Insert query: {query}')
 
         _log(f'Inserting data into table `{self.tablename}`...')
         self.con.execute_values(query, self._read())
         _log(f'Finished inserting data into table `{self.tablename}`.')
+
+
+    def _file_columns(self) -> set[str]:
+        """
+        Column names present in the TSV header.
+        """
+
+        compr = ''
+
+        if m := re.search(r'\.(gz|bz2|xz)$', self.path.name):
+
+            compr = m.group()
+
+        opener, args = Loader._compr[compr]
+
+        with opener(self.path, **args) as fp:
+
+            return set(csv.DictReader(fp, delimiter = '\t').fieldnames or [])
 
 
 
