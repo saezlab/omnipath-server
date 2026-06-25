@@ -309,10 +309,26 @@ class TableLoader:
         on the SQL database.
         """
 
+        #  Secondary (non-PK) indexes are created AFTER the bulk insert: building
+        #  them up front would make every row insert maintain them (very slow for
+        #  the ~2M-row interactions GIN). The PK is a constraint, not in
+        #  `table.indexes`, so it is still created with the table.
+        table = self.table.__table__
+        indexes = list(table.indexes)
+
         if self.wipe:
 
-            self.table.__table__.drop(bind=self.con.engine, checkfirst = True)
-            self.table.__table__.create(bind=self.con.engine)
+            table.drop(bind=self.con.engine, checkfirst = True)
+
+            for index in indexes:
+
+                table.indexes.discard(index)
+
+            table.create(bind=self.con.engine)
+
+            for index in indexes:
+
+                table.indexes.add(index)
 
         #  Insert only the columns present in BOTH the schema and the TSV header,
         #  in schema order. This keeps the INSERT column list in sync with the
@@ -332,6 +348,18 @@ class TableLoader:
         _log(f'Inserting data into table `{self.tablename}`...')
         self.con.execute_values(query, self._read())
         _log(f'Finished inserting data into table `{self.tablename}`.')
+
+        if self.wipe and indexes:
+
+            _log(
+                f'Building {len(indexes)} index(es) on `{self.tablename}`...',
+            )
+
+            for index in indexes:
+
+                index.create(bind=self.con.engine)
+
+            _log(f'Finished building indexes on `{self.tablename}`.')
 
 
     def _file_columns(self) -> set[str]:

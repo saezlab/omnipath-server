@@ -13,7 +13,7 @@
 # https://www.gnu.org/licenses/gpl-3.0.txt
 #
 
-from sqlalchemy import ARRAY, Column, String, Boolean, Integer
+from sqlalchemy import ARRAY, Index, Column, String, Boolean, Integer
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -43,6 +43,12 @@ class Annotations(Base):
     label = Column(String)
     value = Column(String)
     record_id = Column(Integer)
+    #  The service filters annotations by protein (uniprot/genesymbol) and source.
+    __table_args__ = (
+        Index('ix_annotations_uniprot', 'uniprot'),
+        Index('ix_annotations_genesymbol', 'genesymbol'),
+        Index('ix_annotations_source', 'source'),
+    )
 
 
 class Complexes(Base):
@@ -127,6 +133,17 @@ class Interactions(Base):
     entity_type_source = Column(String)
     ncbi_tax_id_target = Column(Integer)
     entity_type_target = Column(String)
+    #  The service filters interactions by entity (uniprot or gene symbol, on
+    #  either partner) and by resource (membership in the `sources` array). The
+    #  table is ~2M rows with no index beyond the PK, so these are seq-scanned;
+    #  a GIN on `sources` and btrees on the entity columns cover the hot paths.
+    __table_args__ = (
+        Index('ix_interactions_source', 'source'),
+        Index('ix_interactions_target', 'target'),
+        Index('ix_interactions_source_genesymbol', 'source_genesymbol'),
+        Index('ix_interactions_target_genesymbol', 'target_genesymbol'),
+        Index('ix_interactions_sources', 'sources', postgresql_using = 'gin'),
+    )
 
 
 class Intercell(Base):
@@ -151,6 +168,13 @@ class Intercell(Base):
     secreted = Column(Boolean)
     plasma_membrane_transmembrane = Column(Boolean)
     plasma_membrane_peripheral = Column(Boolean)
+    #  The service filters intercell by protein (uniprot/genesymbol), category and source.
+    __table_args__ = (
+        Index('ix_intercell_uniprot', 'uniprot'),
+        Index('ix_intercell_genesymbol', 'genesymbol'),
+        Index('ix_intercell_category', 'category'),
+        Index('ix_intercell_source', 'source'),
+    )
 
 
 class Licenses(Base):
